@@ -1,0 +1,99 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use Illuminate\Http\Request;
+use App\Models\AdminsProfile;
+use App\Models\DoctorsProfile;
+use App\Models\MedicalDocument;
+use App\Models\PatientsProfile;
+use Yajra\DataTables\DataTables;
+use App\Http\Controllers\Controller;
+use Carbon\Carbon;
+
+class DashboardController extends Controller
+{
+    public function index(){
+        $today = Carbon::today();
+        $todayPatientCount = User::whereDate("created_at", $today)->where("type","Patient")->count();
+        $todayDoctorCount = User::whereDate("created_at", $today)->where("type","Doctor")->count();
+        $adminCount = User::where("type","Admin")->count();
+        $activeAdminCount = User::where("type","Admin")->where("status","active")->count();
+        $patientCount = User::where("type","Patient")->count();
+        $doctorCount = User::where("type","Doctor")->count();
+        $activeDoctorCount = User::where("type","Doctor")->where("status","active")->count();
+        $companyCount = User::where("type","Company")->count();
+        $activeCompanyCount = User::where("type","Company")->where("status","active")->count();
+        $userName = session()->get("name");
+
+        
+        return view("backend.pages.dashboard.home-page", compact("adminCount","patientCount","doctorCount","companyCount","userName","activeAdminCount",
+        "activeCompanyCount","activeDoctorCount","todayPatientCount"
+        ,"todayDoctorCount"));
+    }
+
+    public function profilePage(Request $request){
+        if(session()->get("type") == "Admin"){
+            $userID = $request->session()->get("id");
+            $data = AdminsProfile::where("user_id", $userID)->with("user")->first();
+            return view("backend.pages.dashboard.profile-page", compact("data"));
+        }
+        elseif(session()->get("type") == "Doctor"){
+            $userID = $request->session()->get("id");
+            $data = DoctorsProfile::where("user_id", $userID)->with("user")->first();
+            return view("backend.pages.dashboard.profile-page", compact("data"));
+        }
+        // elseif(session()->get("type") == "Company"){
+        //     $userID = $request->session()->get("id");
+        //     $data = Company::where("user_id", $userID)->with("user")->first();
+        //     return view("backend.pages.dashboard.profile-page", compact("data"));
+        // }
+        else{
+            $userID = $request->session()->get("id");
+            $data = PatientsProfile::where("user_id", $userID)->with("user")->first();
+            $medcalDocuments = MedicalDocument::where("patient_id", $userID)->get();
+            
+            return view("backend.pages.dashboard.profile-page", compact("data","medcalDocuments"));
+        }
+    }
+
+    public function profileEditPage(){
+        return view("backend.pages.dashboard.profile-edit-page");
+    }
+
+    public function userListPage(){
+        return view("backend.pages.user.user-list-page");
+    }
+
+    public function getUserList(Request $request)
+    {
+        if ($request->ajax()) {
+            $data = User::select(['id', 'name', 'email', 'phone','type', 'status']);
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('action', function($row){
+                    $editUrl = route('dasboard.user-edit', $row->id);
+                    $deleteUrl = route('dasboard.user-delete', $row->id);
+                    
+                    $btn = '<button type="button" id="editBtn" data-url="'.$editUrl.'" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editUserModal">
+                      <div>Edit</div>
+                  </button>';
+                    $btn .= '<form id="delete-form-'.$row->id.'" action="'.$deleteUrl.'" method="POST" style="display: inline;">
+                                '.csrf_field().'
+                                '.method_field('DELETE').'
+                                <button type="button" class="btn badge-danger btn-sm" onclick="confirmDelete('.$row->id.')">Delete</button>
+                             </form>';
+                    return $btn;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+    }
+
+    public function createUserPage(){
+        return view("backend.pages.user.create-user-page");
+    }
+
+    
+}
