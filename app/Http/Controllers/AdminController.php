@@ -6,6 +6,7 @@ use Exception;
 use App\Models\User;
 use App\Models\Admin;
 use App\Mail\UserInfo;
+use App\Events\UserCreated;
 use Illuminate\Http\Request;
 use App\Models\AdminsProfile;
 use App\Helper\ResponseHelper;
@@ -23,63 +24,52 @@ class AdminController extends Controller
         return view("backend.pages.admin.create-admin-page");
     }
 
-    public function createAdmin(Request $request){
+
+    public function createAdmin(Request $request)
+    {
         DB::beginTransaction();
         try {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:8',
-            'phone' => 'required|string|min:10|unique:users',
-            'type' => 'required',
-        ]);
-        
-        $user = User::create([
-            'name' => $request->input('name'),
-            'email' => $request->input('email'),
-            'password' => bcrypt($request->input('password')),
-            'phone' => $request->input('phone'),
-            'type' => "Admin",
-        ]);
-        
-        $email = $user->email;
-        $count = User::where("email", "=", $email)->count();
-        if($count==1){
-             Mail::to($email)->send(new UserInfo( [
-                "name" => $user->name,
-                "email" => $user->email,
-                "password" => $request->input('password'),
-            ]));
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users',
+                'password' => 'required|min:8',
+                'phone' => 'required|string|min:10|unique:users',
+                'type' => 'required|in:Admin',  
+            ]);
+
+            $user = User::create([
+                'name' => $request->input('name'),
+                'email' => $request->input('email'),
+                'password' => bcrypt($request->input('password')),
+                'phone' => $request->input('phone'),
+                'type' => 'Admin',  
+            ]);
+
             
-            if ($user->type === 'Admin') {
-                AdminsProfile::create([
-                    'user_id' => $user->id,
-                    'phone_number' => $user->phone,
-                    'first_name' => $user->name,
-                    'last_name' => $user->name,
-                ]);
-            }else {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'something went wrong',
-                ]);
-            }
+            event(new UserCreated($user, $request->input('password')));
+
+            
+            AdminsProfile::create([
+                'user_id' => $user->id,
+                'phone_number' => $user->phone,
+                'first_name' => $user->name,
+                'last_name' => $user->name,
+            ]);
 
             DB::commit();
             return response()->json([
-                "status" => "success",
-                "message" => "Admin created successfully. An email has been sent to your email address.",
+                'status' => 'success',
+                'message' => 'Admin created successfully. An email has been sent to the provided email address.',
             ], 200);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 500);
         }
-    } catch (Exception $e) {
-        DB::rollBack();
-        return response()->json([
-            "status" => "error",
-            "message" => $e->getMessage(),
-        ], 500);
     }
-        
-    }
+
     public function adminListPage(){
         return view("backend.pages.admin.admin-list-page");
     }

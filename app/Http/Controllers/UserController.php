@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Mail\OtpSand;
 use App\Mail\UserInfo;
 use App\Helper\JWTToken;
+use App\Events\UserCreated;
 use Illuminate\Http\Request;
 use App\Models\AdminsProfile;
 use App\Helper\ResponseHelper;
@@ -46,79 +47,73 @@ class UserController extends Controller
     }
 
 
-    public function createUser(Request $request)
-    {
-        DB::beginTransaction();
-        try {
-            $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|email|unique:users',
-                'password' => 'required|min:8',
-                'phone' => 'required|string|unique:users,phone|min:10|max:11',
-                'type' => 'required',
-            ]);
+public function createUser(Request $request)
+{
+    DB::beginTransaction();
+    try {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:8',
+            'phone' => 'required|string|unique:users,phone|min:10|max:11',
+            'type' => 'required',
+        ]);
 
-            
-            
-            $user = User::create([
-                'name' => $request->input('name'),
-                'email' => $request->input('email'),
-                'password' => bcrypt($request->input('password')),
-                'phone' => $request->input('phone'),
-                'type' => $request->input('type'),
-            ]);
-            
-            $email = $user->email;
-            $count = User::where("email",  $email)->count();
-            if($count==1){
-                 Mail::to($email)->send(new UserInfo( [
-                    "name" => $user->name,
-                    "email" => $user->email,
-                    "password" => $request->input('password'),
-                ]));
+        $user = User::create([
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+            'password' => bcrypt($request->input('password')),
+            'phone' => $request->input('phone'),
+            'type' => $request->input('type'),
+        ]);
 
-                if ($user->type === 'Patient') {
-                    PatientsProfile::create([
-                        'user_id' => $user->id,
-                        'reference_by' => $request->session()->get("id"),
-                        'reference_time' => date('Y-m-d H:i:s'),
-                        'first_name' => $user->name,
-                        'phone_number' => $user->phone,
-                        'email' => $user->email,
-                    ]);
-                }else if ($user->type === 'Doctor') {
-                    DoctorsProfile::create([
-                        'user_id' => $user->id,
-                        'phone_number' => $user->phone,
-                        'first_name' => $user->name,
-                        'last_name' => $user->name,
-                    ]);
-                }else if ($user->type === 'Admin') {
-                    AdminsProfile::create([
-                        'user_id' => $user->id,
-                        'phone_number' => $user->phone,
-                        'first_name' => $user->name,
-                        'last_name' => $user->name,
-                    ]);
-                }else {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'something went wrong',
-                    ]);
-                }
-                DB::commit();
-            return response()->json([
-                    'status' => 'success',
-                    'message' => 'User created successfully & An email has been sent to the provided email address',        
-                ], 200);
+        if ($user) {
+            event(new UserCreated($user, $request->input('password')));
+
+            // Additional logic for handling profiles
+            if ($user->type === 'Patient') {
+                PatientsProfile::create([
+                    'user_id' => $user->id,
+                    'reference_by' => $request->session()->get("id"),
+                    'reference_time' => date('Y-m-d H:i:s'),
+                    'first_name' => $user->name,
+                    'phone_number' => $user->phone,
+                    'email' => $user->email,
+                ]);
+            } elseif ($user->type === 'Doctor') {
+                DoctorsProfile::create([
+                    'user_id' => $user->id,
+                    'phone_number' => $user->phone,
+                    'first_name' => $user->name,
+                    'last_name' => $user->name,
+                ]);
+            } elseif ($user->type === 'Admin') {
+                AdminsProfile::create([
+                    'user_id' => $user->id,
+                    'phone_number' => $user->phone,
+                    'first_name' => $user->name,
+                    'last_name' => $user->name,
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Something went wrong',
+                ]);
             }
+
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'User created successfully & an email has been sent to the provided email address',
+            ], 200);
         }
-        catch(Exception $e){
-            DB::rollBack();
-            Alert::toast($e->getMessage(), 'error');
-            return redirect("/dashboard/user-list")->with("error",$e->getMessage());
-        }
+    } catch (Exception $e) {
+        DB::rollBack();
+        Alert::toast($e->getMessage(), 'error');
+        return redirect("/dashboard/user-list")->with("error", $e->getMessage());
     }
+}
+
 
     public function checkPasswordStrength(Request $request){
         $password = $request->input('password');

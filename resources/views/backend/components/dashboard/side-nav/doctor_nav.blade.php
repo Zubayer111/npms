@@ -44,158 +44,222 @@
                 </p>
               </a>
             </li>
-        {{-- <li class="nav-item">
-          <a href="pages/widgets.html" class="nav-link">
-            <i class="nav-icon fas fa-th"></i>
-            <p>
-              All User List 
-            </p>
-          </a>
-        </li> --}}
-        {{-- admin --}}
-        {{-- <li class="nav-item">
-          <a href="#" class="nav-link">
-            <i class="nav-icon fas fa-th"></i>
-            <p>
-              Admin
-              <i class="right fas fa-angle-left"></i>
-            </p>
-          </a>
-          <ul class="nav nav-treeview">
-            <li class="nav-item">
-              <a href="pages/charts/chartjs.html" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
-                <p>All Admin</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="pages/charts/chartjs.html" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Active Admin</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="pages/charts/chartjs.html" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Inactive Admin</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="pages/charts/chartjs.html" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Deleted Admin</p>
-              </a>
-            </li>
-          </ul>
-        </li> --}}
-        {{-- doctor --}}
+        {{-- my patient --}}
         <li class="nav-item">
           <a href="#" class="nav-link">
-            <i class="nav-icon fas fa-th"></i>
+            <i class="nav-icon ion ion-person-add"></i>
             <p>
-              Doctor
+              My Patient
               <i class="right fas fa-angle-left"></i>
             </p>
           </a>
           <ul class="nav nav-treeview">
             <li class="nav-item">
-              <a href="{{url("/dashboard/doctor-list")}}" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
-                <p>All Doctor</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="{{url("/dashboard/active-doctor")}}" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Active Doctor</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="{{url("/dashboard/inactive-doctor")}}" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Inactive Doctor</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="{{url("/dashboard/deleted-doctor")}}" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Deleted Doctor</p>
-              </a>
-            </li>
-          </ul>
-        </li>
-        {{-- company --}}
-        {{-- <li class="nav-item">
-          <a href="#" class="nav-link">
-            <i class="nav-icon fas fa-th"></i>
-            <p>
-              Company
-              <i class="right fas fa-angle-left"></i>
-            </p>
-          </a>
-          <ul class="nav nav-treeview">
-            <li class="nav-item">
-              <a href="pages/charts/chartjs.html" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
-                <p>All Company</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="pages/charts/chartjs.html" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Active Company</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="pages/charts/chartjs.html" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Inactive Company</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="pages/charts/chartjs.html" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Deleted Company</p>
-              </a>
-            </li>
-          </ul>
-        </li> --}}
-        {{-- patient --}}
-        {{-- <li class="nav-item">
-          <a href="#" class="nav-link">
-            <i class="nav-icon fas fa-th"></i>
-            <p>
-              Patient
-              <i class="right fas fa-angle-left"></i>
-            </p>
-          </a>
-          <ul class="nav nav-treeview">
-            <li class="nav-item">
-              <a href="pages/charts/chartjs.html" class="nav-link">
+              <a href="{{url("/dashboard/patient-list")}}" class="nav-link">
                 <i class="far fa-circle nav-icon"></i>
                 <p>All Patient</p>
               </a>
             </li>
             <li class="nav-item">
-              <a href="pages/charts/chartjs.html" class="nav-link">
+              <a href="{{url("/dashboard/active-patient")}}" class="nav-link">
                 <i class="far fa-circle nav-icon"></i>
                 <p>Active Patient</p>
               </a>
             </li>
             <li class="nav-item">
-              <a href="pages/charts/chartjs.html" class="nav-link">
+              <a href="{{url("/dashboard/inactive-patient")}}" class="nav-link">
                 <i class="far fa-circle nav-icon"></i>
                 <p>Inactive Patient</p>
               </a>
             </li>
             <li class="nav-item">
-              <a href="pages/charts/chartjs.html" class="nav-link">
+              <a href="{{url("/dashboard/deleted-patient")}}" class="nav-link">
                 <i class="far fa-circle nav-icon"></i>
                 <p>Deleted Patient</p>
               </a>
             </li>
           </ul>
-        </li> --}}
+        </li>
+        {{-- Medicine Group --}}
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fa-solid fa-capsules"></i>
+            <p>
+              Medicine Group
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="{{url("/dashboard/medicine-group-list")}}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>All Medicine Group</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{url("/dashboard/active-medicine-group")}}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Active Medicine Group</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{url("/dashboard/inactive-medicine-group")}}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Inactive Medicine Group</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{url("/dashboard/deleted-medicine-group")}}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Deleted Medicine Group</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+        {{-- Medicine Type --}}
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fa-solid fa-capsules"></i>
+            <p>
+              Medicine Type
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="{{url("/dashboard/medicine-type-list")}}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>All Medicine Type</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{url("/dashboard/active-medicine-type")}}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Active Medicine Type</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{url("/dashboard/inactive-medicine-type")}}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Inactive Medicine Type</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{url("/dashboard/deleted-medicine-type")}}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Deleted Medicine Type</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+        {{-- Medicine --}}
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fa-solid fa-capsules"></i>
+            <p>
+              Medicine
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="{{url("/dashboard/medicine-list")}}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>All Medicine</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{url("/dashboard/active-medicine")}}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Active Medicine</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{url("/dashboard/inactive-medicine")}}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Inactive Medicine</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{url("/dashboard/deleted-medicine")}}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Deleted Medicine</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+        {{-- Diseases --}}
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fa-solid fa-disease"></i>
+            <p>
+              Diseases 
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="{{url("/dashboard/disease-list")}}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>All Diseases </p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{url("/dashboard/active-disease")}}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Active Diseases </p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{url("/dashboard/inactive-disease")}}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Inactive Diseases </p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{url("/dashboard/deleted-disease")}}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Deleted Diseases </p>
+              </a>
+            </li>
+          </ul>
+        </li>
+        {{-- medical test --}}
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fa-solid fa-vials"></i>
+            <p>
+              Medical Test 
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="{{url("/dashboard/medical-test-list")}}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>All Test </p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{url("/dashboard/active-medical-test")}}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Active Test </p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{url("/dashboard/inactive-medical-test")}}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Inactive Test </p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{url("/dashboard/deleted-medical-test")}}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Deleted Test </p>
+              </a>
+            </li>
+          </ul>
+        </li>
       </ul>
     </nav>
     <!-- /.sidebar-menu -->
