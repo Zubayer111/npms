@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\DoctorsProfile;
+use App\Models\PatientsProfile;
 use Illuminate\Database\Seeder;
 use Database\Seeders\AdminSeeder;
 
@@ -20,5 +22,7 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
         $this->call(AdminSeeder::class);
+        DoctorsProfile::factory()->count(50)->create();
+        PatientsProfile::factory()->count(50)->create();
     }
 }

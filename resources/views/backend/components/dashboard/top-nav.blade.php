@@ -89,32 +89,37 @@
         <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
       </div>
     </li>
-    <li class="nav-item dropdown">
-      <a class="nav-link" data-toggle="dropdown" href="#">
-        <i class="fa-solid fa-user"></i>
+    <li class="dropdown user user-menu">
+      <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown" aria-expanded="false" >
+        <img src="{{asset("assets/dist/img/user2-160x160.jpg")}}" class="user-image img-circle" alt="User Image" style="width:40px; height:40px;">
+        <span>{{ session()->get('name') }}</span>
       </a>
-      <div class="dropdown-menu dropdown-menu-right">
-          <!-- Message Start -->
-          <div class="media">
-            <div class="media-body">
-              <h3 class="dropdown-item-title">    
-              <a  href="{{route('dashboard.profile')}}" class="dropdown-item">
-                <p class="text-center">Profile</p>
-              </a>
-            </div>
+    
+      <ul class="dropdown-menu dropdown-menu-right" style="min-width: 300px;">
+        <!-- User image and info in the header -->
+        <li class="user-header bg-primary text-center">
+          <img src="{{asset("assets/dist/img/user2-160x160.jpg")}}" class="img-circle" alt="User Image" style="width:100px; height:100px;">
+          <p>
+            {{ session()->get('name') }} - {{ session()->get('type') }}
+            <small>Member since Nov. 2012</small>
+          </p>
+        </li>
+    
+    
+        <!-- User footer with buttons -->
+        <li class="user-footer">
+          <div class="float-left">
+            <a href="{{url('dashboard/profile')}}" class="btn btn-flat btn-success">Profile</a>
           </div>
-          <div class="media">
-            <div class="media-body">
-              <h3 class="dropdown-item-title">    
-              <a href="{{route('logout-user')}}" class="dropdown-item">
-                <p class="text-center">Logout</p>
-              </a>
-            </div>
+          <div class="float-right">
+            <a href="{{ route('logout-user') }}" class="btn btn-flat btn-danger">Sign out</a>
           </div>
-          <!-- Message End -->
-        </a>
-      </div>
+        </li>
+      </ul>
     </li>
+    
+    
     
   </ul>
 </nav>
+
