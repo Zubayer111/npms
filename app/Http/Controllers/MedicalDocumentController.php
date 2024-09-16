@@ -6,44 +6,60 @@ use App\Http\Requests\Patient\PatientMedicalRequest;
 use Exception;
 use Illuminate\Http\Request;
 use App\Models\MedicalDocument;
+use App\Traits\UploadTrait;
 use Yajra\DataTables\DataTables;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class MedicalDocumentController extends Controller
 {
 
+    use UploadTrait;
+
     public function index()
     {
         return view("backend.pages.patient.medicale-doc-page");
     }
 
+    // public function medicalDocumentList(Request $request)
+    // {
+    //     if (request()->ajax()) {
+    //         $query =  MedicalDocument::where('patient_id', $request->session()->get("id"))->query();
+            
+
+    //         $table = DataTables::of($query);
+
+    //         // $table->editColumn('actions', function ($row) {
+    //         //     $actionTemplate = 'dentist-office._actions_template';
+    //         //     $routeKey = 'dentist-office';
+    //         //     return view($actionTemplate, compact('row', 'routeKey'));
+    //         // });
+    //         // $table->rawColumns(['person_name', 'person_email']);
+
+    //         return $table->make(true);
+    //     }
+
+    //     return view('dashboard.medical-documents-page');
+    // }
+
+
     public function medicalDocumentList(Request $request)
-    {
-        if ($request->ajax()){
-            $data = MedicalDocument::all();
-            return DataTables::of($data)
-                ->addIndexColumn()
-                ->addColumn('action', function($row){
-                    $deleteUrl = route('dashboard.medical-documents-delete', $row->id);
-                    $viewUrl = route('dashboard.medical-documents-view', $row->id);
-                    $downlUrl = route('dashboard.medical-documents-download', $row->id);
+{
+    if ($request->ajax()) {
+        $query = MedicalDocument::where('patient_id', $request->session()->get('id'));
 
-                    $btn = '<a href="'.$downlUrl.'" class="btn badge-success btn-sm ml-2">Download</a>';
-                    $btn .= '<button type="button" id="" data-url="'.$viewUrl.'" class="viewBtn btn btn-primary btn-sm ml-1" data-toggle="modal" data-target="#documentModal">
-                                <div>View</div>
-                            </button>';
-                    $btn .= '<form id="delete-form-'.$row->id.'" action="'.$deleteUrl.'" method="POST" style="display: inline;">
-                                '.csrf_field().'
-                                '.method_field('DELETE').'
-                                <button type="button" class="btn badge-danger btn-sm" onclick="confirmDelete('.$row->id.')">Delete</button>
-                             </form>';
-
-                    return $btn;
-                })
-                ->rawColumns(['action'])
-                ->make(true);
-        }
+        return DataTables::of($query)
+            ->editColumn('created_at', function ($row) {
+                return \DateTime::createFromFormat('Y-m-d H:i:s', $row->created_at)->format('jS F, Y H:i:s A');
+            })
+            ->addColumn('actions', function ($row) {
+                return view('backend.components.dashboard.profile.tab-content.patient._medical_document_action', compact('row'));
+            })
+            ->rawColumns(['actions'])
+            ->make(true);
     }
+
+    return view('dashboard.medical-documents-page');
+}
 
     private function getAllowedExtensions($file_type)
     {
@@ -64,40 +80,29 @@ class MedicalDocumentController extends Controller
     {
         try {
             $patient_id = $request->session()->get("id");
-            $uploaded_by = $request->session()->get("id");
-            $patient_mobile = $request->session()->get("name");
-            $file_type = $request->file_type;
-            $docName = $request->input('file_name');
-    
-            if ($request->hasFile('files')) {
-                foreach ($request->file('files') as $file) {
-                    $fileExtension = $file->getClientOriginalExtension();
-                    
-                    $allowedExtensions = $this->getAllowedExtensions($file_type);
-    
-                    if (!in_array($fileExtension, $allowedExtensions)) {
-                        return redirect()->back()->with('error', 'Invalid file type for selected category');
-                    }
-                    $fileName = time() . '_' . $file->getClientOriginalName();
-    
-                    $filePath = "uploads/patient/{$patient_mobile}/{$fileName}";
-                    $file->move(public_path("uploads/patient/{$patient_mobile}"), $fileName);
-    
-                    MedicalDocument::create([
-                        'patient_id' => $patient_id,
-                        'file_type' => $fileExtension,
-                        'file_name' => $docName,
-                        'asset_path' => $filePath,
-                        'uploaded_by' => $uploaded_by,
-                    ]);
+
+            if($request->hasFile('file')) {
+                $file = $request->file('file');
+                if (in_array($file->getMimeType(), ['image/jpeg', 'image/png', 'image/gif', 'image/webp'])) {
+                    $file_path = $this->uploadImageToLocal($file, '/patient/'.$patient_id.'/files/', 'file_');
+                } else {
+                    $file_path = $this->uploadFile($file, '/patient/'.$patient_id.'/files/', 'file_');
                 }
             }
+
+            MedicalDocument::create([
+                'patient_id' => $patient_id,
+                'file_type' => $request->file_type,
+                'file_name' => $request->file_name,
+                'asset_path' => $file_path,
+                'uploaded_by' => $patient_id,
+            ]);
     
             return response()->json([
                 'status' => 'success',
                 'message' => 'Documents uploaded successfully'
             ], 200);
-        } 
+        }
         catch (Exception $e) {
             return response()->json([
                 'status' => 'error',

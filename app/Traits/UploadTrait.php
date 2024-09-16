@@ -112,4 +112,30 @@ trait UploadTrait {
         File::delete(storage_path($path));
         return true;
     }
+
+    public function uploadFile($file, $destination_path, $prefix)
+    {
+        try {
+            if (!$file instanceof \Illuminate\Http\UploadedFile) {
+                throw new \InvalidArgumentException('Invalid file input');
+            }
+
+            $final_path = 'app/public' . $destination_path;
+            self::checkDirectory($final_path);
+
+            $file_name = $prefix . uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->move(storage_path($final_path), $file_name);
+
+            $uploaded_path = '/storage' . $destination_path . $file_name;
+            return $uploaded_path;
+
+        } catch (\Exception $ex) {
+            Log::error('File upload exception: ' . $ex->getMessage(), [
+                'file' => $ex->getFile(),
+                'line' => $ex->getLine(),
+                'trace' => $ex->getTraceAsString()
+            ]);
+            return false;
+        }
+    }
 }

@@ -30,8 +30,8 @@ class PatientMedicalRequest extends FormRequest
             case 'POST':
             {
                 return [
-                    'file' => 'required|file|mimes:jpg,jpeg,png,pdf,doc,docx',
-                    'file_type' => 'required|string|in:image,pdf,doc',
+                    'file' => 'required|file|mimes:jpg,jpeg,png,pdf,doc,docx,txt',
+                    'file_type' => 'required',
                     'file_name' => 'required|string',
                 ];
             }
@@ -39,8 +39,8 @@ class PatientMedicalRequest extends FormRequest
                 {
                     return [
                         'id' => 'required|integer',
-                        'file' => 'required|file|mimes:jpg,jpeg,png,pdf,doc,docx',
-                        'file_type' => 'required|string|in:image,pdf,doc',
+                        'file' => 'required|file|mimes:jpg,jpeg,png,pdf,doc,docx,txt',
+                        'file_type' => 'required',
                         'file_name' => 'required|string',
                     ];
                 }
