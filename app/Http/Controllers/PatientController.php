@@ -13,12 +13,16 @@ use App\Models\Patients_profile;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\File;
+use App\Http\Requests\Patient\PatientProfileRequest;
 use Illuminate\Support\Facades\Mail;
 use RealRashid\SweetAlert\Facades\Alert;
+use App\Traits\UploadTrait;
+use Illuminate\Support\Facades\File;
 
 class PatientController extends Controller
 {
+    use UploadTrait;
+
     public function createPatientPage(){
         return view("backend.pages.patient.create-patient-page");
     }
@@ -188,36 +192,8 @@ class PatientController extends Controller
         ]);
     }
     
-    public function profileCreate(Request $request){
+    public function profileCreate(PatientProfileRequest $request) {
         try {
-            $request->validate([
-                'reference_time' => 'required|date',
-                'reference_note' => 'required|string',
-                'first_name' => 'required|string',
-                'last_name' => 'required|string',
-                'middle_name' => 'required|string',
-                'email' => 'required|email',
-                'gender' => 'required|in:Male,Female,Other',
-                'blood_group' => 'required|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
-                'economical_status' => 'required|in:rich,middle class,poor',
-                'smoking_status' => 'required|in:smoker,non smoker',
-                'alcohole_status' => 'required|in:alcoholic,non alcoholic',
-                'marital_status' => 'required|in:Single,Married,Divorced,Widowed,Separated,Life Partner,Unmarried',
-                'dob' => 'required|date',
-                'height' => 'required|numeric',
-                'weight' => 'required|numeric',
-                'bmi' => 'required|numeric',
-                'address_one' => 'required|string',
-                'address_two' => 'required|string',
-                'city' => 'required|string',
-                'state' => 'required|string',
-                'zipCode' => 'required|string',
-                'phone_number' => 'required|string',
-                'history' => 'required|string',
-                'employer_details' => 'required|string',
-                'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            ]);
-            
             DB::beginTransaction();
             $userId = $request->session()->get("id");
             $reference_by = User::where("id", $userId)->first();
@@ -229,7 +205,7 @@ class PatientController extends Controller
                 "reference_by" => $reference_by->id,
                 "reference_note" => $request->input("reference_note"),
                 "reference_time" => date("Y-m-d H:i:s", strtotime($request->reference_time)),
-                "title" => $title,
+                "title" => $request->input("title"),
                 "first_name" => $request->input("first_name"),
                 "last_name" => $request->input("last_name"),
                 "middle_name" => $request->input("middle_name"),
@@ -255,25 +231,17 @@ class PatientController extends Controller
                 "status" => $status,
                 "patient_type" =>"system-patient",
             ];
-            
-            if ($request->hasFile("profile_photo")) {
-                $img = $request->file("profile_photo");
-                $time = time();
-                $file_name = $img->getClientOriginalName();
-                $img_name = "{$userId}-{$time}-{$file_name}";
-                $img_url = "uploads/patient/{$img_name}";
-                $img->move(public_path('uploads/patient'), $img_name);
-                $patienData["profile_photo"] = $img_url;
-                if ($request->input("file_path")) {
-                    File::delete($request->input("file_path"));
-                }
+
+            if($request->hasFile('profile_photo')) {
+                $profile_photo = $this->uploadImageToLocal($request->profile_photo, '/patient/'.$userId.'/profile_image/', 'image_', 100, 100, $request->file_path);
+                $patienData["profile_photo"] = $profile_photo;
             }
-            
+                        
             $request->merge(["user_id" => $userId]);
             PatientsProfile::updateOrCreate(["user_id" => $userId], $patienData);
             User::where("id", $userId)->update(["name" => $patienData["first_name"], "email" => $patienData["email"]]);
             DB::commit();
-            
+            DB::log("PatientProfile Updated Successfully");
             return redirect("/dashboard/profile")->with("success", "Profile Updated Successfully");
         }
         catch (\Exception $e) {

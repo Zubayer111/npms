@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Patient\PatientMedicalRequest;
 use Exception;
 use Illuminate\Http\Request;
 use App\Models\MedicalDocument;
@@ -59,14 +60,9 @@ class MedicalDocumentController extends Controller
                 return [];
         }
     }
-    public function store(Request $request)
+    public function store(PatientMedicalRequest $request)
     {
         try {
-            $request->validate([
-                'files.*' => 'required|file|mimes:jpg,jpeg,png,pdf,doc,docx,zip',
-                'file_type' => 'required|string|in:image,pdf,doc,zip',
-            ]);
-            
             $patient_id = $request->session()->get("id");
             $uploaded_by = $request->session()->get("id");
             $patient_mobile = $request->session()->get("name");
@@ -99,7 +95,7 @@ class MedicalDocumentController extends Controller
     
             return response()->json([
                 'status' => 'success',
-                'message' => 'Documents uploaded successfully',  
+                'message' => 'Documents uploaded successfully'
             ], 200);
         } 
         catch (Exception $e) {

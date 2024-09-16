@@ -43,7 +43,7 @@ class PatientsProfile extends Model
     ];
 
     protected $casts = [
-        'reference_time' => 'datetime', 
+        'reference_time' => 'datetime',
         'dob' => 'datetime',
     ];
     public function user()
