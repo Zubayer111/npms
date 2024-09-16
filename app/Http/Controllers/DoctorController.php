@@ -6,6 +6,7 @@ use Exception;
 use App\Models\User;
 use App\Mail\UserInfo;
 use App\Models\Doctor;
+use App\Events\UserCreated;
 use Illuminate\Http\Request;
 use App\Helper\ResponseHelper;
 use App\Models\DoctorsProfile;
@@ -50,17 +51,18 @@ class DoctorController extends Controller
         return view("backend.pages.doctor.create-doctor-page");
     }
 
-    public function createDoctor(Request $request){
-        DB::beginTransaction();
-        try {
+public function createDoctor(Request $request)
+{
+    DB::beginTransaction();
+    try {
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:8',
             'phone' => 'required|string|min:10|unique:users',
-            'type' => 'required',
+            'type' => 'required|in:Doctor',
         ]);
-        
+
         $user = User::create([
             'name' => $request->input('name'),
             'email' => $request->input('email'),
@@ -68,46 +70,32 @@ class DoctorController extends Controller
             'phone' => $request->input('phone'),
             'type' => $request->input('type'),
         ]);
-        
-        $email = $user->email;
-        $count = User::where("email", "=", $email)->count();
-        if($count==1){
-             Mail::to($email)->send(new UserInfo( [
-                "name" => $user->name,
-                "email" => $user->email,
-                "password" => $request->input('password'),
-            ]));
-        
-            if ($user->type === 'Doctor') {
-                DoctorsProfile::create([
-                    'user_id' => $user->id,
-                    'phone_number' => $user->phone,
-                    'first_name' => $user->name,
-                    'last_name' => $user->name,
-                ]);}
-                else {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'something went wrong',
-                    ]);
-                }
 
-            DB::commit();
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Doctor created successfully & An email has been sent to the provided email address',        
-            ], 200);
+       
+        event(new UserCreated($user, $request->input('password')));
+
         
-        }
+        DoctorsProfile::create([
+            'user_id' => $user->id,
+            'phone_number' => $user->phone,
+            'first_name' => $user->name,
+            'last_name' => $user->name,
+        ]);
+
+        DB::commit();
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Doctor created successfully & An email has been sent to the provided email address',
+        ], 200);
     } catch (Exception $e) {
         DB::rollBack();
         return response()->json([
-            "status" => "error",
-            "message" => $e->getMessage(),
+            'status' => 'error',
+            'message' => $e->getMessage(),
         ], 500);
     }
+}
 
-    }
 
     public function activeDoctor(){
         return view("backend.pages.doctor.active-doctor-page");

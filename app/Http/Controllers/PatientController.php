@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Exception;
 use App\Models\User;
 use App\Mail\UserInfo;
+use App\Events\UserCreated;
 use Illuminate\Http\Request;
 use App\Helper\ResponseHelper;
 use App\Models\PatientsProfile;
@@ -21,7 +22,9 @@ class PatientController extends Controller
     public function createPatientPage(){
         return view("backend.pages.patient.create-patient-page");
     }
-    public function createPatient(Request $request){
+
+    public function createPatient(Request $request)
+    {
         DB::beginTransaction();
         try {
             $request->validate([
@@ -29,55 +32,45 @@ class PatientController extends Controller
                 'email' => 'required|email|unique:users',
                 'password' => 'required|min:8',
                 'phone' => 'required|string|min:10|unique:users',
-                'type' => 'required',
+                'type' => 'required|in:Patient',
             ]);
-            
+
+            // Create the user
             $user = User::create([
                 'name' => $request->input('name'),
                 'email' => $request->input('email'),
                 'password' => bcrypt($request->input('password')),
                 'phone' => $request->input('phone'),
-                'type' => $request->input('type'),
+                'type' => 'Patient', 
             ]);
+
             
-            $email = $user->email;
-            $count = User::where("email", "=", $email)->count();
-            if($count==1){
-                 Mail::to($email)->send(new UserInfo( [
-                    "name" => $user->name,
-                    "email" => $user->email,
-                    "password" => $request->input('password'),
-                ]));
-                if ($user->type === 'Patient') {
-                    PatientsProfile::create([
-                        'user_id' => $user->id,
-                        'reference_by' => $request->session()->get("id"),
-                        'reference_time' => date('Y-m-d H:i:s'),
-                        'first_name' => $user->name,
-                        'phone_number' => $user->phone,
-                        'email' => $user->email,
-                    ]);
-                }else {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'something went wrong',
-                    ]);
-                }
-                DB::commit();
-                return response()->json([
-                    'status' => 'success',
-                    'message' => 'Patient created successfully. An email has been sent to your email address.'
-                ]);
-                }
-        }
-        catch(Exception $e){
+            event(new UserCreated($user, $request->input('password')));
+
+            PatientsProfile::create([
+                'user_id' => $user->id,
+                'reference_by' => $request->session()->get("id"),
+                'reference_time' => now(),  
+                'first_name' => $user->name,
+                'phone_number' => $user->phone,
+                'email' => $user->email,
+            ]);
+
+            
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Patient created successfully. An email has been sent to your email address.'
+            ], 200);
+        } catch (Exception $e) {
             DB::rollBack();
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage()
-            ]);
+            ], 500);
         }
     }
+
     public function patientListPage(){
         return view("backend.pages.patient.patient-list-page");
     }
