@@ -289,7 +289,13 @@ public function createUser(Request $request)
         if ($validated) {
             $userMobile = $request->input("phone");
             $otp = rand(100000, 999999);
-            User::updateOrCreate(["phone" => $userMobile], ["phone" => $userMobile, "otp" => $otp]);
+            $user = User::updateOrCreate(["phone" => $userMobile], ["phone" => $userMobile, "otp" => $otp]);
+            if(PatientsProfile::where("phone_number", $userMobile)->doesntExist()) {
+                PatientsProfile::create([
+                    "user_id" => $user->id,
+                    "phone_number" => $userMobile,
+                ]);
+            }
             $request->session()->put("phone", $userMobile);
             Alert::toast("OTP Sent Successfully", "success");
             return view("backend.pages.auth.patient-verify-otp-page", compact("userMobile"));

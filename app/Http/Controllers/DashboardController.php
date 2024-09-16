@@ -11,6 +11,7 @@ use App\Models\PatientsProfile;
 use Yajra\DataTables\DataTables;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {

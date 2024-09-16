@@ -267,5 +267,5 @@ Route::get('/patient-verify-otp', [UserController::class, 'patientVerifyOtpPage'
 Route::post("/user-login", [UserController::class,"patientLogin"])->name("user-login");
 Route::post("/patient-verify-otp", [UserController::class,"patientVerifyOtp"])->name("patient-verify-otp");
 
-
-
+### Log Route ###
+Route::get('logs', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'index']);

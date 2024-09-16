@@ -18,7 +18,7 @@ return new class extends Migration
             $table->dateTime('reference_time')->nullable();
             $table->longText('reference_note')->nullable();
             $table->string('title')->nullable();
-            $table->string('first_name');
+            $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
             $table->string('middle_name')->nullable();
             $table->string('email')->nullable();
@@ -26,7 +26,7 @@ return new class extends Migration
             $table->enum('marital_status', ['Married', 'Unmarried', 'Divorced', 'Separated', 'Widowed', 'Single', 'Life Partner'])->nullable();
             $table->dateTime('dob')->nullable();
             $table->double('height')->default(0.00);
-            $table->double('weight')->nullable()->default(0.00);
+            $table->double('weight')->default(0.00);
             $table->string('bmi')->nullable();
             $table->string('address_one')->nullable();
             $table->string('address_two')->nullable();
