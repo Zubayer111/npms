@@ -15,6 +15,7 @@ use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use RealRashid\SweetAlert\Facades\Alert;
 
@@ -82,8 +83,10 @@ class AdminController extends Controller
                 ->addColumn('action', function($row){
                     $editUrl = route('dashboard.admin-edit', $row->id);
                     $deleteUrl = route('dasboard.user-delete', $row->id);
+                    $viewUerl = route('dashboard.view-admin', $row->id);
                     
-                    $btn = '<button type="button" id="editBtn" data-url="'.$editUrl.'" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editUserModal">
+                    $btn = '<a href="'.$viewUerl.'" class="btn btn-info btn-sm mr-2">View</a>';
+                    $btn .= '<button type="button" id="editBtn" data-url="'.$editUrl.'" class="btn btn-success btn-sm" data-toggle="modal" data-target="#editUserModal">
                       <div>Edit</div>
                   </button>';
                     $btn .= '<form id="delete-form-'.$row->id.'" action="'.$deleteUrl.'" method="POST" style="display: inline;">
@@ -96,6 +99,14 @@ class AdminController extends Controller
                 ->rawColumns(['action'])
                 ->make(true);
         }
+    }
+
+    public function viewAdmin($id){
+        $admin = User::findOrFail($id);
+        $pass = $admin->password;
+        
+        $data = AdminsProfile::where('user_id', $admin->id)->first();
+        return view("backend.pages.admin.admin-view-page", compact("data","pass"));
     }
 
     public function activeAdmin(){
