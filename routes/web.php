@@ -63,6 +63,7 @@ Route::prefix('/dashboard')
     Route::get("/admin-list", [AdminController::class,"adminListPage"])->name("dashboard.admin-list-page");
     Route::get("/get-admin-list", [AdminController::class,"getAdminList"])->name("dashboard.get-admin-list");
     Route::get("/active-admin", [AdminController::class,"activeAdmin"]);
+    Route::get("/view-admin/{id}", [AdminController::class,"viewAdmin"])->name("dashboard.view-admin");
     Route::get("/active-admin-list", [AdminController::class,"activeAdminList"])->name("dashboard.active-admin-list");
     Route::get("/inactive-admin", [AdminController::class,"inactiveAdmin"]);
     Route::get("/inactive-admin-list", [AdminController::class,"inactiveAdminList"])->name("dashboard.inactive-admin-list");

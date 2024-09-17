@@ -44,7 +44,7 @@
                   @if ($user && $user->profile_photo)
                       <img class="profile-user-img img-fluid img-circle" src="{{ asset($user->profile_photo) }}" alt="User profile picture">
                   @else
-
+                      <img class="profile-user-img img-fluid img-circle" src="{{ asset('assets/dist/img/avatar.png') }}" alt="Default profile picture">
                   @endif
                 </div>
                 <div class="form-group col-md-6">
