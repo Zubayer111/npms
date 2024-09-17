@@ -30,6 +30,8 @@ return new class extends Migration
             $table->string('speciality')->nullable();
             $table->string('organization')->nullable();
             $table->enum('status', ['active', 'inactive', 'suspended'])->default('active');
+            $table->integer('created_by')->nullable();
+            $table->integer('updated_by')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

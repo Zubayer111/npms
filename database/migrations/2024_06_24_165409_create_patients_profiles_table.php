@@ -43,6 +43,8 @@ return new class extends Migration
             $table->enum('status', ['active', 'inactive', 'suspended'])->default('active');
             $table->enum('patient_type', ['system-patient', 'vendor-patient'])->default('system-patient');
             $table->string('profile_photo')->nullable();
+            $table->integer('created_by')->nullable();
+            $table->integer('updated_by')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

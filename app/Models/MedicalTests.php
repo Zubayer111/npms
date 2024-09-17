@@ -14,7 +14,9 @@ class MedicalTests extends Model
         'user_id',
         'test_name',
         'description',
-        'status'
+        'status',
+        'created_by',
+        'updated_by',
     ];
 
     public function user()

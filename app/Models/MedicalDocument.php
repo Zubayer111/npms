@@ -14,6 +14,7 @@ class MedicalDocument extends Model
         'patient_id',
         'file_type',
         'file_name',
+        'file_extension',
         'asset_path',
         'uploaded_by',
     ];

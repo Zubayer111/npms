@@ -22,6 +22,8 @@ class Medicine extends Model
         'price',
         'use_for',
         'status',
+        'created_by',
+        'updated_by',
     ];
 
     public function group()

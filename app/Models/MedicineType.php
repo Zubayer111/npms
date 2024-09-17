@@ -15,6 +15,8 @@ class MedicineType extends Model
         'type_name',
         'description',
         'status',
+        'created_by',
+        'updated_by',
     ];
 
     public function user()

@@ -24,6 +24,8 @@ return new class extends Migration
             $table->string('price', 255);
             $table->string('use_for', 255);
             $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->integer('created_by')->nullable();
+            $table->integer('updated_by')->nullable();
             $table->foreign('manufacturer_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('brand_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('type_id')->references('id')->on('medicine_types')->onDelete('cascade');
