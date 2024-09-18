@@ -23,6 +23,7 @@
                                         <th>ID</th>
                                         <th>File Name</th>
                                         <th>File Type</th>
+                                        <th>File Extension</th>
                                         <th>File Uploaded</th>
                                         <th>Action</th>
                                     </tr>
@@ -105,6 +106,7 @@ $(document).ready(function() {
             },
             {data: 'file_name'},
             {data: 'file_type'},
+            {data: 'file_extension'},
             {data: 'created_at'},
             {data: 'actions', name: 'actions', orderable: false, searchable: false},
         ],

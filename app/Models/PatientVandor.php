@@ -20,6 +20,8 @@ class PatientVandor extends Model
         'address',
         'contact_person',
         'status',
+        'created_by',
+        'updated_by',
     ];
 
     public function user()

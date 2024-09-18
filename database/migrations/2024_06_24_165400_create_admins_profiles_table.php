@@ -26,6 +26,8 @@ return new class extends Migration
             $table->string('state')->nullable();
             $table->string('zip_code')->nullable();
             $table->string('profile_photo')->nullable();
+            $table->integer('created_by')->nullable();
+            $table->integer('updated_by')->nullable();
             
             $table->enum('status', ['active', 'inactive', 'suspended'])->default('active');
             $table->softDeletes();

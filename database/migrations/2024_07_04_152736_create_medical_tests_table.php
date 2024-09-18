@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('test_name')->unique();
             $table->text('description');
             $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->integer('created_by')->nullable();
+            $table->integer('updated_by')->nullable();
             $table->softDeletes();
 
             $table->foreign('user_id')->references('id')->on('users');

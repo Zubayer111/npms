@@ -24,6 +24,8 @@ class AdminsProfile extends Model
         'zip_code',
         'profile_photo',
         'status',
+        'created_by',
+        'updated_by',
     ];
 
     public function user(){

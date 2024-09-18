@@ -40,6 +40,8 @@ class PatientsProfile extends Model
         'status',
         'patient_type ',
         'profile_photo',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [

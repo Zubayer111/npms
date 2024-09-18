@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('medical_documents', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('patient_id');
-            $table->string('file_type'); 
-            $table->string('file_name'); 
-            $table->text('asset_path'); 
+            $table->string('file_type');
+            $table->string('file_name');
+            $table->string('file_extension');
+            $table->text('asset_path');
             $table->integer('uploaded_by');
             $table->softDeletes();
 

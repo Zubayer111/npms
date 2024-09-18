@@ -27,6 +27,8 @@ class DoctorsProfile extends Model
         'speciality',
         'organization',
         'status',
+        'created_by',
+        'updated_by',
     ];
 
     public function user()

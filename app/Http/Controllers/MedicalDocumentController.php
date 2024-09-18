@@ -49,7 +49,8 @@ class MedicalDocumentController extends Controller
 
         return DataTables::of($query)
             ->editColumn('created_at', function ($row) {
-                return \DateTime::createFromFormat('Y-m-d H:i:s', $row->created_at)->format('jS F, Y H:i:s A');
+                return \DateTime::createFromFormat('Y-m-d H:i:s', $row->created_at)->format('jS F, Y');
+
             })
             ->addColumn('actions', function ($row) {
                 return view('backend.components.dashboard.profile.tab-content.patient._medical_document_action', compact('row'));
@@ -83,6 +84,7 @@ class MedicalDocumentController extends Controller
 
             if($request->hasFile('file')) {
                 $file = $request->file('file');
+                $file_extension = $file->getClientOriginalExtension();
                 if (in_array($file->getMimeType(), ['image/jpeg', 'image/png', 'image/gif', 'image/webp'])) {
                     $file_path = $this->uploadImageToLocal($file, '/patient/'.$patient_id.'/files/', 'file_');
                 } else {
@@ -94,7 +96,8 @@ class MedicalDocumentController extends Controller
                 'patient_id' => $patient_id,
                 'file_type' => $request->file_type,
                 'file_name' => $request->file_name,
-                'asset_path' => $file_path,
+                'file_extension' => $file_extension ?? null,
+                'asset_path' => $file_path ?? null,
                 'uploaded_by' => $patient_id,
             ]);
     

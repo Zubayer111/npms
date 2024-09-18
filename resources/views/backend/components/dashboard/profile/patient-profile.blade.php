@@ -30,6 +30,8 @@
 							<ul class="nav nav-pills">
 								<li class="nav-item"><a class="nav-link active" href="#basic-information" data-toggle="tab">Basic Information</a></li>
 								<li class="nav-item"><a class="nav-link" href="#medical-document" data-toggle="tab">Medical Document</a></li>
+								<li class="nav-item"><a class="nav-link" href="#medical-info" data-toggle="tab">Medical Info</a></li>
+								<li class="nav-item"><a class="nav-link" href="#treatments" data-toggle="tab">Treatments</a></li>
 							</ul>
 						</div>
 
@@ -37,6 +39,8 @@
 							<div class="tab-content">
 								@include("backend.components.dashboard.profile.tab-content.patient.basic-information")
 								@include("backend.components.dashboard.profile.tab-content.patient.medical-document")
+								@include("backend.components.dashboard.profile.tab-content.patient.medical-info")
+								@include("backend.components.dashboard.profile.tab-content.patient.treatments")
 							</div>
 						</div>
 					</div>
@@ -45,21 +49,3 @@
 		</div>
 	</section>
 </div>
-
-<script>
-	function confirmDelete(id) {
-		Swal.fire({
-			title: 'Delete Medical Document!',
-			text: "Are you sure you want to delete?",
-			icon: 'warning',
-			showCancelButton: true,
-			confirmButtonColor: '#3085d6',
-			cancelButtonColor: '#d33',
-			confirmButtonText: 'Yes, delete it!'
-		}).then((result) => {
-			if (result.isConfirmed) {
-				document.getElementById('delete-form-' + id).submit();
-			}
-		});
-	}
-</script>

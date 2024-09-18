@@ -29,16 +29,16 @@ class User extends Model
     //     'otp',
     // ];
 
-    public function admin()
-    {
-        return $this->hasOne(Admin::class);
-    }
-    public function doctor()
-    {
-        return $this->hasOne(Admin::class);
-    }
-    public function patient()
-    {
-        return $this->hasOne(Admin::class);
-    }
+    // public function admin()
+    // {
+    //     return $this->hasOne(Admin::class);
+    // }
+    // public function doctor()
+    // {
+    //     return $this->hasOne(Admin::class);
+    // }
+    // public function patient()
+    // {
+    //     return $this->hasOne(Admin::class);
+    // }
 }
