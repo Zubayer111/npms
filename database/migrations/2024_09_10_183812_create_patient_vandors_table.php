@@ -14,7 +14,6 @@ return new class extends Migration
     {
         Schema::create('patient_vandors', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('token', 32)->default(Str::random(32));
             $table->string('secret_key', 64)->default(Str::random(64));
             $table->string('name');

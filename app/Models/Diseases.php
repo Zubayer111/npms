@@ -11,7 +11,6 @@ class Diseases extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'user_id',
         'disease_name',
         'description',
         'status',

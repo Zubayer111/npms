@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Exception;
 use App\Models\Diseases;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\DataTables;
 
 class DiseasesController extends Controller
@@ -120,9 +121,9 @@ class DiseasesController extends Controller
             $userId = $request->session()->get("id");
             
             Diseases::create([
-                "user_id" => $userId,
                 "disease_name" => $request->input("disease_name"),
                 "description" => $request->input("description"),
+                'created_by' => $userId,
                 "status" => "active",
             ]);
             return response()->json([

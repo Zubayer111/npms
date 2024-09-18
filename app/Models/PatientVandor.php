@@ -12,7 +12,6 @@ class PatientVandor extends Model
 
     protected $table = 'patient_vandors';
     protected $fillable = [
-        'user_id',
         'name',
         'email',
         'phone',

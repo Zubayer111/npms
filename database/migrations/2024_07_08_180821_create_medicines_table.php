@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('medicines', function (Blueprint $table) {
             $table->id();
             $table->string('medicine_name', 255)->unique();
-            $table->foreignId('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->unsignedBigInteger('manufacturer_id');
             $table->unsignedBigInteger('brand_id');
             $table->unsignedBigInteger('type_id');
