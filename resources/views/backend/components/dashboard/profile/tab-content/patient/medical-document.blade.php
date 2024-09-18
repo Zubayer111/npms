@@ -63,6 +63,7 @@
                                             <select class="form-control {{ $errors->has('file_type') ? 'is-invalid' : '' }}" name="file_type">
                                                 <option value="" selected="selected">Select Document Type</option>
                                                 <option value="medical_report">Medical Report</option>
+                                                <option value="personal_ocument">Personal Document</option>
                                                 <option value="prescription">Prescription</option>
                                                 <option value="other">Other</option>
                                             </select>
@@ -75,7 +76,7 @@
                                     <div class="col-lg-12 col-12">
                                         <div class="form-group">
                                             <label for="file" class="font-weight-normal">Document</label>
-                                            <input class="form-control" type="file" name="file">
+                                            <input class="form-control" type="file" name="file[]" multiple>
                                         </div>
                                     </div>
                                 </div>
@@ -142,7 +143,7 @@ $(document).ready(function() {
                         text: response.message,
                     });
                     setTimeout(function() {
-                        window.location.href = '{{ route('dashboard.profile') }}';
+                        location.reload();
                     }, 2000);
                 } else {
                     Swal.fire({

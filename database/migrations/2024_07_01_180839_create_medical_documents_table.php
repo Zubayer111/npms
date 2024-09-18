@@ -18,10 +18,11 @@ return new class extends Migration
             $table->string('file_name');
             $table->string('file_extension');
             $table->text('asset_path');
-            $table->integer('uploaded_by');
+            $table->unsignedBigInteger('uploaded_by');
             $table->softDeletes();
 
             $table->foreign('patient_id')->references('id')->on('users');
+            $table->foreign('uploaded_by')->references('id')->on('users');
             $table->timestamps();
         });
     }

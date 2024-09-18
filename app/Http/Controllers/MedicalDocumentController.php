@@ -77,43 +77,76 @@ class MedicalDocumentController extends Controller
                 return [];
         }
     }
+
+    public function uploadImageToLocal($file, $path, $prefix)
+        {
+            $file_name = $prefix . time() . '.' . $file->getClientOriginalExtension();
+            $storage_path = $file->storeAs($path, $file_name, 'public');
+
+            return $storage_path ? "/storage/" . $storage_path : null;
+        }
+
+        public function uploadFile($file, $path, $prefix)
+        {
+            $file_name = $prefix . time() . '.' . $file->getClientOriginalExtension();
+            $storage_path = $file->storeAs($path, $file_name, 'public');
+
+            return $storage_path ? "/storage/" . $storage_path : null;
+        }
+
+
     public function store(PatientMedicalRequest $request)
-    {
-        try {
-            $patient_id = $request->session()->get("id");
+        {
+            try {
+                $patient_id = $request->session()->get("id");
 
-            if($request->hasFile('file')) {
-                $file = $request->file('file');
-                $file_extension = $file->getClientOriginalExtension();
-                if (in_array($file->getMimeType(), ['image/jpeg', 'image/png', 'image/gif', 'image/webp'])) {
-                    $file_path = $this->uploadImageToLocal($file, '/patient/'.$patient_id.'/files/', 'file_');
-                } else {
-                    $file_path = $this->uploadFile($file, '/patient/'.$patient_id.'/files/', 'file_');
+                // Check if the request contains files
+                if ($request->hasFile('file')) {
+                    $file_paths = []; // To store all file paths if multiple uploads
+                    
+                    foreach ($request->file('file') as $file) {
+                        $file_extension = $file->getClientOriginalExtension();
+
+                        // Handle file upload based on its type
+                        if (in_array($file->getMimeType(), ['image/jpeg', 'image/png', 'image/gif', 'image/webp'])) {
+                            $file_path = $this->uploadImageToLocal($file, '/patient/'.$patient_id.'/files/', 'file_');
+                        } else {
+                            $file_path = $this->uploadFile($file, '/patient/'.$patient_id.'/files/', 'file_');
+                        }
+
+                        // Check if the file was successfully uploaded
+                        if (!$file_path) {
+                            throw new Exception('File upload failed.');
+                        }
+
+                        $file_paths[] = $file_path;
+
+                        // Store each file's metadata in the database
+                        MedicalDocument::create([
+                            'patient_id' => $patient_id,
+                            'file_type' => $request->file_type,
+                            'file_name' => $request->file_name,
+                            'file_extension' => $file_extension,
+                            'asset_path' => $file_path, // Ensure the correct path is stored here
+                            'uploaded_by' => $patient_id,
+                        ]);
+                    }
                 }
-            }
 
-            MedicalDocument::create([
-                'patient_id' => $patient_id,
-                'file_type' => $request->file_type,
-                'file_name' => $request->file_name,
-                'file_extension' => $file_extension ?? null,
-                'asset_path' => $file_path ?? null,
-                'uploaded_by' => $patient_id,
-            ]);
-    
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Documents uploaded successfully'
-            ], 200);
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Documents uploaded successfully',
+                    'file_paths' => $file_paths // Return the file paths for confirmation
+                ], 200);
+            } catch (Exception $e) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage()
+                ], 500);
+            }
         }
-        catch (Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ], 200);
-        }
-        
-    }
+
+
 
     public function destroy($id)
     {
