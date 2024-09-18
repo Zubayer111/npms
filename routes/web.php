@@ -64,6 +64,7 @@ Route::prefix('/dashboard')
     Route::get("/get-admin-list", [AdminController::class,"getAdminList"])->name("dashboard.get-admin-list");
     Route::get("/active-admin", [AdminController::class,"activeAdmin"]);
     Route::get("/view-admin/{id}", [AdminController::class,"viewAdmin"])->name("dashboard.view-admin");
+    Route::get("/admin-edit-profile/{id}", [AdminController::class,"editAdminProfile"])->name("dashboard.admin-edit-profile");
     Route::get("/active-admin-list", [AdminController::class,"activeAdminList"])->name("dashboard.active-admin-list");
     Route::get("/inactive-admin", [AdminController::class,"inactiveAdmin"]);
     Route::get("/inactive-admin-list", [AdminController::class,"inactiveAdminList"])->name("dashboard.inactive-admin-list");
@@ -83,6 +84,7 @@ Route::prefix('/dashboard')
     Route::get("/active-doctor", [DoctorController::class,"activeDoctor"]);
     Route::get("/active-doctor-list", [DoctorController::class,"activeDoctorList"])->name("dashboard.active-doctor-list");
     Route::get("/inactive-doctor-list", [DoctorController::class,"inactiveDoctorList"])->name("dashboard.inactive-doctor-list");
+    Route::get("/view-doctor/{id}", [DoctorController::class,"viewDoctor"])->name("dashboard.view-doctor");
     Route::get("/inactive-doctor", [DoctorController::class,"inactiveDoctor"]);
     Route::get("/deleted-doctor-list", [DoctorController::class,"deletedDoctorList"])->name("dashboard.deleted-doctor-list");
     Route::get("/deleted-doctor", [DoctorController::class,"deletedDoctor"]);
@@ -118,6 +120,7 @@ Route::prefix('/dashboard')
     Route::post("/create-patient", [PatientController::class,"createPatient"])->name("dashboard.create-patient");
     Route::post("/update-patient", [PatientController::class,"updatePatient"])->name("dashboard.update-patient");
     Route::get("/active-patient", [PatientController::class,"activePatient"]);
+    Route::get("/view-patient/{id}", [PatientController::class,"viewPatient"])->name("dashboard.view-patient");
     Route::get("/active-patient-list", [PatientController::class,"activePatientList"])->name("dashboard.active-patient-list");
     Route::get("/inactive-patient-list", [PatientController::class,"inactivePatientList"])->name("dashboard.inactive-patient-list");
     Route::get("/inactive-patient", [PatientController::class,"inactivePatient"]);
@@ -215,6 +218,7 @@ Route::prefix('/dashboard')
 
      // Medical Test routes
      Route::get("/medical-test-list", [MedicalTestsController::class,"medicalTestListPage"])->name("dashboard.medical-test-list");
+     Route::get("view-medical-test/{id}", [MedicalTestsController::class,"viewMedicalTest"])->name("dashboard.view-medical-test");
      Route::get("/get-medical-test-list", [MedicalTestsController::class,"getMedicalTestList"])->name("dashboard.get-medical-test-list");
      Route::get("/active-medical-test", [MedicalTestsController::class,"activeMedicalTest"]);
      Route::get("/active-medical-test-list", [MedicalTestsController::class,"activeMedicalTestList"])->name("dashboard.active-medical-test-list");
@@ -251,7 +255,7 @@ Route::prefix('/dashboard')
      Route::delete("/patient-vandor-inactive/{id}", [PatientVandorController::class,"patientVandorInactive"])->name("dasboard.patient-vandor-inactive");
      Route::get("/patient-vandor-active/{id}", [PatientVandorController::class,"patientVandorActive"])->name("dasboard.patient-vandor-active");
      Route::get("/patient-vandor-restore/{id}", [PatientVandorController::class,"patientVandorRestore"])->name("dasboard.patient-vandor-restore");
-     Route::get("/dashboard.view-patient-vandor/{id}", [PatientVandorController::class,"viewPatientVandor"])->name("dashboard.view-patient-vandor");
+     Route::get("/view-patient-vandor/{id}", [PatientVandorController::class,"viewPatientVandor"])->name("dashboard.view-patient-vandor");
 }); 
 
 // user routes outside the dashboard

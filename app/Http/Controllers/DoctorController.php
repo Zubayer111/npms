@@ -31,8 +31,10 @@ class DoctorController extends Controller
                 ->addColumn('action', function($row){
                     $editUrl = route('dashboard.edit-doctor', $row->id);
                     $deleteUrl = route('dasboard.user-delete', $row->id);
+                    $viewUerl = route('dashboard.view-doctor', $row->id);
 
-                    $btn = '<button type="button" id="editBtn" data-url="'.$editUrl.'" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editUserModal">
+                    $btn = '<a href="'.$viewUerl.'" class="btn btn-success btn-sm mr-2">View</a>';
+                    $btn .= '<button type="button" id="editBtn" data-url="'.$editUrl.'" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editUserModal">
                       <div>Edit</div>
                   </button>';
                     $btn .= '<form id="delete-form-'.$row->id.'" action="'.$deleteUrl.'" method="POST" style="display: inline;">
@@ -45,6 +47,13 @@ class DoctorController extends Controller
                 ->rawColumns(['action'])
                 ->make(true);
         }
+    }
+
+    public function viewDoctor($id){
+        $doctor = User::findOrFail($id);
+        $data = DoctorsProfile::where('user_id', $doctor->id)->first();
+        
+        return view("backend.pages.doctor.view-doctor-page", compact("data"));
     }
 
     public function createDoctorPage(){

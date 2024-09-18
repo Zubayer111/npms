@@ -75,6 +75,12 @@ class AdminController extends Controller
         return view("backend.pages.admin.admin-list-page");
     }
 
+    public function editAdminProfile($id){
+        $user = AdminsProfile::findOrFail($id);
+    
+        return view("backend.pages.admin.admin-edit-page", compact("user"));
+    }
+
     public function getAdminList(Request $request){
         if ($request->ajax()) {
             $data = User::where("type", "Admin")->select(['id', 'name', 'email', 'phone','type', 'status']);

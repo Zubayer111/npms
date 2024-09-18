@@ -21,7 +21,12 @@ class MedicalTestsController extends Controller
                 ->addColumn('action', function($row){
                     $editUrl = route('dashboard.edit-medical-test', $row->id);
                     $deleteUrl = route('dashboard.delete.medical-test', $row->id);
-                    $btn = '<button type="button" id="editBtn" data-url="'.$editUrl.'" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editMedicalTest">
+                    $viewUrl = route('dashboard.view-medical-test', $row->id);
+
+                    $btn = '<button type="button" id="viewBtn" data-url="' . $viewUrl . '" class="btn btn-info btn-sm mr-2" data-toggle="modal" data-target="#viewPatientVandorModal">
+                                View
+                            </button>';
+                    $btn .= '<button type="button" id="editBtn" data-url="'.$editUrl.'" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editMedicalTest">
                                 <div>Edit</div>
                             </button>';
                     $btn .= '<form id="delete-form-'.$row->id.'" action="'.$deleteUrl.'" method="POST" style="display: inline;">
@@ -35,6 +40,15 @@ class MedicalTestsController extends Controller
                 ->make(true);
         }
     }
+
+    public function viewMedicalTest($id){
+        $data = MedicalTests::find($id);
+        return response()->json([
+            'status' => 'success',
+            'data' => $data
+        ]);
+    }
+    
 
     public function createMedicalTestPage(){
         return view("backend.pages.test.create-test-page");

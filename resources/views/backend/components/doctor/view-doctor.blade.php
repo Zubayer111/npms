@@ -35,11 +35,11 @@
                 
                 <h3 class="profile-username text-center">{{$data->first_name ?? 'No user data available'}} {{$data->middle_name ?? ''}} {{$data->last_name ?? ''}}</h3>
   
-                <p class="text-muted text-center">Admin</p>
+                <p class="text-muted text-center">Doctor</p>
   
                 
   
-                <a href="{{ route('dashboard.admin-edit-profile',["id" => $data->id]) }}" class="btn btn-primary btn-block"><b>Edit</b></a>
+                <a href="{{route('dashboard.doctor.profile.edit')}}" class="btn btn-primary btn-block"><b>Edit</b></a>
               </div>
               <!-- /.card-body -->
             </div>
@@ -115,6 +115,23 @@
                           <h5 class="text-bold">Zip Code :</h5>
                           <p class="text-muted">{{$data->zip_code ?? "No user data available"}}</p>
                         </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-md-6">
+                          <h5 class="text-bold">Degree :</h5>
+                          <p class="text-muted">{{$data->degree ?? "No user data available"}}</p>
+                        </div>
+                        <div class="col-md-6">
+                          <h5 class="text-bold">Speciality :</h5>
+                          <p class="text-muted">{{$data->speciality ?? "No user data available"}}</p>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-md-6">
+                          <h5 class="text-bold">Organization :</h5>
+                          <p class="text-muted">{{$data->organization ?? "No user data available"}}</p>
+                        </div>
+                        
                       </div>
                     </div>
                     
@@ -225,7 +242,7 @@
                       <div class="form-group row">
                         <label for="inputName" class="col-sm-2 col-form-label">Password</label>
                         <div class="col-sm-10">
-                          <input name="password"  type="password" class="form-control" id="inputName" placeholder="Password" required>
+                          <input name="password" type="password" class="form-control" id="inputName" placeholder="Password" required>
                         </div>
                       </div>
                       <div class="form-group row">

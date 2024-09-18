@@ -3,7 +3,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="viewPatientVandorModalLabel">View Patient Vendor</h5>
+                <h5 class="modal-title" id="viewPatientVandorModalLabel">View Medical Test</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -35,11 +35,8 @@
                         // Properly access the nested data object
                         var data = response.data;
                         $('#patientVendorDetails').html(`
-                            <p><strong>Name:</strong> ${data.name}</p>
-                            <p><strong>Email:</strong> ${data.email}</p>
-                            <p><strong>Phone:</strong> ${data.phone}</p>
-                            <p><strong>Address:</strong> ${data.address}</p>
-                            <p><strong>Fax:</strong> ${data.fax}</p>
+                            <p><strong>Test Name:</strong> ${data.test_name}</p>
+                            <p><strong>Description:</strong> ${data.description}</p>
                             
                         `);
                         // Show the modal after loading the data
