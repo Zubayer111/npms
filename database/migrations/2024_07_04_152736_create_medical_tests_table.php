@@ -13,15 +13,12 @@ return new class extends Migration
     {
         Schema::create('medical_tests', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
             $table->string('test_name')->unique();
             $table->text('description');
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->integer('created_by')->nullable();
             $table->integer('updated_by')->nullable();
             $table->softDeletes();
-
-            $table->foreign('user_id')->references('id')->on('users');
             $table->timestamps();
         });
     }

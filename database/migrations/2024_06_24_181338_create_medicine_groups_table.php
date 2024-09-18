@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('medicine_groups', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('group_name')->unique();
             $table->text('description')->nullable();
             $table->enum('status', ['active', 'inactive'])->default('active');

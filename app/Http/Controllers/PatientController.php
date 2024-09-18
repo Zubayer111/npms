@@ -47,7 +47,6 @@ class PatientController extends Controller
                 'phone' => $request->input('phone'),
                 'type' => 'Patient', 
             ]);
-
             
             event(new UserCreated($user, $request->input('password')));
 
@@ -58,6 +57,7 @@ class PatientController extends Controller
                 'first_name' => $user->name,
                 'phone_number' => $user->phone,
                 'email' => $user->email,
+                'created_by' => $request->session()->get("id")
             ]);
 
             

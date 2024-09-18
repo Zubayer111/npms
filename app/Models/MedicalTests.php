@@ -11,7 +11,6 @@ class MedicalTests extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'user_id',
         'test_name',
         'description',
         'status',
