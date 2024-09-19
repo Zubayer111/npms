@@ -22,7 +22,7 @@ class MedicineTypeController extends Controller
                 ->addColumn('action', function($row){
                     $editUrl = route('dashboard.edit-medicine-type', $row->id);
                     $deleteUrl = route('dashboard.delete.medicine-type', $row->id);
-                    $btn = '<button type="button" id="editBtn" data-url="'.$editUrl.'" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editMedicineTypeModal">
+                    $btn = '<button type="button" id="editBtn" data-url="'.$editUrl.'" class="btn btn-primary btn-sm" data-backdrop="static" data-keyboard="false" data-toggle="modal" data-target="#editMedicineTypeModal">
                                 <div>Edit</div>
                             </button>';
                     $btn .= '<form id="delete-form-'.$row->id.'" action="'.$deleteUrl.'" method="POST" style="display: inline;">

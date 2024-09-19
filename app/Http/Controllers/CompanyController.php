@@ -69,8 +69,12 @@ class CompanyController extends Controller
                 ->addColumn('action', function($row){
                     $editUrl = route('dashboard.edit-company', $row->id);
                     $deleteUrl = route('dasboard.user-delete', $row->id);
+                    $viewUrl = route('dasboard.view-company', $row->id);
 
-                    $btn = '<button type="button" id="editBtn" data-url="'.$editUrl.'" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editUserModal">
+                    $btn = '<button type="button" id="viewBtn" data-url="'.$viewUrl.'" class="btn btn-success btn-sm m-2" data-backdrop="static" data-keyboard="false" data-toggle="modal" data-target="#viewUserModal">
+                                <div>View</div>
+                            </button>';
+                    $btn .= '<button type="button" id="editBtn" data-url="'.$editUrl.'" class="btn btn-primary btn-sm" data-backdrop="static" data-keyboard="false" data-toggle="modal" data-target="#editUserModal">
                                 <div>Edit</div>
                             </button>';
                     $btn .= '<form id="delete-form-'.$row->id.'" action="'.$deleteUrl.'" method="POST" style="display: inline;">
@@ -83,6 +87,14 @@ class CompanyController extends Controller
                 ->rawColumns(['action'])
                 ->make(true);
         }
+    }
+
+    public function viewCompany($id){
+        $data = User::findOrFail($id);
+        return response()->json([
+            'status' => 'success',
+            'data' => $data
+        ]);
     }
 
     public function activeCompany(){

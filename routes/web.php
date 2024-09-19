@@ -106,6 +106,7 @@ Route::prefix('/dashboard')
     Route::get("/company-list", [CompanyController::class,"companyListPage"])->name("dashboard.company-list");
     Route::get("/get-company-list", [CompanyController::class,"getCompanyList"])->name("dashboard.get-company-list");
     Route::get("/create-company", [CompanyController::class,"createCompanyPage"]);
+    Route::get("/view-company/{id}", [CompanyController::class,"viewCompany"])->name("dasboard.view-company");
     Route::post("/create-company", [CompanyController::class,"createCompany"])->name("dashboard.create-company");
     Route::post("/update-company", [CompanyController::class,"updateCompany"])->name("dashboard.update-company");
     Route::get("/active-company", [CompanyController::class,"activeCompany"]);
@@ -262,7 +263,8 @@ Route::prefix('/dashboard')
      Route::delete("/patient-vandor-inactive/{id}", [PatientVandorController::class,"patientVandorInactive"])->name("dasboard.patient-vandor-inactive");
      Route::get("/patient-vandor-active/{id}", [PatientVandorController::class,"patientVandorActive"])->name("dasboard.patient-vandor-active");
      Route::get("/patient-vandor-restore/{id}", [PatientVandorController::class,"patientVandorRestore"])->name("dasboard.patient-vandor-restore");
-    // Route::get("/view-patient-vandor/{id}", [PatientVandorController::class,"viewPatientVandor"])->name("dashboard.view-patient-vandor");
+     Route::get("/view-patient-vandor/{id}", [PatientVandorController::class,"viewPatientVandor"])->name("dashboard.view-patient-vandor");
+     Route::get("/view-patient-vandor/{id}", [PatientVandorController::class,"viewPatientVandor"])->name("dashboard.view-patient-vandor");
 }); 
 
 // user routes outside the dashboard

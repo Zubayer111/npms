@@ -3,12 +3,12 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1>Company List Tables</h1>
+            <h1>Patient List Tables</h1>
           </div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <li class="breadcrumb-item"><a href="#">Home</a></li>
-              <li class="breadcrumb-item active">Company List</li>
+              <li class="breadcrumb-item active">Patient List</li>
             </ol>
           </div>
         </div>
@@ -25,7 +25,7 @@
                 <div class="card-tools">
                   <div class="input-group input-group-sm">
                     <div class="input-group-append">
-                      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createUserModal">
+                      <button type="button" class="btn btn-primary" data-toggle="modal" data-backdrop="static" data-keyboard="false" data-target="#createUserModal">
                         <div>Create Patient</div>
                       </button>
                     </div>

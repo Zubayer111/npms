@@ -78,7 +78,7 @@ class DashboardController extends Controller
                     $editUrl = route('dasboard.user-edit', $row->id);
                     $deleteUrl = route('dasboard.user-delete', $row->id);
                     
-                    $btn = '<button type="button" id="editBtn" data-url="'.$editUrl.'" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editUserModal">
+                    $btn = '<button type="button" id="editBtn" data-url="'.$editUrl.'" class="btn btn-primary btn-sm" data-backdrop="static" data-keyboard="false" data-toggle="modal" data-target="#editUserModal">
                       <div>Edit</div>
                   </button>';
                     $btn .= '<form id="delete-form-'.$row->id.'" action="'.$deleteUrl.'" method="POST" style="display: inline;">

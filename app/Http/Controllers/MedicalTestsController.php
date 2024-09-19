@@ -23,10 +23,10 @@ class MedicalTestsController extends Controller
                     $deleteUrl = route('dashboard.delete.medical-test', $row->id);
                     $viewUrl = route('dashboard.view-medical-test', $row->id);
 
-                    $btn = '<button type="button" id="viewBtn" data-url="' . $viewUrl . '" class="btn btn-info btn-sm mr-2" data-toggle="modal" data-target="#viewPatientVandorModal">
+                    $btn = '<button type="button" id="viewBtn" data-url="' . $viewUrl . '" class="btn btn-info btn-sm mr-2" data-backdrop="static" data-keyboard="false" data-toggle="modal" data-target="#viewPatientVandorModal">
                                 View
                             </button>';
-                    $btn .= '<button type="button" id="editBtn" data-url="'.$editUrl.'" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editMedicalTest">
+                    $btn .= '<button type="button" id="editBtn" data-url="'.$editUrl.'" class="btn btn-primary btn-sm" data-toggle="modal" data-backdrop="static" data-keyboard="false" data-target="#editMedicalTest">
                                 <div>Edit</div>
                             </button>';
                     $btn .= '<form id="delete-form-'.$row->id.'" action="'.$deleteUrl.'" method="POST" style="display: inline;">
