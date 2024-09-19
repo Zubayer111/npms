@@ -293,4 +293,88 @@ public function createDoctor(Request $request)
         ]);
         return redirect("/dashboard/doctor-list")->with("success", "Doctor Updated Successfully");
     }
+
+    public function editProfileAdmin($id){
+        $user = DoctorsProfile::findOrFail($id);
+        return view("backend.pages.dashboard.admin.doctor-edit", compact("user"));
+    }
+
+    public function profileUpdateAdmin(Request $request){
+        try {
+            $request->validate([
+                'first_name' => 'required|string',
+                'last_name' => 'required|string',
+                'middle_name' => 'required|string',
+                'phone_number' => 'required|string',
+                'address_one' => 'required|string',
+                'address_two' => 'nullable|string',
+                'city' => 'required|string',
+                'state' => 'required|string',
+                'zip_code' => 'required|string',
+                'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'degree' => 'required|string',
+                'speciality' => 'required|string',
+                'organization' => 'required|string',
+            ]);
+    
+            $user = User::findOrFail($request->input('id'));
+            $userId = $user->id;
+    
+            $updated_by = $request->session()->get("id");
+            $status = "active";
+            $refID = rand(10000, 99999);  // Ensure uniqueness if necessary
+            $type = "Doctor";
+    
+            $adminData = [
+                "user_id" => $userId,
+                "ref_id" => $refID,
+                "title" => $type,
+                "first_name" => $request->input("first_name"),
+                "last_name" => $request->input("last_name"),
+                "middle_name" => $request->input("middle_name"),
+                "phone_number" => $request->input("phone_number"),
+                "address_one" => $request->input("address_one"),
+                "address_two" => $request->input("address_two"),
+                "city" => $request->input("city"),
+                "state" => $request->input("state"),
+                "zip_code" => $request->input("zip_code"),
+                "degree" => $request->input("degree"),
+                "speciality" => $request->input("speciality"),
+                "organization" => $request->input("organization"),
+                "updated_by" => $updated_by,
+                "status" => $status,
+            ];
+    
+            if ($request->hasFile("profile_photo")) {
+                $img = $request->file("profile_photo");
+                $time = time();
+                $file_name = preg_replace('/[^a-zA-Z0-9._-]/', '', $img->getClientOriginalName());
+                $img_name = "{$userId}-{$time}-{$file_name}";
+                $img_url = "uploads/doctor/{$img_name}";
+                
+                // Handle file move and potential errors
+                try {
+                    $img->move(public_path('uploads/doctor'), $img_name);
+                    $adminData["profile_photo"] = $img_url;
+    
+                    if ($request->input("file_path") && File::exists($request->input("file_path"))) {
+                        File::delete($request->input("file_path"));
+                    }
+                } catch (\Exception $e) {
+                    throw new \Exception("File upload failed: " . $e->getMessage());
+                }
+            }
+    
+            // Ensure "user_id" is correctly set
+            $request->merge(["user_id" => $userId]);
+            DoctorsProfile::updateOrCreate(["user_id" => $userId], $adminData);
+    
+            return redirect("/dashboard/doctor-list")->with("success", "Profile Updated Successfully");
+        }
+        catch (\Exception $e) {
+            Alert::toast($e->getMessage(), 'error');
+            return redirect("/dashboard/doctor-list")->with("error", $e->getMessage());
+        }
+    }
+    
 }

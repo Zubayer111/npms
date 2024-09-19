@@ -64,9 +64,10 @@ class MedicalTestsController extends Controller
     
             $userId = $request->session()->get("id");
             MedicalTests::create([
-                "user_id" => $userId,
                 "test_name" => $request->input("test_name"),
                 "description" => $request->input("description"),
+                "created_by" => $userId,
+                "updated_by" => $userId,
                 "status" => "active",
             ]);
             return response()->json([

@@ -11,7 +11,7 @@
             </div>
             <div class="modal-body">
                 <!-- Include your form here -->
-                <form id="createUserForm" enctype="multipart/form-data">
+                <form action="{{ route('dashboard.create-user') }}" method="POST" id="createUserForm" enctype="multipart/form-data">
                     @csrf
                     <div class="card-body row">
                         <div class="form-group col-md-6">
@@ -194,7 +194,7 @@ $(document).ready(function() {
     
 </script>
 
-<script>
+{{-- <script>
     $(document).ready(function() {
             $('#createUserForm').on('submit', function(event) {
                 event.preventDefault();
@@ -236,4 +236,4 @@ $(document).ready(function() {
                 });
             });
         });
-</script>
+</script> --}}

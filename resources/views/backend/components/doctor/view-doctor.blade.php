@@ -39,7 +39,7 @@
   
                 
   
-                <a href="{{route('dashboard.doctor.profile.edit')}}" class="btn btn-primary btn-block"><b>Edit</b></a>
+                <a href="{{route('dashboard.doctor.admin.edit-profile',["id" => $data->id])}}" class="btn btn-primary btn-block"><b>Edit</b></a>
               </div>
               <!-- /.card-body -->
             </div>

@@ -3,12 +3,12 @@
         <div class="container-fluid">
           <div class="row mb-2">
             <div class="col-sm-6">
-              <h1>Update Admin Profile Form</h1>
+              <h1>Update Doctor Profile Form</h1>
             </div>
             <div class="col-sm-6">
               <ol class="breadcrumb float-sm-right">
                 <li class="breadcrumb-item"><a href="#">Home</a></li>
-                <li class="breadcrumb-item active">Update Admin Profile</li>
+                <li class="breadcrumb-item active">Update Doctor Profile</li>
               </ol>
             </div>
           </div>
@@ -19,7 +19,7 @@
       <section class="content">
       <div class="card card-info">
         <div class="card-header">
-          <h3 class="card-title">Update Admin Profile</h3>
+          <h3 class="card-title">Update Doctor Profile</h3>
         </div>
         <!-- /.card-header -->
         <!-- form start -->

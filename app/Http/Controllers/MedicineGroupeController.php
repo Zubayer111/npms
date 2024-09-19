@@ -122,10 +122,11 @@ class MedicineGroupeController extends Controller
             ]);
             $userId = $request->session()->get("id");
             MedicineGroup::create([
-                "user_id" => $userId,
                 "group_name" => $request->input("group_name"),
                 "description" => $request->input("description"),
-                "status" => "active"
+                "status" => "active",
+                "created_by" => $userId,
+                "updated_by" => $userId
             ]);
             return response()->json([
                 "status" => "success",

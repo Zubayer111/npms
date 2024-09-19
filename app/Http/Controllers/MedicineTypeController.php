@@ -49,9 +49,10 @@ class MedicineTypeController extends Controller
             ]);
             $userId = $request->session()->get("id");
             MedicineType::create([
-                "user_id" => $userId,
                 "type_name" => $request->input("type_name"),
                 "description" => $request->input("description"),
+                "created_by" => $userId,
+                "updated_by" => $userId,
                 "status" => "active"
             ]);
             return response()->json([

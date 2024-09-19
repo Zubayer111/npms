@@ -75,7 +75,6 @@ class PatientVandorController extends Controller
             
             $data = PatientVandor::create([
                 'name' => $request->name,
-                'user_id' => $userId,
                 'email' => $request->email,
                 'phone' => $request->phone,
                 'address' => $request->address,
@@ -83,6 +82,8 @@ class PatientVandorController extends Controller
                 'contact_person' => $request->contact_person,
                 'token' => $token,
                 'secret_key' => $secret_key,
+                'created_by' => $userId,
+                'updated_by' => $userId,
                 'status' => "active",
             ]);
             

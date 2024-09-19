@@ -72,6 +72,7 @@ Route::prefix('/dashboard')
     Route::get("/deleted-admin", [AdminController::class,"deletedAdmin"]);
     Route::get("/deleted-admin-list", [AdminController::class,"deletedAdminList"])->name("dashboard.deleted-admin-list");
     Route::post("/admin/profile-create", [AdminController::class,"profileCreate"])->name("dashboard.admin.profile.update");
+    Route::post("/admin/profile-update", [AdminController::class,"profileUpdate"])->name("dashboard.admin.update.profile");
     Route::get("/admin/profile-read", [AdminController::class,"profileRead"]);
     Route::get("/admin/profile-edit", [AdminController::class,"profileEdit"])->name("dashboard.edit-admin");
     Route::get("/admin/profile-delete/{id}", [AdminController::class,"profileDelete"]);
@@ -92,6 +93,8 @@ Route::prefix('/dashboard')
     Route::post("/doctor/profile-create", [DoctorController::class,"profileCreate"])->name("dashboard.doctor.profile.update");
     Route::get("/doctor/profile-read", [DoctorController::class,"profileRead"]);
     Route::get("/doctor/profile-edit", [DoctorController::class,"profileEdit"])->name("dashboard.doctor.profile.edit");
+    Route::get("/doctor/admin/edit-profile/{id}", [DoctorController::class,"editProfileAdmin"])->name("dashboard.doctor.admin.edit-profile");
+    Route::post("/doctor/admin/profile-update", [DoctorController::class,"profileUpdateAdmin"])->name("dashboard.doctor.admin.update.profile");
     Route::get("/doctor/profile-delete/{id}", [DoctorController::class,"profileDelete"]);
     Route::post("/edit-doctor", [DoctorController::class,"updateDoctor"])->name("dashboard.update-doctor");
 
@@ -130,6 +133,7 @@ Route::prefix('/dashboard')
     Route::post("/patient/profile-create", [PatientController::class,"profileCreate"])->name("dashboard.patient.profile.update");
     Route::get("/patient/profile-read/{id}", [PatientController::class,"profileRead"]);
     Route::get("/patient/profile-edit", [PatientController::class,"profileEdit"])->name("dashboard.patient.profile.edit");
+    Route::get("/patient/admin/profile-edit", [PatientController::class,"profileEditAdmin"])->name("dashboard.patient.admin.profile.edit");
     Route::get("/patient/profile-delete/{id}", [PatientController::class,"profileDelete"]);
 
     // Medical Document routes

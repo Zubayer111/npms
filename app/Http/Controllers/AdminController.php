@@ -303,4 +303,70 @@ class AdminController extends Controller
         ]);
         return redirect("/dashboard/admin-list")->with("success", "Admin Updated Successfully");
     }
+
+    public function profileUpdate(Request $request)
+        {
+            // Validate the request data
+            $request->validate([
+                'first_name' => 'required|string',
+                'last_name' => 'required|string',
+                'middle_name' => 'required|string',
+                'address_one' => 'required|string',
+                'address_two' => 'required|string',
+                'city' => 'required|string',
+                'state' => 'required|string',
+                'zip_code' => 'required|string',
+                'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            ]);
+
+            // Get the user ID and other constant fields
+            $userId = $request->input("user_id");
+            $status = "Active";
+            $type = "Admin";
+            $refID = rand(10000, 99999);
+
+            // Prepare the data to be inserted/updated
+            $adminData = [
+                "user_id" => $userId,
+                "ref_id" => $refID,
+                "title" => $type,
+                "first_name" => $request->input("first_name"),
+                "last_name" => $request->input("last_name"),
+                "middle_name" => $request->input("middle_name"),
+                "phone_number" => $request->input("phone_number"),
+                "address_one" => $request->input("address_one"),
+                "address_two" => $request->input("address_two"),
+                "city" => $request->input("city"),
+                "state" => $request->input("state"),
+                "zip_code" => $request->input("zip_code"),
+                "status" => $status,
+            ];
+
+            // Handle profile photo upload if present
+            if ($request->hasFile("profile_photo")) {
+                $img = $request->file("profile_photo");
+                $file_name = $img->getClientOriginalName();
+                $img_name = "{$userId}-{$file_name}";
+                $img_url = "/uploads/admin/{$img_name}";
+
+                // Save the new profile photo
+                $img->move(public_path('/uploads/admin'), $img_name);
+                $adminData["profile_photo"] = $img_url;
+
+                // Delete the old profile photo if it exists
+                if ($request->input("file_path")) {
+                    $oldPhotoPath = public_path($request->input("file_path"));
+                    if (File::exists($oldPhotoPath)) {
+                        File::delete($oldPhotoPath);
+                    }
+                }
+            }
+
+            // Update or create admin profile
+            AdminsProfile::updateOrCreate(["user_id" => $userId], $adminData);
+
+            // Redirect with success message
+            return redirect("/dashboard/admin-list")->with("success", "Profile Updated Successfully");
+        }
+
 }

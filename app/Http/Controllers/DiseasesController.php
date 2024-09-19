@@ -124,6 +124,7 @@ class DiseasesController extends Controller
                 "disease_name" => $request->input("disease_name"),
                 "description" => $request->input("description"),
                 'created_by' => $userId,
+                'updated_by' => $userId,
                 "status" => "active",
             ]);
             return response()->json([
