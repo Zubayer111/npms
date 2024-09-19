@@ -32,7 +32,7 @@
                         <div class="input-group">
                           <div class="custom-file">
                             <input type="hidden" name="id" value="{{$user->user_id ?? ''}}">
-                            <input name="profile_photo" type="file" class="custom-file-input" id="exampleInputFile" required>
+                            <input name="profile_photo" type="file" class="custom-file-input" id="exampleInputFile">
                             <label class="custom-file-label" for="exampleInputFile">Choose file</label>
                           </div>
                           <div class="input-group-append">
@@ -56,7 +56,7 @@
                 
                 <div class="form-group col-md-6">
                   <label for="exampleInputName">Meddil Name</label>
-                  <input name="middle_name" type="text" class="form-control" id="exampleInputName" placeholder="Enter first name" value="{{$user->middle_name ?? ''}}" required>
+                  <input name="middle_name" type="text" class="form-control" id="exampleInputName" placeholder="Enter middle name" value="{{$user->middle_name ?? ''}}" >
               </div>
                 <div class="form-group col-md-6">
                   <label for="exampleInputMobile">Last Name</label>

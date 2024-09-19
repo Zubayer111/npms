@@ -322,11 +322,10 @@ class AdminController extends Controller
     public function profileCreateByAdmin(Request $request)
         {
             try {
-            // Validate the request data
+                DB::beginTransaction();
             $request->validate([
                 'first_name' => 'required|string',
                 'last_name' => 'required|string',
-                'middle_name' => 'required|string',
                 'address_one' => 'required|string',
                 'address_two' => 'required|string',
                 'city' => 'required|string',
@@ -377,13 +376,22 @@ class AdminController extends Controller
                     }
                 }
             }
+            
 
             // Update or create admin profile
-            AdminsProfile::updateOrCreate(["user_id" => $userId], $adminData);
+           $admin = AdminsProfile::updateOrCreate(["user_id" => $userId], $adminData);
+           if ($admin) {
+            $user->update([
+                "name" => $request->input("first_name") . " " . $request->input("last_name"),
+                "phone" => $request->input("phone_number")
+            ]);
+            }
+            DB::commit();
 
             // Redirect with success message
             return redirect("/dashboard/admin-list")->with("success", "Profile Updated Successfully");
         } catch (\Exception $e) {
+            DB::rollBack();
             Alert::toast($e->getMessage(), 'error');
             return redirect("/dashboard/admin-list");
         }

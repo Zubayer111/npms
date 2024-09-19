@@ -3,7 +3,7 @@
         <label for="name" class="text-black-50">Basic Info</label>
     </div>
 </div>
-
+    <input type="hidden" name="id" value="{{ $user ? $user->id : '' }}">
 <div class="row justify-content">
     <div class="col-lg-3 col-3">
         <div class="form-group">

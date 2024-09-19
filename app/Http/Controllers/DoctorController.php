@@ -301,10 +301,10 @@ public function createDoctor(Request $request)
 
     public function profileUpdateAdmin(Request $request){
         try {
+            DB::beginTransaction();
             $request->validate([
                 'first_name' => 'required|string',
                 'last_name' => 'required|string',
-                'middle_name' => 'required|string',
                 'phone_number' => 'required|string',
                 'address_one' => 'required|string',
                 'address_two' => 'nullable|string',
@@ -367,11 +367,18 @@ public function createDoctor(Request $request)
     
             // Ensure "user_id" is correctly set
             $request->merge(["user_id" => $userId]);
-            DoctorsProfile::updateOrCreate(["user_id" => $userId], $adminData);
-    
+           $doctor = DoctorsProfile::updateOrCreate(["user_id" => $userId], $adminData);
+           if ($doctor) {
+            $user->update([
+                "name" => $request->input("first_name") . " " . $request->input("last_name"),
+                "phone" => $request->input("phone_number")
+            ]);
+            }
+            DB::commit();
             return redirect("/dashboard/doctor-list")->with("success", "Profile Updated Successfully");
         }
         catch (\Exception $e) {
+            DB::rollBack();
             Alert::toast($e->getMessage(), 'error');
             return redirect("/dashboard/doctor-list")->with("error", $e->getMessage());
         }

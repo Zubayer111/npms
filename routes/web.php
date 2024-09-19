@@ -139,6 +139,8 @@ Route::prefix('/dashboard')
     Route::get("/patient/profile-read/{id}", [PatientController::class,"profileRead"]);
     Route::get("/patient/profile-edit", [PatientController::class,"profileEdit"])->name("dashboard.patient.profile.edit");
     Route::get("/patient/profile-delete/{id}", [PatientController::class,"profileDelete"]);
+    Route::get("/patient/admin/profile-edit/{id}", [PatientController::class,"editProfileAdmin"])->name("dashboard.patient.admin.profile.edit");
+    Route::post("/patient/profile-create-by-admin", [PatientController::class,"profileCreateByAdmin"])->name("dashboard.patient.profile.update.by.admin");
 
     // Medical Document routes
     Route::get('/medical-documents', [MedicalDocumentController::class, 'index'])->name('dashboard.medical-documents-page');
