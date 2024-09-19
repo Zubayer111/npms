@@ -93,7 +93,7 @@ class AdminController extends Controller
     public function editAdminProfile($id){
         $user = AdminsProfile::findOrFail($id);
     
-        return view("backend.pages.admin.admin-edit-page", compact("user"));
+        return view("backend.pages.dashboard.admin.admin-edit", compact("user"));
     }
 
     public function getAdminList(Request $request){
@@ -319,8 +319,9 @@ class AdminController extends Controller
         return redirect("/dashboard/admin-list")->with("success", "Admin Updated Successfully");
     }
 
-    public function profileUpdate(Request $request)
+    public function profileCreateByAdmin(Request $request)
         {
+            try {
             // Validate the request data
             $request->validate([
                 'first_name' => 'required|string',
@@ -335,11 +336,11 @@ class AdminController extends Controller
             ]);
 
             // Get the user ID and other constant fields
-            $userId = $request->input("user_id");
-            $status = "Active";
+            $user = User::findOrFail($request->input('id'));
+            $userId = $user->id;
             $type = "Admin";
             $refID = rand(10000, 99999);
-
+            $status = "active";
             // Prepare the data to be inserted/updated
             $adminData = [
                 "user_id" => $userId,
@@ -382,6 +383,10 @@ class AdminController extends Controller
 
             // Redirect with success message
             return redirect("/dashboard/admin-list")->with("success", "Profile Updated Successfully");
+        } catch (\Exception $e) {
+            Alert::toast($e->getMessage(), 'error');
+            return redirect("/dashboard/admin-list");
+        }
         }
 
 }

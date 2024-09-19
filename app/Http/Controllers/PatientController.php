@@ -110,7 +110,7 @@ class PatientController extends Controller
         $patient = User::findOrFail($id);
         $data = PatientsProfile::where('user_id', $patient->id)->first();
         
-        return view("backend.pages.patient.view-patient-page", compact("data"));
+        return view("backend.pages.dashboard.admin.patient-edit", compact("data"));
     }
 
     public function activePatient(){

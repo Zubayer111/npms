@@ -194,7 +194,7 @@ $(document).ready(function() {
     
 </script>
 
-{{-- <script>
+<script>
     $(document).ready(function() {
             $('#createUserForm').on('submit', function(event) {
                 event.preventDefault();
@@ -236,4 +236,4 @@ $(document).ready(function() {
                 });
             });
         });
-</script> --}}
+</script>
