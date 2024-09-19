@@ -30,28 +30,30 @@ class PatientMedicalRequest extends FormRequest
             case 'POST':
             {
                 return [
-                    'file' => 'required|file|mimes:jpg,jpeg,png,pdf,doc,docx,txt',
-                    'file_type' => 'required',
+                    'file' => 'required',
+                    'file.*' => 'file|mimes:jpg,jpeg,png,pdf,doc,docx,txt|max:2048', // Validating each file
+                    'file_type' => 'required|string',
                     'file_name' => 'required|string',
                 ];
             }
             case 'PUT':
-                {
-                    return [
-                        'id' => 'required|integer',
-                        'file' => 'required|file|mimes:jpg,jpeg,png,pdf,doc,docx,txt',
-                        'file_type' => 'required',
-                        'file_name' => 'required|string',
-                    ];
-                }
+            {
+                return [
+                    'id' => 'required|integer',
+                    'file' => 'required',
+                    'file.*' => 'file|mimes:jpg,jpeg,png,pdf,doc,docx,txt|max:2048', // Validating each file
+                    'file_type' => 'required|string',
+                    'file_name' => 'required|string',
+                ];
+            }
             case 'DELETE':
             {
                 return [
                     'id' => 'required|integer',
                 ];
             }
-
-            default:break;
+            default: break;
         }
     }
+
 }
