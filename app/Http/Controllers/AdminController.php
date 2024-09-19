@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use RealRashid\SweetAlert\Facades\Alert;
+use Validator;
+use Log;
 
 class AdminController extends Controller
 {
@@ -28,16 +30,25 @@ class AdminController extends Controller
 
     public function createAdmin(Request $request)
     {
-        DB::beginTransaction();
+       
         try {
-            $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|email|unique:users',
-                'password' => 'required|min:8',
-                'phone' => 'required|string|min:10|unique:users',
-                'type' => 'required|in:Admin',  
-            ]);
+            if($request->ajax()){   
+                $validator = Validator::make($request->all(), [ 
+                    'name' => 'required|string|max:255',
+                    'email' => 'required|email|unique:users',
+                    'password' => 'required|min:8',
+                    'phone' => 'required|string|min:10|unique:users',
+                    'type' => 'required|in:Admin', 
+                ]);
 
+                if($validator->fails()){
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => $validator->errors()->first(),
+                    ], 400);
+                }
+
+            DB::beginTransaction();
             $user = User::create([
                 'name' => $request->input('name'),
                 'email' => $request->input('email'),
@@ -46,24 +57,28 @@ class AdminController extends Controller
                 'type' => 'Admin',  
             ]);
 
-            
-            event(new UserCreated($user, $request->input('password')));
+            if($user){
+                $profile = AdminsProfile::create([
+                    'user_id' => $user->id,
+                    'phone_number' => $user->phone,
+                    'first_name' => $user->name,
+                    'last_name' => $user->name,
+                ]);
 
-            
-            AdminsProfile::create([
-                'user_id' => $user->id,
-                'phone_number' => $user->phone,
-                'first_name' => $user->name,
-                'last_name' => $user->name,
-            ]);
+                if($profile){
+                    event(new UserCreated($user, $request->input('password')));
+                }
+            }
 
             DB::commit();
             return response()->json([
                 'status' => 'success',
                 'message' => 'Admin created successfully. An email has been sent to the provided email address.',
             ], 200);
+        }
         } catch (Exception $e) {
             DB::rollBack();
+            Log::error('Admin Creation Failed: ' . $e);
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage(),
