@@ -64,8 +64,8 @@
                         </div>
                     </div>
                     <div class="card-footer col-md-12 justify-content-between">
-                        <button type="button" class="close float-left" data-dismiss="modal" aria-label="Close" ><span class="btn btn-dark" aria-hidden="true">Cancel</span></button>
-                        <button type="submit" class="btn btn-primary float-right" id="submit">Submit</button>
+                        <button type="button" class="btn btn-danger close float-left" data-dismiss="modal" aria-label="Close" ><span class="btn btn-dark" aria-hidden="true">Cancel</span></button>
+                        <button type="submit" class="btn btn-success float-right" id="submit">Submit</button>
                     </div>
                 </form>
             </div>
@@ -77,12 +77,16 @@
     $(document).ready(function() {
             $('#createUserForm').on('submit', function(event) {
                 event.preventDefault();
-
+                $("#submit").prop('disabled', true);
+                $("#submit").text('Please wait...');
                 $.ajax({
                     url: '{{ route('dashboard.create-patient') }}',
                     method: 'POST',
                     data: $(this).serialize(),
                     success: function(response) {
+                        // console.log(response);
+                        $("#submit").prop('disabled', false);
+                        $("#submit").text('Submit');
                         if(response.status === 'success') {
                             Swal.fire({
                                 icon: 'success',
@@ -92,26 +96,25 @@
                             setTimeout(function() {
                                 window.location.href = '{{ route('dashboard.patient-list') }}';
                             }, 2000);
-                        } 
-                        else {
+                        } else {
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Error',
                                 text: response.message,
                             })
+                            $("#submit").prop('disabled', false);
+                            $("#submit").text('Submit');
                         }
                     },
-                    error: function(xhr) {
-                        let errors = xhr.responseJSON.errors;
-                        let errorMessage = 'Something went wrong. Please try again later.\n';
-                        for (let key in errors) {
-                            errorMessage += errors[key][0] + '\n';
-                        }
+                    error: function(response) {
+                        let errors = response.responseJSON;
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
-                            text: response.message,
+                            text: errors.message,
                         });
+                        $("#submit").prop('disabled', false);
+                        $("#submit").text('Submit');
                     }
                 });
             });

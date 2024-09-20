@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
 use RealRashid\SweetAlert\Facades\Alert;
 use App\Http\Requests\Patient\PatientProfileRequest;
+use Validator;
+use Log;
 
 class PatientController extends Controller
 {
@@ -30,17 +32,22 @@ class PatientController extends Controller
 
     public function createPatient(Request $request)
     {
-        DB::beginTransaction();
         try {
-            $request->validate([
+            $validator = Validator::make($request->all(), [ 
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users',
                 'password' => 'required|min:8',
                 'phone' => 'required|string|min:10|unique:users',
-                'type' => 'required|in:Patient',
+                'type' => 'required|in:Patient', 
             ]);
-
-            // Create the user
+    
+            if($validator->fails()){
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $validator->errors()->first(),
+                ], 400);
+            }
+            DB::beginTransaction();
             $user = User::create([
                 'name' => $request->input('name'),
                 'email' => $request->input('email'),
@@ -48,10 +55,10 @@ class PatientController extends Controller
                 'phone' => $request->input('phone'),
                 'type' => 'Patient', 
             ]);
-            
-            event(new UserCreated($user, $request->input('password')));
 
-            PatientsProfile::create([
+
+            if ($user) {
+            $profile = PatientsProfile::create([
                 'user_id' => $user->id,
                 'reference_by' => $request->session()->get("id"),
                 'reference_time' => now(),  
@@ -60,8 +67,11 @@ class PatientController extends Controller
                 'email' => $user->email,
                 'created_by' => $request->session()->get("id")
             ]);
+            if($profile){
+                event(new UserCreated($user, $request->input('password')));
+            }
+            }
 
-            
             DB::commit();
             return response()->json([
                 'status' => 'success',
@@ -69,6 +79,7 @@ class PatientController extends Controller
             ], 200);
         } catch (Exception $e) {
             DB::rollBack();
+            Log::error('Admin Creation Failed: ' . $e);
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage()

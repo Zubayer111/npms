@@ -303,6 +303,7 @@ class AdminController extends Controller
     }
 
     public function updateAdmin(Request $request){
+        try {
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email',
@@ -317,6 +318,11 @@ class AdminController extends Controller
             "type" => "Admin",
         ]);
         return redirect("/dashboard/admin-list")->with("success", "Admin Updated Successfully");
+    }
+    catch (\Exception $e) {
+        Alert::toast($e->getMessage(), 'error');
+        return redirect("/dashboard/admin-list");
+    }
     }
 
     public function profileCreateByAdmin(Request $request)

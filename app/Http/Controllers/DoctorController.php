@@ -16,6 +16,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
 use RealRashid\SweetAlert\Facades\Alert;
+use Validator;
+use Log;
 
 class DoctorController extends Controller
 {
@@ -62,34 +64,42 @@ class DoctorController extends Controller
 
 public function createDoctor(Request $request)
 {
-    DB::beginTransaction();
+    
     try {
-        $request->validate([
+        $validator = Validator::make($request->all(), [ 
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:8',
             'phone' => 'required|string|min:10|unique:users',
-            'type' => 'required|in:Doctor',
+            'type' => 'required|in:Doctor', 
         ]);
 
+        if($validator->fails()){
+            return response()->json([
+                'status' => 'error',
+                'message' => $validator->errors()->first(),
+            ], 400);
+        }
+        DB::beginTransaction();
         $user = User::create([
             'name' => $request->input('name'),
             'email' => $request->input('email'),
             'password' => bcrypt($request->input('password')),
             'phone' => $request->input('phone'),
-            'type' => $request->input('type'),
+            'type' => "Doctor",
         ]);
 
-       
-        event(new UserCreated($user, $request->input('password')));
-
-        
-        DoctorsProfile::create([
+        if($user){
+            $profile = DoctorsProfile::create([
             'user_id' => $user->id,
             'phone_number' => $user->phone,
             'first_name' => $user->name,
             'last_name' => $user->name,
         ]);
+        if($profile){
+            event(new UserCreated($user, $request->input('password')));
+        }
+    }
 
         DB::commit();
         return response()->json([
@@ -98,6 +108,7 @@ public function createDoctor(Request $request)
         ], 200);
     } catch (Exception $e) {
         DB::rollBack();
+        Log::error('Admin Creation Failed: ' . $e);
         return response()->json([
             'status' => 'error',
             'message' => $e->getMessage(),

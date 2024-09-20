@@ -18,6 +18,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use RealRashid\SweetAlert\Facades\Alert;
+use Validator;
+use Log;
 
 
 class UserController extends Controller
@@ -49,15 +51,22 @@ class UserController extends Controller
 
 public function createUser(Request $request)
 {
-    DB::beginTransaction();
     try {
-        $request->validate([
+        $validator = Validator::make($request->all(), [ 
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:8',
-            'phone' => 'required|string|unique:users,phone|min:10|max:11',
-            'type' => 'required',
+            'phone' => 'required|string|min:10|unique:users',
+            'type' => 'required', 
         ]);
+
+        if($validator->fails()){
+            return response()->json([
+                'status' => 'error',
+                'message' => $validator->errors()->first(),
+            ], 400);
+        }
+        DB::beginTransaction();
 
         $user = User::create([
             'name' => $request->input('name'),
@@ -69,8 +78,6 @@ public function createUser(Request $request)
         
         if ($user) {
             event(new UserCreated($user, $request->input('password')));
-
-            // Additional logic for handling profiles
             if ($user->type === 'Patient') {
                PatientsProfile::create([
                     'user_id' => $user->id,
@@ -79,8 +86,8 @@ public function createUser(Request $request)
                     'first_name' => $user->name,
                     'phone_number' => $user->phone,
                     'email' => $user->email,
-                    'created_at' => $request->session()->get("id"),
-                    'updated_at' => $request->session()->get("id"),
+                    'created_by' => $request->session()->get("id"),
+                    'updated_by' => $request->session()->get("id"),
                 ]);
                 // dd($patient);
             } elseif ($user->type === 'Doctor') {
@@ -89,26 +96,21 @@ public function createUser(Request $request)
                     'phone_number' => $user->phone,
                     'first_name' => $user->name,
                     'last_name' => $user->name,
-                    'created_at' => $request->session()->get("id"),
-                    'updated_at' => $request->session()->get("id"),
+                    'created_by' => $request->session()->get("id"),
+                    'updated_by' => $request->session()->get("id"),
                 ]);
-            } elseif ($user->type === 'Admin') {
+            } else {
                 AdminsProfile::create([
                     'user_id' => $user->id,
                     'phone_number' => $user->phone,
                     'first_name' => $user->name,
                     'last_name' => $user->name,
-                    'created_at' => $request->session()->get("id"),
-                    'updated_at' => $request->session()->get("id"),
+                    'created_by' => $request->session()->get("id"),
+                    'updated_by' => $request->session()->get("id"),
                 ]);
-            } else {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Something went wrong',
-                ]);
-            }
+            } 
            
-            // return $user;
+
             DB::commit();
             
             return response()->json([
@@ -118,6 +120,7 @@ public function createUser(Request $request)
         }
     } catch (Exception $e) {
         DB::rollBack();
+        Log::error('Admin Creation Failed: ' . $e);
         Alert::toast($e->getMessage(), 'error');
         return redirect("/dashboard/user-list")->with("error", $e->getMessage());
     }
