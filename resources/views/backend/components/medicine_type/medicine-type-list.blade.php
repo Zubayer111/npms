@@ -24,7 +24,7 @@
                   <div class="card-tools">
                     <div class="input-group input-group-sm" style="width: 150px;">
                       <div class="input-group-append">
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createMedicineTypeModal">
+                        <button type="button" class="btn btn-primary" data-backdrop="static" data-keyboard="false" data-toggle="modal" data-target="#createMedicineTypeModal">
                           Create Medicine Type
                       </button>
                       </div>

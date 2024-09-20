@@ -11,7 +11,7 @@
             </div>
             <div class="modal-body">
                 <!-- Include your form here -->
-                <form id="createUserForm" enctype="multipart/form-data">
+                <form  method="POST" id="createUserForm" enctype="multipart/form-data">
                     @csrf
                     <div class="card-body row">
                         <div class="form-group col-md-6">
@@ -69,8 +69,8 @@
                         </div>
                     </div>
                     <div class="card-footer col-md-12 justify-content-between">
-                        <button type="button" class="close float-left" data-dismiss="modal" aria-label="Close" ><span class="btn btn-dark" aria-hidden="true">Cancel</span></button>
-                        <button type="submit" class="btn btn-primary float-right" id="submit">Submit</button>
+                        <button type="button" class="btn btn-danger close float-left" data-dismiss="modal" aria-label="Close" ><span class="btn btn-dark" aria-hidden="true">Cancel</span></button>
+                        <button type="submit" class="btn btn-success float-right" id="submit">Submit</button>
                     </div>
                 </form>
             </div>
@@ -198,12 +198,16 @@ $(document).ready(function() {
     $(document).ready(function() {
             $('#createUserForm').on('submit', function(event) {
                 event.preventDefault();
-
+                $("#submit").prop('disabled', true);
+                $("#submit").text('Please wait...');
                 $.ajax({
                     url: '{{ route('dashboard.create-user') }}',
                     method: 'POST',
                     data: $(this).serialize(),
                     success: function(response) {
+                        // console.log(response);
+                        $("#submit").prop('disabled', false);
+                        $("#submit").text('Submit');
                         if(response.status === 'success') {
                             Swal.fire({
                                 icon: 'success',
@@ -218,20 +222,20 @@ $(document).ready(function() {
                                 icon: 'error',
                                 title: 'Error',
                                 text: response.message,
-                            });
+                            })
+                            $("#submit").prop('disabled', false);
+                            $("#submit").text('Submit');
                         }
                     },
-                    error: function(xhr) {
-                        let errors = xhr.responseJSON.errors;
-                        let errorMessage = '';
-                        for (let key in errors) {
-                            errorMessage += errors[key][0] + '\n';
-                        }
+                    error: function(response) {
+                        let errors = response.responseJSON;
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
-                            text: errorMessage,
+                            text: errors.message,
                         });
+                        $("#submit").prop('disabled', false);
+                        $("#submit").text('Submit');
                     }
                 });
             });

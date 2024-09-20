@@ -6,18 +6,21 @@ use Exception;
 use App\Models\User;
 use App\Mail\UserInfo;
 use App\Events\UserCreated;
+use App\Traits\UploadTrait;
 use Illuminate\Http\Request;
 use App\Helper\ResponseHelper;
+use App\Models\MedicalDocument;
 use App\Models\PatientsProfile;
 use App\Models\Patients_profile;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Patient\PatientProfileRequest;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
 use RealRashid\SweetAlert\Facades\Alert;
-use App\Traits\UploadTrait;
-use Illuminate\Support\Facades\File;
+use App\Http\Requests\Patient\PatientProfileRequest;
+use Validator;
+use Log;
 
 class PatientController extends Controller
 {
@@ -29,17 +32,22 @@ class PatientController extends Controller
 
     public function createPatient(Request $request)
     {
-        DB::beginTransaction();
         try {
-            $request->validate([
+            $validator = Validator::make($request->all(), [ 
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users',
                 'password' => 'required|min:8',
                 'phone' => 'required|string|min:10|unique:users',
-                'type' => 'required|in:Patient',
+                'type' => 'required|in:Patient', 
             ]);
-
-            // Create the user
+    
+            if($validator->fails()){
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $validator->errors()->first(),
+                ], 400);
+            }
+            DB::beginTransaction();
             $user = User::create([
                 'name' => $request->input('name'),
                 'email' => $request->input('email'),
@@ -47,10 +55,10 @@ class PatientController extends Controller
                 'phone' => $request->input('phone'),
                 'type' => 'Patient', 
             ]);
-            
-            event(new UserCreated($user, $request->input('password')));
 
-            PatientsProfile::create([
+
+            if ($user) {
+            $profile = PatientsProfile::create([
                 'user_id' => $user->id,
                 'reference_by' => $request->session()->get("id"),
                 'reference_time' => now(),  
@@ -59,8 +67,11 @@ class PatientController extends Controller
                 'email' => $user->email,
                 'created_by' => $request->session()->get("id")
             ]);
+            if($profile){
+                event(new UserCreated($user, $request->input('password')));
+            }
+            }
 
-            
             DB::commit();
             return response()->json([
                 'status' => 'success',
@@ -68,6 +79,7 @@ class PatientController extends Controller
             ], 200);
         } catch (Exception $e) {
             DB::rollBack();
+            Log::error('Admin Creation Failed: ' . $e);
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage()
@@ -91,7 +103,7 @@ class PatientController extends Controller
 
                     $btn = '<a href="'.$viewUrl.'" class="btn btn-success btn-sm mr-2">View</a>';
 
-                    $btn .= '<button type="button" id="editBtn" data-url="'.$editUrl.'" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editUserModal">
+                    $btn .= '<button type="button" id="editBtn" data-url="'.$editUrl.'" class="btn btn-primary btn-sm" data-backdrop="static" data-keyboard="false" data-toggle="modal" data-target="#editUserModal">
                                 <div>Edit</div>
                             </button>';
                     $btn .= '<form id="delete-form-'.$row->id.'" action="'.$deleteUrl.'" method="POST" style="display: inline;">
@@ -109,8 +121,10 @@ class PatientController extends Controller
     public function viewPatient($id){
         $patient = User::findOrFail($id);
         $data = PatientsProfile::where('user_id', $patient->id)->first();
+        $medcalDocuments = MedicalDocument::where("patient_id", $patient)->get();
         
-        return view("backend.pages.patient.view-patient-page", compact("data"));
+        
+        return view("backend.pages.patient.view-patient-page", compact("patient", "data", "medcalDocuments"));
     }
 
     public function activePatient(){
@@ -297,4 +311,89 @@ class PatientController extends Controller
         ]);
         return redirect("/dashboard/patient-list")->with("success", "Patient Updated Successfully");
     }
+
+    public function editProfileAdmin($id){
+        $user = PatientsProfile::findOrFail($id);
+        return view("backend.pages.dashboard.admin.patient-edit", compact("user"));
+    }
+
+    public function profileCreateByAdmin(PatientProfileRequest $request)
+{
+    try {
+        DB::beginTransaction();
+        $id = $request->input("id"); // ID of the patient being referenced
+        $userId = $request->session()->get("id"); // Admin user ID
+        
+        // Fetch the user by $id
+        $reference_by = User::where("id", $id)->first();
+        
+        // Check if $reference_by is null
+        if (!$reference_by) {
+            throw new \Exception("User with ID {$id} not found");
+        }
+
+        $title = $request->session()->get("type");
+        $status = $request->session()->get("status");
+        
+        $patienData = [
+            "user_id" => $reference_by->id,
+            "reference_by" => $reference_by->id,
+            "reference_note" => $request->input("reference_note"),
+            "reference_time" => date("Y-m-d H:i:s", strtotime($request->reference_time)),
+            "title" => $request->input("title"),
+            "first_name" => $request->input("first_name"),
+            "last_name" => $request->input("last_name"),
+            "middle_name" => $request->input("middle_name"),
+            "email" => $request->input("email"),
+            "gender" => $request->input("gender"),
+            "marital_status" => $request->input("marital_status"),
+            "blood_group" => $request->input("blood_group"),
+            "economical_status" => $request->input("economical_status"),
+            "smoking_status" => $request->input("smoking_status"),
+            "alcohole_status" => $request->input("alcohole_status"),
+            "dob" => date("Y-m-d H:i:s", strtotime($request->dob)),
+            "height" => $request->input("height"),
+            "weight" => $request->input("weight"),
+            "bmi" => $request->input("bmi"),
+            "address_one" => $request->input("address_one"),
+            "address_two" => $request->input("address_two"),
+            "city" => $request->input("city"),
+            "state" => $request->input("state"),
+            "zipCode" => $request->input("zipCode"),
+            "phone_number" => $request->input("phone_number"),
+            "history" => $request->input("history"),
+            "employer_details" => $request->input("employer_details"),
+            "status" => $status,
+            "patient_type" => "system-patient",
+            "created_by" => $userId,
+            "updated_by" => $userId
+        ];
+
+        if ($request->hasFile('profile_photo')) {
+            $profile_photo = $this->uploadImageToLocal(
+                $request->profile_photo, 
+                '/patient/' . $userId . '/profile_image/', 
+                'image_', 
+                100, 
+                100, 
+                $request->file_path
+            );
+            $patienData["profile_photo"] = $profile_photo;
+        }
+
+        $request->merge(["user_id" => $reference_by->id]);
+        PatientsProfile::updateOrCreate(["user_id" => $reference_by->id], $patienData);
+        User::where("id", $reference_by->id)->update(["name" => $patienData["first_name"], "email" => $patienData["email"]]);
+
+        DB::commit();
+        DB::log("PatientProfile Updated Successfully");
+
+        return redirect("/dashboard/patient-list")->with("success", "Profile Updated Successfully");
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Alert::toast($e->getMessage(), 'error');
+        return redirect("/dashboard/patient-list");
+    }
+}
+
 }

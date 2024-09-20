@@ -88,7 +88,7 @@
                     method: 'POST',
                     data: $(this).serialize(),
                     success: function(response) {
-                        console.log(response);
+                        // console.log(response);
                         $("#submit").prop('disabled', false);
                         $("#submit").text('Submit');
                         if(response.status === 'success') {

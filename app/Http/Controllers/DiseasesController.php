@@ -24,7 +24,7 @@ class DiseasesController extends Controller
                 ->addColumn('action', function($row){
                     $editUrl = route('dashboard.edit-disease', $row->id);
                     $deleteUrl = route('dashboard.delete.disease', $row->id);
-                    $btn = '<button type="button" id="editBtn" data-url="'.$editUrl.'" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editDisease">
+                    $btn = '<button type="button" id="editBtn" data-url="'.$editUrl.'" class="btn btn-primary btn-sm" data-backdrop="static" data-keyboard="false" data-toggle="modal" data-target="#editDisease">
                                 <div>Edit</div>
                             </button>';
                     $btn .= '<form id="delete-form-'.$row->id.'" action="'.$deleteUrl.'" method="POST" style="display: inline;">
@@ -124,6 +124,7 @@ class DiseasesController extends Controller
                 "disease_name" => $request->input("disease_name"),
                 "description" => $request->input("description"),
                 'created_by' => $userId,
+                'updated_by' => $userId,
                 "status" => "active",
             ]);
             return response()->json([

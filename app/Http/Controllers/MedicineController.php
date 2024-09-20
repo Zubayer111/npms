@@ -155,7 +155,8 @@ class MedicineController extends Controller
                 "description" => $request->input("description"),
                 "price" => $request->input("price"),
                 "use_for" => $request->input("use_for"),
-                "user_id" => $userId
+                "created_by" => $userId,
+                "updated_by" => $userId,
             ]);
             return response()->json([
                 "status" => "success",

@@ -21,7 +21,7 @@ class MedicineGroupeController extends Controller
                 ->addColumn('action', function($row){
                     $editUrl = route('dashboard.edit-medicine-group', $row->id);
                     $deleteUrl = route('dashboard.delete.group', $row->id);
-                    $btn = '<button type="button" id="editBtn" data-url="'.$editUrl.'" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editGroupModal">
+                    $btn = '<button type="button" id="editBtn" data-url="'.$editUrl.'" class="btn btn-primary btn-sm" data-backdrop="static" data-keyboard="false" data-toggle="modal" data-target="#editGroupModal">
                                 <div>Edit</div>
                             </button>';
                     $btn .= '<form id="delete-form-'.$row->id.'" action="'.$deleteUrl.'" method="POST" style="display: inline;">
@@ -122,10 +122,11 @@ class MedicineGroupeController extends Controller
             ]);
             $userId = $request->session()->get("id");
             MedicineGroup::create([
-                "user_id" => $userId,
                 "group_name" => $request->input("group_name"),
                 "description" => $request->input("description"),
-                "status" => "active"
+                "status" => "active",
+                "created_by" => $userId,
+                "updated_by" => $userId
             ]);
             return response()->json([
                 "status" => "success",

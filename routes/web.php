@@ -64,7 +64,7 @@ Route::prefix('/dashboard')
     Route::get("/get-admin-list", [AdminController::class,"getAdminList"])->name("dashboard.get-admin-list");
     Route::get("/active-admin", [AdminController::class,"activeAdmin"]);
     Route::get("/view-admin/{id}", [AdminController::class,"viewAdmin"])->name("dashboard.view-admin");
-    Route::get("/admin-edit-profile/{id}", [AdminController::class,"editAdminProfile"])->name("dashboard.admin-edit-profile");
+    Route::get("/admin-edit-profile-page/{id}", [AdminController::class,"editAdminProfile"])->name("dashboard.admin-edit-profile-page");
     Route::get("/active-admin-list", [AdminController::class,"activeAdminList"])->name("dashboard.active-admin-list");
     Route::get("/inactive-admin", [AdminController::class,"inactiveAdmin"]);
     Route::get("/inactive-admin-list", [AdminController::class,"inactiveAdminList"])->name("dashboard.inactive-admin-list");
@@ -72,6 +72,8 @@ Route::prefix('/dashboard')
     Route::get("/deleted-admin", [AdminController::class,"deletedAdmin"]);
     Route::get("/deleted-admin-list", [AdminController::class,"deletedAdminList"])->name("dashboard.deleted-admin-list");
     Route::post("/admin/profile-create", [AdminController::class,"profileCreate"])->name("dashboard.admin.profile.update");
+    Route::post("/admin/profile-create-by-admin", [AdminController::class,"profileCreateByAdmin"])->name("dashboard.admin.profile.update.by.admin");
+    Route::post("/admin/profile-update", [AdminController::class,"profileUpdate"])->name("dashboard.admin.update.profile");
     Route::get("/admin/profile-read", [AdminController::class,"profileRead"]);
     Route::get("/admin/profile-edit", [AdminController::class,"profileEdit"])->name("dashboard.edit-admin");
     Route::get("/admin/profile-delete/{id}", [AdminController::class,"profileDelete"]);
@@ -88,10 +90,15 @@ Route::prefix('/dashboard')
     Route::get("/inactive-doctor", [DoctorController::class,"inactiveDoctor"]);
     Route::get("/deleted-doctor-list", [DoctorController::class,"deletedDoctorList"])->name("dashboard.deleted-doctor-list");
     Route::get("/deleted-doctor", [DoctorController::class,"deletedDoctor"]);
+    Route::get("/dashboard/doctor/admin/edit-profile/{id}", [DoctorController::class,"editProfileAdmin"])->name("dashboard.doctor.admin.edit-profile");
     Route::get("/edit-doctor/{id}", [DoctorController::class,"editDoctor"])->name("dashboard.edit-doctor");
     Route::post("/doctor/profile-create", [DoctorController::class,"profileCreate"])->name("dashboard.doctor.profile.update");
+    Route::post("dashboard/doctor/admin/update/profile", [DoctorController::class,"profileUpdateAdmin"])->name("dashboard.doctor.admin.update.profile");
+    
     Route::get("/doctor/profile-read", [DoctorController::class,"profileRead"]);
     Route::get("/doctor/profile-edit", [DoctorController::class,"profileEdit"])->name("dashboard.doctor.profile.edit");
+    Route::get("/doctor/admin/edit-profile/{id}", [DoctorController::class,"editProfileAdmin"])->name("dashboard.doctor.admin.edit-profile");
+    Route::post("/doctor/admin/profile-update", [DoctorController::class,"profileUpdateAdmin"])->name("dashboard.doctor.admin.update.profile");
     Route::get("/doctor/profile-delete/{id}", [DoctorController::class,"profileDelete"]);
     Route::post("/edit-doctor", [DoctorController::class,"updateDoctor"])->name("dashboard.update-doctor");
 
@@ -99,6 +106,7 @@ Route::prefix('/dashboard')
     Route::get("/company-list", [CompanyController::class,"companyListPage"])->name("dashboard.company-list");
     Route::get("/get-company-list", [CompanyController::class,"getCompanyList"])->name("dashboard.get-company-list");
     Route::get("/create-company", [CompanyController::class,"createCompanyPage"]);
+    Route::get("/view-company/{id}", [CompanyController::class,"viewCompany"])->name("dasboard.view-company");
     Route::post("/create-company", [CompanyController::class,"createCompany"])->name("dashboard.create-company");
     Route::post("/update-company", [CompanyController::class,"updateCompany"])->name("dashboard.update-company");
     Route::get("/active-company", [CompanyController::class,"activeCompany"]);
@@ -131,6 +139,8 @@ Route::prefix('/dashboard')
     Route::get("/patient/profile-read/{id}", [PatientController::class,"profileRead"]);
     Route::get("/patient/profile-edit", [PatientController::class,"profileEdit"])->name("dashboard.patient.profile.edit");
     Route::get("/patient/profile-delete/{id}", [PatientController::class,"profileDelete"]);
+    Route::get("/patient/admin/profile-edit/{id}", [PatientController::class,"editProfileAdmin"])->name("dashboard.patient.admin.profile.edit");
+    Route::post("/patient/profile-create-by-admin", [PatientController::class,"profileCreateByAdmin"])->name("dashboard.patient.profile.update.by.admin");
 
     // Medical Document routes
     Route::get('/medical-documents', [MedicalDocumentController::class, 'index'])->name('dashboard.medical-documents-page');
@@ -255,6 +265,7 @@ Route::prefix('/dashboard')
      Route::delete("/patient-vandor-inactive/{id}", [PatientVandorController::class,"patientVandorInactive"])->name("dasboard.patient-vandor-inactive");
      Route::get("/patient-vandor-active/{id}", [PatientVandorController::class,"patientVandorActive"])->name("dasboard.patient-vandor-active");
      Route::get("/patient-vandor-restore/{id}", [PatientVandorController::class,"patientVandorRestore"])->name("dasboard.patient-vandor-restore");
+     Route::get("/view-patient-vandor/{id}", [PatientVandorController::class,"viewPatientVandor"])->name("dashboard.view-patient-vandor");
      Route::get("/view-patient-vandor/{id}", [PatientVandorController::class,"viewPatientVandor"])->name("dashboard.view-patient-vandor");
 }); 
 

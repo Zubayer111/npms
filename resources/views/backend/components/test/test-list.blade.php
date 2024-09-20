@@ -24,7 +24,7 @@
                   <div class="card-tools">
                     <div class="input-group input-group-sm">
                       <div class="input-group-append">
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createTest">
+                        <button type="button" class="btn btn-primary" data-backdrop="static" data-keyboard="false" data-toggle="modal" data-target="#createTest">
                           <div>Create Test</div>
                         </button>
                       </div>
