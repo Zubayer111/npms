@@ -12,7 +12,7 @@
                 <form id="createTestForm"  method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="card-body row">
-                        <div class="form-group col-md-6">
+                        <div class="form-group col-md-12">
                             <label for="exampleInputName">Test Name</label>
                             <input name="test_name" type="text" id="test_name" class="form-control" value="{{ old('test_name') }}" id="name" placeholder="Enter test name" required>
                             <span id="diseaseNameError" style="color: red;"></span>
@@ -30,8 +30,8 @@
                         
                     </div>
                     <div class="card-footer col-md-12 justify-content-between">
-                        <button type="button" class="btn btn-secondary" onclick="window.location.href='{{ url('dashboard/medical-test-list') }}'">Cancel</button>
-                        <button type="submit" class="btn btn-primary float-right" id="submit">Submit</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success float-right" id="submit">Submit</button>
                     </div>
                 </form>
             </div>

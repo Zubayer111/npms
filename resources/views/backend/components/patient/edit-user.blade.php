@@ -55,8 +55,8 @@
                   @enderror
                 </div>
                 <div class="card-footer col-md-12 justify-content-between">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" id="submit" class="btn btn-primary float-right">Submit</button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                    <button type="submit" id="submit" class="btn btn-success float-right">Submit</button>
                 </div>
                 </div>
             </form>
