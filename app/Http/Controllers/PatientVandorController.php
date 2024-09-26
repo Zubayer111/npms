@@ -27,7 +27,7 @@ class PatientVandorController extends Controller
                     $patienUrl = route('dashboard.get-vandor-patients');
                     
                    
-                    $btn = '<button type="button" id="viewBtn" data-url="' . $viewUrl . '" class="btn btn-info btn-sm mb-2" data-backdrop="static" data-keyboard="false" data-toggle="modal" data-target="#viewPatientVandorModal">
+                    $btn = '<button type="button" id="viewBtn" data-url="' . $viewUrl . '" class="btn btn-info btn-sm mr-2" data-backdrop="static" data-keyboard="false" data-toggle="modal" data-target="#viewPatientVandorModal">
                                 View
                             </button>';
                     $btn .= '<a href="' . $patienUrl . '" class="btn btn-success btn-sm mb-2">Patients</a>';

@@ -97,7 +97,9 @@
               {"data" : "strength"},
               {"data" : "price"},
               {"data" : "use_for"},
-              {"data" : "description"},
+              {data: 'description', name: 'description', render: function(data, type, row) {
+                  return `<span class="text-break">${data}</span>`;
+              }},
               {"data" : "status"},
               {"data" : "action", orderable: false, searchable: false},
           ],

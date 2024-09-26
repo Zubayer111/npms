@@ -35,7 +35,7 @@
                 </div>
                 <!-- /.card-header -->
                 <div class="card-body">
-                  <table id="vandor_table" class="table table-bordered table-hover">
+                  <table id="vandor_table" class="table table-responsive table-bordered table-hover">
                     <thead>
                       <tr>
                         <th>ID</th>
@@ -46,6 +46,8 @@
                         <th>Address</th>
                         <th>Contact Person</th>
                         <th>Status</th>
+                        <th>Token</th>
+                        <th>Secret key</th>
                         <th>Action</th>
                       </tr>
                     </thead>

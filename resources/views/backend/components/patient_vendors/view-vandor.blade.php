@@ -40,6 +40,9 @@
                             <p><strong>Phone:</strong> ${data.phone}</p>
                             <p><strong>Address:</strong> ${data.address}</p>
                             <p><strong>Fax:</strong> ${data.fax}</p>
+                            <p><strong>Contact Person:</strong> ${data.contact_person}</p>
+                            <p><strong>Token:</strong> ${data.token}</p>
+                            <p class="text-break"><strong>Secret key:</strong> ${data.secret_key}</p>
                             
                         `);
                         // Show the modal after loading the data

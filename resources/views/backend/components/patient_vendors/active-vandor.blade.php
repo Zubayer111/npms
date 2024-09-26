@@ -24,7 +24,7 @@
               </div>
               <!-- /.card-header -->
               <div class="card-body">
-                <table id="vandor_table" class="table table-bordered table-hover">
+                <table id="vandor_table" class="table table-responsive table-bordered table-hover">
                   <thead>
                     <tr>
                       <th>ID</th>
@@ -35,6 +35,8 @@
                       <th>Address</th>
                       <th>Contact Person</th>
                       <th>Status</th>
+                      <th>Token</th>
+                      <th>Secret key</th>
                       <th>Action</th>
                     </tr>
                   </thead>
@@ -98,15 +100,16 @@
               {data: 'address', name: 'address'},
               {data: 'contact_person', name: 'contact_person'},
               {data: 'status', name: 'status'},
+              {data: 'token', name: 'token', render: function(data, type, row) {
+                  return `<span class="text-break">${data}</span>`;
+              }},
+              {data: 'secret_key', name: 'secret_key', render: function(data, type, row) {
+                  return `<span class="text-break">${data}</span>`;
+              }},
               {data: 'action', name: 'action', orderable: false, searchable: false},
           ],
           order: [[0, 'desc']],
-          buttons: [
-              'copyHtml5',
-              'excelHtml5',
-              'csvHtml5',
-              'pdfHtml5'
-          ]
+          autoWidth: false
       });
   });
 </script>
