@@ -163,7 +163,7 @@
         {{-- patient --}}
         <li class="nav-item">
           <a href="#" class="nav-link">
-            <i class="nav-icon ion ion-person-add"></i>
+            <i class="nav-icon fa-solid fa-bed-pulse"></i>
             <p>
               Patient
               <i class="right fas fa-angle-left"></i>
@@ -199,7 +199,7 @@
         {{-- Medicine Group --}}
         <li class="nav-item">
           <a href="#" class="nav-link">
-            <i class="nav-icon fa-solid fa-capsules"></i>
+            <i class="nav-icon fa-solid fa-pills"></i>
             <p>
               Medicine Group
               <i class="right fas fa-angle-left"></i>
@@ -235,7 +235,7 @@
         {{-- Medicine Type --}}
         <li class="nav-item">
           <a href="#" class="nav-link">
-            <i class="nav-icon fa-solid fa-capsules"></i>
+            <i class="nav-icon fa-solid fa-pills"></i>
             <p>
               Medicine Type
               <i class="right fas fa-angle-left"></i>
@@ -271,7 +271,7 @@
         {{-- Medicine --}}
         <li class="nav-item">
           <a href="#" class="nav-link">
-            <i class="nav-icon fa-solid fa-capsules"></i>
+            <i class="nav-icon fa-solid fa-pills"></i>
             <p>
               Medicine
               <i class="right fas fa-angle-left"></i>
@@ -379,7 +379,7 @@
         {{-- patient vendors --}}
         <li class="nav-item">
           <a href="#" class="nav-link">
-            <i class="nav-icon fa-solid fa-vials"></i>
+            <i class="nav-icon fa-solid fa-house-medical"></i>
             <p>
               Patient Vendors
               <i class="right fas fa-angle-left"></i>

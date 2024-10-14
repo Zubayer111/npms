@@ -19,8 +19,6 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
 use RealRashid\SweetAlert\Facades\Alert;
 use App\Http\Requests\Patient\PatientProfileRequest;
-use Validator;
-use Log;
 
 class PatientController extends Controller
 {
@@ -32,13 +30,14 @@ class PatientController extends Controller
 
     public function createPatient(Request $request)
     {
+
         try {
             $validator = Validator::make($request->all(), [ 
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users',
                 'password' => 'required|min:8',
                 'phone' => 'required|string|min:10|unique:users',
-                'type' => 'required|in:Patient', 
+                'type' => 'required|in:Doctor', 
             ]);
     
             if($validator->fails()){
@@ -55,9 +54,8 @@ class PatientController extends Controller
                 'phone' => $request->input('phone'),
                 'type' => 'Patient', 
             ]);
-
-
-            if ($user) {
+            
+            if($user){
             $profile = PatientsProfile::create([
                 'user_id' => $user->id,
                 'reference_by' => $request->session()->get("id"),
@@ -70,8 +68,9 @@ class PatientController extends Controller
             if($profile){
                 event(new UserCreated($user, $request->input('password')));
             }
-            }
+        }
 
+            
             DB::commit();
             return response()->json([
                 'status' => 'success',
@@ -79,7 +78,6 @@ class PatientController extends Controller
             ], 200);
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Admin Creation Failed: ' . $e);
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage()
@@ -317,30 +315,136 @@ class PatientController extends Controller
         return view("backend.pages.dashboard.admin.patient-edit", compact("user"));
     }
 
-    public function profileCreateByAdmin(PatientProfileRequest $request)
+    // public function profileCreateByAdmin(PatientProfileRequest $request)
+    // {
+    //     dd($request->all());
+    //     try {
+    //         DB::beginTransaction();
+    //         $id = $request->input("id"); // ID of the patient being referenced
+    //         $userId = $request->session()->get("id"); // Admin user ID
+            
+    //         // Fetch the user by $id
+    //         $reference_by = User::where("id", $id)->first();
+            
+    //         if (!$reference_by) {
+    //             throw new \Exception("User with ID {$id} not found");
+    //         }
+    
+    //         $title = $request->session()->get("type");
+    //         $status = $request->session()->get("status");
+            
+    //         $patienData = [
+    //             "user_id" => $userId,
+    //             "reference_by" => $reference_by->id,
+    //             "reference_note" => $request->input("reference_note"),
+    //             "reference_time" => date("Y-m-d H:i:s", strtotime($request->reference_time)),
+    //             "title" => $request->input("title"),
+    //             "first_name" => $request->input("first_name"),
+    //             "last_name" => $request->input("last_name"),
+    //             "middle_name" => $request->input("middle_name"),
+    //             "email" => $request->input("email"),
+    //             "gender" => $request->input("gender"),
+    //             "marital_status" => $request->input("marital_status"),
+    //             "blood_group" => $request->input("blood_group"),
+    //             "economical_status" => $request->input("economical_status"),
+    //             "smoking_status" => $request->input("smoking_status"),
+    //             "alcohole_status" => $request->input("alcohole_status"),
+    //             "dob" => date("Y-m-d H:i:s", strtotime($request->dob)),
+    //             "height" => $request->input("height"),
+    //             "weight" => $request->input("weight"),
+    //             "bmi" => $request->input("bmi"),
+    //             "address_one" => $request->input("address_one"),
+    //             "address_two" => $request->input("address_two"),
+    //             "city" => $request->input("city"),
+    //             "state" => $request->input("state"),
+    //             "zipCode" => $request->input("zipCode"),
+    //             "phone_number" => $request->input("phone_number"),
+    //             "history" => $request->input("history"),
+    //             "employer_details" => $request->input("employer_details"),
+    //             "status" => $status,
+    //             "patient_type" =>"system-patient",
+    //         ];
+
+    //         if ($request->hasFile("profile_photo")) {
+    //             $img = $request->file("profile_photo");
+    //             $time = time();
+    //             $file_name = preg_replace('/[^a-zA-Z0-9._-]/', '', $img->getClientOriginalName());
+    //             $img_name = "{$userId}-{$time}-{$file_name}";
+    //             $img_url = "uploads/Patient/{$img_name}";
+                
+    //             // Handle file move and potential errors
+    //             try {
+    //                 $img->move(public_path('uploads/Patient'), $img_name);
+    //                 $adminData["profile_photo"] = $img_url;
+            
+    //                 // Delete old file if it exists
+    //                 if ($request->input("file_path") && File::exists(public_path($request->input("file_path")))) {
+    //                     File::delete(public_path($request->input("file_path")));
+    //                 }
+            
+    //                 \Log::info("Profile photo uploaded successfully for user ID: {$userId}");
+                    
+    //             } catch (\Exception $e) {
+    //                 throw new \Exception("File upload failed: " . $e->getMessage());
+    //             }
+    //         }
+            
+    
+    //         $request->merge(["user_id" => $userId]);
+    //         PatientsProfile::updateOrCreate(["user_id" => $userId], $patienData);
+    //         User::where("id", $userId)->update(["name" => $patienData["first_name"], "email" => $patienData["email"]]);
+    //         DB::commit();
+    //         DB::log("PatientProfile Updated Successfully");
+    
+    //         DB::commit();
+    //         \Log::info("PatientProfile Updated Successfully");
+    
+    //         return redirect("/dashboard/patient-list")->with("success", "Profile Updated Successfully");
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         \Log::error("Error updating patient profile: " . $e->getMessage());
+    //         Alert::toast($e->getMessage(), 'error');
+    //         return redirect("/dashboard/patient-list");
+    //     }
+    // }
+    
+    public function profileCreateByAdmin(Request $request)
 {
     try {
+        // Validate incoming data
+        $request->validate([
+            'reference_note' => 'required|string',
+            'first_name' => 'required|string',
+            'last_name' => 'required|string',
+            'email' => 'required|email',
+            'gender' => 'required|in:Male,Female,Other',
+            'phone_number' => 'required|string',
+        ]);
+
         DB::beginTransaction();
-        $id = $request->input("id"); // ID of the patient being referenced
-        $userId = $request->session()->get("id"); // Admin user ID
-        
-        // Fetch the user by $id
-        $reference_by = User::where("id", $id)->first();
-        
-        // Check if $reference_by is null
+
+        // Get the logged-in admin user ID
+        $userId = $request->session()->get("id");
+        if (!$userId) {
+            throw new \Exception("Admin ID is missing from session.");
+        }
+
+        // Fetch the reference by user
+        $reference_by = User::where("id", $userId)->first();
         if (!$reference_by) {
-            throw new \Exception("User with ID {$id} not found");
+            throw new \Exception("Reference user not found.");
         }
 
         $title = $request->session()->get("type");
         $status = $request->session()->get("status");
-        
-        $patienData = [
-            "user_id" => $reference_by->id,
+
+        // Prepare data for patient
+        $patientData = [
+            "user_id" => $userId,
             "reference_by" => $reference_by->id,
             "reference_note" => $request->input("reference_note"),
             "reference_time" => date("Y-m-d H:i:s", strtotime($request->reference_time)),
-            "title" => $request->input("title"),
+            "title" => $title,
             "first_name" => $request->input("first_name"),
             "last_name" => $request->input("last_name"),
             "middle_name" => $request->input("middle_name"),
@@ -351,7 +455,7 @@ class PatientController extends Controller
             "economical_status" => $request->input("economical_status"),
             "smoking_status" => $request->input("smoking_status"),
             "alcohole_status" => $request->input("alcohole_status"),
-            "dob" => date("Y-m-d H:i:s", strtotime($request->dob)),
+            "dob" => \Carbon\Carbon::parse($request->dob)->format('Y-m-d'),
             "height" => $request->input("height"),
             "weight" => $request->input("weight"),
             "bmi" => $request->input("bmi"),
@@ -365,35 +469,58 @@ class PatientController extends Controller
             "employer_details" => $request->input("employer_details"),
             "status" => $status,
             "patient_type" => "system-patient",
-            "created_by" => $userId,
-            "updated_by" => $userId
         ];
 
-        if ($request->hasFile('profile_photo')) {
-            $profile_photo = $this->uploadImageToLocal(
-                $request->profile_photo, 
-                '/patient/' . $userId . '/profile_image/', 
-                'image_', 
-                100, 
-                100, 
-                $request->file_path
-            );
-            $patienData["profile_photo"] = $profile_photo;
+        // Handle profile photo upload
+        if ($request->hasFile("profile_photo")) {
+            $img = $request->file("profile_photo");
+            $time = time();
+            $file_name = preg_replace('/[^a-zA-Z0-9._-]/', '', $img->getClientOriginalName());
+            $img_name = "{$userId}-{$time}-{$file_name}";
+            $img_url = "uploads/patient/{$img_name}";
+
+            // Move file to directory
+            $img->move(public_path('uploads/patient'), $img_name);
+            $patientData["profile_photo"] = $img_url;
+
+            // Delete old file if exists
+            if ($request->input("file_path") && File::exists(public_path($request->input("file_path")))) {
+                File::delete(public_path($request->input("file_path")));
+            }
         }
 
-        $request->merge(["user_id" => $reference_by->id]);
-        PatientsProfile::updateOrCreate(["user_id" => $reference_by->id], $patienData);
-        User::where("id", $reference_by->id)->update(["name" => $patienData["first_name"], "email" => $patienData["email"]]);
+        // Update or create the patient's profile
+        PatientsProfile::updateOrCreate(
+            ["user_id" => $userId],
+            $patientData
+        );
+
+        // Update user's name and email in the User table
+        User::where("id", $userId)->update([
+            "name" => $patientData["first_name"],
+            "email" => $patientData["email"]
+        ]);
 
         DB::commit();
-        DB::log("PatientProfile Updated Successfully");
+        // $errors = session()->get('errors');
+        // dd($errors);
 
+        // Redirect on success
         return redirect("/dashboard/patient-list")->with("success", "Profile Updated Successfully");
     } catch (\Exception $e) {
+        // Rollback transaction in case of error
         DB::rollBack();
-        Alert::toast($e->getMessage(), 'error');
-        return redirect("/dashboard/patient-list");
+        
+        // Log the error for debugging
+        \Log::error('Error in profileCreateByAdmin: ' . $e->getMessage());
+        $errors = session()->get('errors');
+        dd($errors);
+        
+        // Alert and redirect
+        Alert::toast('An error occurred: ' . $e->getMessage(), 'error');
+        return redirect("/dashboard/patient-list")->withErrors(['error' => 'Failed to update profile.']);
     }
 }
+
 
 }

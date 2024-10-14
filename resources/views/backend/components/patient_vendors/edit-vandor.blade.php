@@ -75,8 +75,8 @@
                     </div>
                 </div>
                 <div class="card-footer col-md-12 justify-content-between">
-                    <button type="button" class="close float-left" data-dismiss="modal" aria-label="Close" ><span class="btn btn-dark" aria-hidden="true">Cancel</span></button>
-                    <button type="submit" class="btn btn-primary float-right" id="submit">Submit</button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success float-right" id="submit">Submit</button>
                 </div>
             </form>
             

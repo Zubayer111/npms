@@ -147,8 +147,8 @@
                         </div>
                     </div>
                     <div class="card-footer col-md-12 justify-content-between">
-                        <button type="button" class="btn btn-secondary" onclick="window.location.href='{{ url('dashboard/medicine-list') }}'">Cancel</button>
-                        <button type="submit" class="btn btn-primary float-right">Submit</button>
+                        <button type="button" class="btn btn-danger" onclick="window.location.href='{{ url('dashboard/medicine-list') }}'">Cancel</button>
+                        <button type="submit" class="btn btn-success float-right">Submit</button>
                     </div>
                 </form>
             </div>

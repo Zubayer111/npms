@@ -12,7 +12,7 @@
                     @csrf
                     <div class="card-body row">
                         <input type="text" name="type_id" id="id" hidden>
-                        <div class="form-group col-md-6">
+                        <div class="form-group col-md-12">
                             <label for="exampleInputName">Medicine Type Name</label>
                             <input name="type_name" type="text" id="edit_type_name" class="form-control" value="{{ old('type_name') }}" placeholder="Enter medicine type name" required>
                             <span id="medicineNameError" style="color: red;"></span>
@@ -20,7 +20,7 @@
                             <p class="text-danger">{{ $message }}</p>
                             @enderror
                         </div>
-                        <div class="form-group col-md-6">
+                        <div class="form-group col-md-12">
                             <label for="Status">Status</label>
                             <select name="status" id="edit_status" class="form-control" required>
                               <option value="" selected="selected">Select Status</option>
@@ -38,8 +38,8 @@
                         
                     </div>
                     <div class="card-footer col-md-12 justify-content-between">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary float-right" id="submit">Submit</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success float-right" id="submit">Submit</button>
                     </div>
                 </form>
             </div>

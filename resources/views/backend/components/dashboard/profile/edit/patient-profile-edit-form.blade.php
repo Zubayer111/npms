@@ -48,7 +48,7 @@
     <div class="col-lg-3 col-3">
         <div class="form-group">
             <label for="phone_number" class="font-weight-normal">Phone Number<span class="text-red"> *</span></label>
-            <input class="form-control {{ $errors->has('phone_number') ? 'is-invalid' : '' }}" type="text" name="phone_number" id="phone_number" min="10" value="{{ old('phone_number', isset($user) ? $user->phone_number : null) }}">
+            <input class="form-control {{ $errors->has('phone_number') ? 'is-invalid' : '' }}" type="text" name="phone_number" id="phone_number" min="10" value="{{ old('phone_number', isset($user) ? $user->phone_number : null) }}" readonly>
             @if($errors->has('phone_number'))
                 <span class="invalid-feedback" role="alert">{{ $errors->first('phone_number') }}</span>
             @endif
