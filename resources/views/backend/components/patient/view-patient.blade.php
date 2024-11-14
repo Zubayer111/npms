@@ -207,11 +207,11 @@
                     <div class="timeline timeline-inverse">
                       <section class="content">
                         <div class="card card-info">
-                            @include("backend.components.dashboard.profile.tab-content.patient.medical-info")
+                            @include("backend.components.dashboard.profile.tab-content.patient.medicale-info.medical-info")
+                            @include("backend.components.dashboard.profile.tab-content.patient.medicale-info.add-complain")
                         </div>
                         </section>
                     </div>
-                    
                   </div>
                   <div class="tab-pane" id="treatments">
                     <!-- The timeline -->
@@ -260,24 +260,3 @@
       }
   </script>
 
-{{-- <div class="col-md-9">
-    <div class="card">
-        <div class="card-header p-2">
-            <ul class="nav nav-pills">
-                <li class="nav-item"><a class="nav-link active" href="#basic-information" data-toggle="tab">Basic Information</a></li>
-                <li class="nav-item"><a class="nav-link" href="#medical-document" data-toggle="tab">Medical Document</a></li>
-                <li class="nav-item"><a class="nav-link" href="#medical-info" data-toggle="tab">Medical Info</a></li>
-                <li class="nav-item"><a class="nav-link" href="#treatments" data-toggle="tab">Treatments</a></li>
-            </ul>
-        </div>
-
-        <div class="card-body">
-            <div class="tab-content">
-                @include("backend.components.dashboard.profile.tab-content.patient.basic-information")
-                @include("backend.components.dashboard.profile.tab-content.patient.medical-document")
-                @include("backend.components.dashboard.profile.tab-content.patient.medical-info")
-                @include("backend.components.dashboard.profile.tab-content.patient.treatments")
-            </div>
-        </div>
-    </div>
-</div> --}}

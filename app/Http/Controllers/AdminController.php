@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Log;
 use Exception;
 use App\Models\User;
 use App\Models\Admin;
@@ -17,9 +18,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
-use Validator;
-use Log;
+use Illuminate\Support\Facades\Validator;
 
 class AdminController extends Controller
 {
@@ -219,7 +220,8 @@ class AdminController extends Controller
             'data' => $data
         ]);
     }
-    public function profileCreate(Request $request){
+    public function profileCreate(Request $request)
+    {
         try {
             $request->validate([
                 'first_name' => 'required|string',
@@ -233,11 +235,11 @@ class AdminController extends Controller
                 'zip_code' => 'required|string',
                 'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
-            
+
             $userId = $request->session()->get("id");
             $status = $request->session()->get("status");
             $type = $request->session()->get("type");
-            
+
             $refID = rand(10000, 99999);
             $adminData = [
                 "user_id" => $userId,
@@ -255,29 +257,39 @@ class AdminController extends Controller
                 "status" => $status,
             ];
 
+            // Check if the request has a profile photo
             if ($request->hasFile("profile_photo")) {
                 $img = $request->file("profile_photo");
-                
+
+                // Get the original file name
                 $file_name = $img->getClientOriginalName();
+
+                // Define the new file name
                 $img_name = "{$userId}-{$file_name}";
-                $img_url = "/uploads/admin/{$img_name}";
-                $img->move(public_path('/uploads/admin'), $img_name);
-                $adminData["profile_photo"] = $img_url;
+
+                // Store the image in storage/app/public/uploads/admin
+                $img_url = $img->storeAs('uploads/admin', $img_name, 'public');
+
+                // Save the public storage path to the database
+                $adminData["profile_photo"] = Storage::url($img_url);
+
+                // If a previous profile photo exists, delete it
                 if ($request->input("file_path")) {
-                    File::delete($request->input("file_path"));
+                    Storage::delete(str_replace('/storage', 'public', $request->input("file_path")));
                 }
             }
 
+            // Add user ID to the request
             $request->merge(["user_id" => $userId]);
+
+            // Update or create the profile data
             AdminsProfile::updateOrCreate(["user_id" => $userId], $adminData);
 
-             return redirect("/dashboard/profile")->with("success", "Profile Updated Successfully");
-        }
-        catch (\Exception $e) {
+            return redirect("/dashboard/profile")->with("success", "Profile Updated Successfully");
+        } catch (\Exception $e) {
             Alert::toast($e->getMessage(), 'error');
             return redirect("/dashboard/profile");
         }
-            
     }
 
 

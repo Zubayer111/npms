@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
+use App\Models\Diseases;
 use App\Models\DoctorsProfile;
 use App\Models\PatientsProfile;
 use Illuminate\Database\Seeder;
@@ -24,5 +26,6 @@ class DatabaseSeeder extends Seeder
         $this->call(AdminSeeder::class);
         DoctorsProfile::factory()->count(50)->create();
         PatientsProfile::factory()->count(50)->create();
+        Diseases::factory()->count(20)->create();
     }
 }

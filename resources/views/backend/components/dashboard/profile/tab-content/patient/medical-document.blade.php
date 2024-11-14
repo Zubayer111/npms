@@ -9,7 +9,7 @@
                             <div class="card-tools">
                                 <div class="input-group input-group-sm">
                                     <div class="input-group-append">
-                                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#uploadDocumentModal">
+                                        <button type="button" class="btn btn-primary" data-backdrop="static" data-keyboard="false" data-toggle="modal" data-target="#uploadDocumentModal">
                                             <div>Upload Document</div>
                                         </button>
                                     </div>
@@ -81,8 +81,8 @@
                                     </div>
                                 </div>
                                 <div class="card-footer col-md-12 justify-content-between">
-                                    <button type="button" class="close float-left" data-dismiss="modal" aria-label="Close"><span class="btn btn-dark" aria-hidden="true">Cancel</span></button>
-                                    <button type="submit" class="btn btn-primary float-right" id="submit">Upload Document</button>
+                                    <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-success float-right" id="submit">Upload Document</button>
                                 </div>
                             </form>
                         </div>

@@ -18,6 +18,7 @@ use App\Http\Controllers\MedicineGroupeController;
 use App\Http\Controllers\MedicalDocumentController;
 use App\Http\Middleware\TokenVerificationMiddleware;
 use App\Http\Middleware\ResetPassTokenVerificationMiddleware;
+use Illuminate\Support\Facades\Artisan;
 
 /*
 |--------------------------------------------------------------------------
@@ -141,7 +142,12 @@ Route::prefix('/dashboard')
     Route::get("/patient/profile-delete/{id}", [PatientController::class,"profileDelete"]);
     Route::get("/patient/admin/profile-edit/{id}", [PatientController::class,"editProfileAdmin"])->name("dashboard.patient.admin.profile.edit");
     Route::post("/patient/profile-create-by-admin", [PatientController::class,"profileCreateByAdmin"])->name("dashboard.patient.profile.update.by.admin");
-
+    Route::post("/patient/add-complain/{id?}", [PatientController::class,"addComplain"])->name("dashboard.patient.add-complain");
+    Route::get("/patient/complain-list/{id}", [PatientController::class,"getComplainList"])->name("dashboard.patient.complain-list");
+    Route::get("/dashboard/add-patient-ilnase/{id}/{pid}", [PatientController::class,"addPatientIlnase"])->name("dashboard.add-patient-ilnase");
+    Route::get("/dashboard/get-ilnase-list/{id}", [PatientController::class,"getIllnessList"])->name("dashboard.get-ilnase-list");
+    Route::get("dashboard/remove-patient-ilnase/{id}", [PatientController::class,"deleteIllness"])->name("dashboard.remove-patient-ilnase");
+    Route::delete("/patient/complain-delete/{id}", [PatientController::class,"deleteComplain"])->name("dashboard.patient.complain-delete");
     // Medical Document routes
     Route::get('/medical-documents', [MedicalDocumentController::class, 'index'])->name('dashboard.medical-documents-page');
     Route::get('/medical-documents-list', [MedicalDocumentController::class, 'medicalDocumentList'])->name('dashboard.medical-documents-list');
@@ -210,7 +216,7 @@ Route::prefix('/dashboard')
      // Disease routes
      Route::get("/disease-list", [DiseasesController::class,"diseaseListPage"])->name("dashboard.disease-list");
      Route::get("/get-disease-list", [DiseasesController::class,"getDiseaseList"])->name("dashboard.get-disease-list");
-     Route::get("/active-disease", [DiseasesController::class,"activeDisease"]);
+     Route::get("/active-disease", [DiseasesController::class,"activeDisease"])->name("dashboard.active-disease");
      Route::get("/active-disease-list", [DiseasesController::class,"activeDiseaseList"])->name("dashboard.active-disease-list");
      Route::get("/inactive-disease", [DiseasesController::class,"inactiveDisease"]);
      Route::get("/inactive-disease-list", [DiseasesController::class,"inactiveDiseaseList"])->name("dashboard.inactive-disease-list");

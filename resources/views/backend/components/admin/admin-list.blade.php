@@ -47,29 +47,6 @@
                       </tr>
                     </thead>
                     <tbody></tbody>
-                    {{-- @foreach ($admins as $a)
-                      
-                    <tbody>
-                      <tr>
-                        <td>{{$loop->iteration}}</td>
-                        <td>{{$a->name}}</td>
-                        <td>{{$a->email}}</td>
-                        <td>{{$a->phone}}</td>
-                        <td>Admin</td>
-                        <td><span class="tag tag-success">{{$a->status}}</span></td>
-                        <td >
-                            <a class="btn badge-info btn-sm mb-1" href="{{url('dashboard/edit-admin', $a->id)}}">Edit</a>
-                            <form id="delete-form-{{ $a->id }}" action="{{route('dasboard.user-delete', $a->id)}}" method="post">
-                              @csrf
-                              @method('DELETE')
-                          </form>
-                          <button class="btn badge-danger btn-sm" onclick="confirmDelete({{ $a->id }})">Delete</button>
-                        </td>
-    
-                      </tr>
-                    </tbody>
-                    
-                    @endforeach --}}
                   </table>
                 </div>
                 <!-- /.card-body -->

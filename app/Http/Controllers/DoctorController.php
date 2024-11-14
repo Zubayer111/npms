@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Log;
 use Exception;
 use App\Models\User;
 use App\Mail\UserInfo;
@@ -16,8 +17,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
 use RealRashid\SweetAlert\Facades\Alert;
-use Validator;
-use Log;
+use Illuminate\Support\Facades\Validator;
 
 class DoctorController extends Controller
 {

@@ -90,5 +90,8 @@
   <script src="{{asset('assets/dist/js/demo.js')}}"></script>
   <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
   <script src="{{asset('assets/dist/js/pages/dashboard.js')}}"></script>
+  <!-- Bootstrap Switch -->
+  <script src="{{asset('assets/plugins/bootstrap-switch/js/bootstrap-switch.min.js')}}"></script>
+  
 </body>
 </html>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Exception;
 use App\Models\User;
 use App\Mail\UserInfo;
+use App\Models\Diseases;
 use App\Events\UserCreated;
 use App\Traits\UploadTrait;
 use Illuminate\Http\Request;
@@ -14,10 +15,14 @@ use App\Models\PatientsProfile;
 use App\Models\Patients_profile;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Models\PatientIllnesHistory;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
+use App\Models\PatientPhysicalComplain;
 use RealRashid\SweetAlert\Facades\Alert;
+use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\Patient\PatientProfileRequest;
 
 class PatientController extends Controller
@@ -119,10 +124,12 @@ class PatientController extends Controller
     public function viewPatient($id){
         $patient = User::findOrFail($id);
         $data = PatientsProfile::where('user_id', $patient->id)->first();
-        $medcalDocuments = MedicalDocument::where("patient_id", $patient)->get();
-        
-        
-        return view("backend.pages.patient.view-patient-page", compact("patient", "data", "medcalDocuments"));
+        $medcalDocuments = MedicalDocument::where("patient_id", $patient->id)->get();
+        $diseases = Diseases::where("status", "active")->get();
+        $ilnase = PatientIllnesHistory::where("patient_id", $patient->id)->get(); 
+
+        // dd($ilnase);
+        return view("backend.pages.patient.view-patient-page", compact("patient", "data", "medcalDocuments", "diseases"));
     }
 
     public function activePatient(){
@@ -315,212 +322,195 @@ class PatientController extends Controller
         return view("backend.pages.dashboard.admin.patient-edit", compact("user"));
     }
 
-    // public function profileCreateByAdmin(PatientProfileRequest $request)
-    // {
-    //     dd($request->all());
-    //     try {
-    //         DB::beginTransaction();
-    //         $id = $request->input("id"); // ID of the patient being referenced
-    //         $userId = $request->session()->get("id"); // Admin user ID
+    public function profileCreateByAdmin(PatientProfileRequest $request)
+    {
+        // dd($request->all());
+        try {
+            DB::beginTransaction();
+            $id = $request->input("id"); 
+            $userId = $request->session()->get("id"); 
+
+            $reference_by = User::where("id", $id)->first();
             
-    //         // Fetch the user by $id
-    //         $reference_by = User::where("id", $id)->first();
-            
-    //         if (!$reference_by) {
-    //             throw new \Exception("User with ID {$id} not found");
-    //         }
-    
-    //         $title = $request->session()->get("type");
-    //         $status = $request->session()->get("status");
-            
-    //         $patienData = [
-    //             "user_id" => $userId,
-    //             "reference_by" => $reference_by->id,
-    //             "reference_note" => $request->input("reference_note"),
-    //             "reference_time" => date("Y-m-d H:i:s", strtotime($request->reference_time)),
-    //             "title" => $request->input("title"),
-    //             "first_name" => $request->input("first_name"),
-    //             "last_name" => $request->input("last_name"),
-    //             "middle_name" => $request->input("middle_name"),
-    //             "email" => $request->input("email"),
-    //             "gender" => $request->input("gender"),
-    //             "marital_status" => $request->input("marital_status"),
-    //             "blood_group" => $request->input("blood_group"),
-    //             "economical_status" => $request->input("economical_status"),
-    //             "smoking_status" => $request->input("smoking_status"),
-    //             "alcohole_status" => $request->input("alcohole_status"),
-    //             "dob" => date("Y-m-d H:i:s", strtotime($request->dob)),
-    //             "height" => $request->input("height"),
-    //             "weight" => $request->input("weight"),
-    //             "bmi" => $request->input("bmi"),
-    //             "address_one" => $request->input("address_one"),
-    //             "address_two" => $request->input("address_two"),
-    //             "city" => $request->input("city"),
-    //             "state" => $request->input("state"),
-    //             "zipCode" => $request->input("zipCode"),
-    //             "phone_number" => $request->input("phone_number"),
-    //             "history" => $request->input("history"),
-    //             "employer_details" => $request->input("employer_details"),
-    //             "status" => $status,
-    //             "patient_type" =>"system-patient",
-    //         ];
-
-    //         if ($request->hasFile("profile_photo")) {
-    //             $img = $request->file("profile_photo");
-    //             $time = time();
-    //             $file_name = preg_replace('/[^a-zA-Z0-9._-]/', '', $img->getClientOriginalName());
-    //             $img_name = "{$userId}-{$time}-{$file_name}";
-    //             $img_url = "uploads/Patient/{$img_name}";
-                
-    //             // Handle file move and potential errors
-    //             try {
-    //                 $img->move(public_path('uploads/Patient'), $img_name);
-    //                 $adminData["profile_photo"] = $img_url;
-            
-    //                 // Delete old file if it exists
-    //                 if ($request->input("file_path") && File::exists(public_path($request->input("file_path")))) {
-    //                     File::delete(public_path($request->input("file_path")));
-    //                 }
-            
-    //                 \Log::info("Profile photo uploaded successfully for user ID: {$userId}");
-                    
-    //             } catch (\Exception $e) {
-    //                 throw new \Exception("File upload failed: " . $e->getMessage());
-    //             }
-    //         }
-            
-    
-    //         $request->merge(["user_id" => $userId]);
-    //         PatientsProfile::updateOrCreate(["user_id" => $userId], $patienData);
-    //         User::where("id", $userId)->update(["name" => $patienData["first_name"], "email" => $patienData["email"]]);
-    //         DB::commit();
-    //         DB::log("PatientProfile Updated Successfully");
-    
-    //         DB::commit();
-    //         \Log::info("PatientProfile Updated Successfully");
-    
-    //         return redirect("/dashboard/patient-list")->with("success", "Profile Updated Successfully");
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-    //         \Log::error("Error updating patient profile: " . $e->getMessage());
-    //         Alert::toast($e->getMessage(), 'error');
-    //         return redirect("/dashboard/patient-list");
-    //     }
-    // }
-    
-    public function profileCreateByAdmin(Request $request)
-{
-    try {
-        // Validate incoming data
-        $request->validate([
-            'reference_note' => 'required|string',
-            'first_name' => 'required|string',
-            'last_name' => 'required|string',
-            'email' => 'required|email',
-            'gender' => 'required|in:Male,Female,Other',
-            'phone_number' => 'required|string',
-        ]);
-
-        DB::beginTransaction();
-
-        // Get the logged-in admin user ID
-        $userId = $request->session()->get("id");
-        if (!$userId) {
-            throw new \Exception("Admin ID is missing from session.");
-        }
-
-        // Fetch the reference by user
-        $reference_by = User::where("id", $userId)->first();
-        if (!$reference_by) {
-            throw new \Exception("Reference user not found.");
-        }
-
-        $title = $request->session()->get("type");
-        $status = $request->session()->get("status");
-
-        // Prepare data for patient
-        $patientData = [
-            "user_id" => $userId,
-            "reference_by" => $reference_by->id,
-            "reference_note" => $request->input("reference_note"),
-            "reference_time" => date("Y-m-d H:i:s", strtotime($request->reference_time)),
-            "title" => $title,
-            "first_name" => $request->input("first_name"),
-            "last_name" => $request->input("last_name"),
-            "middle_name" => $request->input("middle_name"),
-            "email" => $request->input("email"),
-            "gender" => $request->input("gender"),
-            "marital_status" => $request->input("marital_status"),
-            "blood_group" => $request->input("blood_group"),
-            "economical_status" => $request->input("economical_status"),
-            "smoking_status" => $request->input("smoking_status"),
-            "alcohole_status" => $request->input("alcohole_status"),
-            "dob" => \Carbon\Carbon::parse($request->dob)->format('Y-m-d'),
-            "height" => $request->input("height"),
-            "weight" => $request->input("weight"),
-            "bmi" => $request->input("bmi"),
-            "address_one" => $request->input("address_one"),
-            "address_two" => $request->input("address_two"),
-            "city" => $request->input("city"),
-            "state" => $request->input("state"),
-            "zipCode" => $request->input("zipCode"),
-            "phone_number" => $request->input("phone_number"),
-            "history" => $request->input("history"),
-            "employer_details" => $request->input("employer_details"),
-            "status" => $status,
-            "patient_type" => "system-patient",
-        ];
-
-        // Handle profile photo upload
-        if ($request->hasFile("profile_photo")) {
-            $img = $request->file("profile_photo");
-            $time = time();
-            $file_name = preg_replace('/[^a-zA-Z0-9._-]/', '', $img->getClientOriginalName());
-            $img_name = "{$userId}-{$time}-{$file_name}";
-            $img_url = "uploads/patient/{$img_name}";
-
-            // Move file to directory
-            $img->move(public_path('uploads/patient'), $img_name);
-            $patientData["profile_photo"] = $img_url;
-
-            // Delete old file if exists
-            if ($request->input("file_path") && File::exists(public_path($request->input("file_path")))) {
-                File::delete(public_path($request->input("file_path")));
+            if (!$reference_by) {
+                throw new \Exception("User with ID {$id} not found");
             }
+    
+            $title = $request->session()->get("type");
+            $status = $request->session()->get("status");
+            
+            $patienData = [
+                "user_id" => $userId,
+                "reference_by" => $reference_by->id,
+                "reference_note" => $request->input("reference_note"),
+                "reference_time" => date("Y-m-d H:i:s", strtotime($request->reference_time)),
+                "title" => $request->input("title"),
+                "first_name" => $request->input("first_name"),
+                "last_name" => $request->input("last_name"),
+                "middle_name" => $request->input("middle_name"),
+                "email" => $request->input("email"),
+                "gender" => $request->input("gender"),
+                "marital_status" => $request->input("marital_status"),
+                "blood_group" => $request->input("blood_group"),
+                "economical_status" => $request->input("economical_status"),
+                "smoking_status" => $request->input("smoking_status"),
+                "alcohole_status" => $request->input("alcohole_status"),
+                "dob" => date("Y-m-d H:i:s", strtotime($request->dob)),
+                "height" => $request->input("height"),
+                "weight" => $request->input("weight"),
+                "bmi" => $request->input("bmi"),
+                "address_one" => $request->input("address_one"),
+                "address_two" => $request->input("address_two"),
+                "city" => $request->input("city"),
+                "state" => $request->input("state"),
+                "zipCode" => $request->input("zipCode"),
+                "phone_number" => $request->input("phone_number"),
+                "history" => $request->input("history"),
+                "employer_details" => $request->input("employer_details"),
+                "status" => $status,
+                "patient_type" =>"system-patient",
+            ];
+            
+
+            if ($request->hasFile("profile_photo")) {
+                $img = $request->file("profile_photo");
+                $time = time();
+                $file_name = preg_replace('/[^a-zA-Z0-9._-]/', '', $img->getClientOriginalName());
+                $img_name = "{$userId}-{$time}-{$file_name}";
+                $img_url = "uploads/Patient/{$img_name}";
+                
+               
+                try {
+                    $img->move(public_path('uploads/Patient'), $img_name);
+                    $adminData["profile_photo"] = $img_url;
+            
+                    
+                    if ($request->input("file_path") && File::exists(public_path($request->input("file_path")))) {
+                        File::delete(public_path($request->input("file_path")));
+                    }
+            
+                    Log::info("Profile photo uploaded successfully for user ID: {$userId}");
+                    
+                } catch (\Exception $e) {
+                    throw new \Exception("File upload failed: " . $e->getMessage());
+                }
+            }
+            
+    
+            $request->merge(["user_id" => $userId]);
+            PatientsProfile::updateOrCreate(["user_id" => $userId], $patienData);
+            User::where("id", $userId)->update(["name" => $patienData["first_name"], "email" => $patienData["email"]]);
+            DB::commit();
+            DB::log("PatientProfile Updated Successfully");
+    
+            DB::commit();
+            Log::info("PatientProfile Updated Successfully");
+    
+            return redirect("/dashboard/patient-list")->with("success", "Profile Updated Successfully");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Error updating patient profile: " . $e->getMessage());
+            Alert::toast($e->getMessage(), 'error');
+            return redirect("/dashboard/patient-list");
         }
+    }
+    
+    public function addComplain(Request $request, $id){
+        try {
+            $request->validate([
+                'complain' => 'required|string|max:255',
+            ]);
+            $userID = $request->session()->get("id");
+            
+            $complainData = [
+                "patient_id" => $id,
+                "complain" => $request->input("complain"),
+                "created_by" => $userID,
+                "updated_by" => $userID,
+            ];
+            
+            $data = PatientPhysicalComplain::create($complainData);
+            return response()->json(
+                ['status' => 'success',
+                'message' => 'Complain Added Successfully',
+                'data' => $data ]);
+         }
+         
+        catch (Exception $e) {
+            Log::error("Error adding complain: " . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' =>  $e->getMessage()
+            ], 500);
+        }
+    }
+       
+    public function getComplainList(Request $request, $id)
+{
+    if ($request->ajax()) {
+        $data = PatientPhysicalComplain::with('creator')
+            ->where("patient_id", $id)
+            ->get();
 
-        // Update or create the patient's profile
-        PatientsProfile::updateOrCreate(
-            ["user_id" => $userId],
-            $patientData
-        );
-
-        // Update user's name and email in the User table
-        User::where("id", $userId)->update([
-            "name" => $patientData["first_name"],
-            "email" => $patientData["email"]
-        ]);
-
-        DB::commit();
-        // $errors = session()->get('errors');
-        // dd($errors);
-
-        // Redirect on success
-        return redirect("/dashboard/patient-list")->with("success", "Profile Updated Successfully");
-    } catch (\Exception $e) {
-        // Rollback transaction in case of error
-        DB::rollBack();
-        
-        // Log the error for debugging
-        \Log::error('Error in profileCreateByAdmin: ' . $e->getMessage());
-        $errors = session()->get('errors');
-        dd($errors);
-        
-        // Alert and redirect
-        Alert::toast('An error occurred: ' . $e->getMessage(), 'error');
-        return redirect("/dashboard/patient-list")->withErrors(['error' => 'Failed to update profile.']);
+        return DataTables::of($data)
+            ->addIndexColumn()
+            ->addColumn('created_by', function($row) {
+                return $row->creator ? $row->creator->name : 'N/A'; // Replace 'creator' with actual relation name
+            })
+            ->addColumn('action', function($row){
+                $deleteUrl = route('dashboard.patient.complain-delete', $row->id);
+                $btn = '<form id="delete-form-'.$row->id.'" action="'.$deleteUrl.'" method="POST" style="display: inline;">
+                             '.csrf_field().'
+                             '.method_field('DELETE').'
+                             <button type="button" class="btn badge-danger btn-sm" onclick="confirmDelete('.$row->id.')">Delete</button>
+                          </form>';
+                return $btn;
+            })
+            ->rawColumns(['action'])
+            ->make(true);
     }
 }
 
 
+    public function deleteComplain($id){
+        $disease = PatientPhysicalComplain::findOrFail($id);
+        $disease->delete();
+        return redirect()->back()->with("success", "Complain Deleted Successfully");
+    }
+
+    public function addPatientIlnase(Request $request, $id, $pid){
+        $userID = $request->session()->get("id");
+        $data = PatientIllnesHistory::create([
+            "patient_id" => $pid,
+            "disease_id" => $id,
+            "created_by" => $userID,
+            "updated_by" => $userID,
+        ]);
+
+        return response()->json(
+            ['status' => 'success',
+            'message' => 'Illness Added Successfully',
+            'data' => $data ]);
+    }
+
+    public function getIllnessList(Request $request, $id)
+    {
+        if ($request->ajax()) {
+            $data = PatientIllnesHistory::with('disease')
+                ->where("patient_id", $id)
+                ->withTrashed()
+                ->get();
+
+           return response()->json([
+            "status" => "success",
+            "data" => $data
+           ]);
+        }
+    }   
+    
+    public function deleteIllness($id){
+        $disease = PatientIllnesHistory::findOrFail($id);
+        $disease->delete();
+        return response()->json(['status' => 'success', 'message' => 'Illness removed successfully']);
+    }
 }

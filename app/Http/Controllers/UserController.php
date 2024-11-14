@@ -14,12 +14,12 @@ use App\Helper\ResponseHelper;
 use App\Models\DoctorsProfile;
 use App\Models\PatientsProfile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use RealRashid\SweetAlert\Facades\Alert;
-use Validator;
-use Log;
+use Illuminate\Support\Facades\Validator;
 
 
 class UserController extends Controller
