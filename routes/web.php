@@ -2,6 +2,7 @@
 
 use App\Models\Medicine;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DoctorController;
@@ -13,12 +14,12 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MedicalTypeController;
 use App\Http\Controllers\MedicalTestsController;
 use App\Http\Controllers\MedicineTypeController;
+use App\Http\Controllers\PrescritionsController;
 use App\Http\Controllers\PatientVandorController;
 use App\Http\Controllers\MedicineGroupeController;
 use App\Http\Controllers\MedicalDocumentController;
 use App\Http\Middleware\TokenVerificationMiddleware;
 use App\Http\Middleware\ResetPassTokenVerificationMiddleware;
-use Illuminate\Support\Facades\Artisan;
 
 /*
 |--------------------------------------------------------------------------
@@ -273,6 +274,9 @@ Route::prefix('/dashboard')
      Route::get("/patient-vandor-restore/{id}", [PatientVandorController::class,"patientVandorRestore"])->name("dasboard.patient-vandor-restore");
      Route::get("/view-patient-vandor/{id}", [PatientVandorController::class,"viewPatientVandor"])->name("dashboard.view-patient-vandor");
      Route::get("/view-patient-vandor/{id}", [PatientVandorController::class,"viewPatientVandor"])->name("dashboard.view-patient-vandor");
+
+     // prescritions routes
+     Route::get("/new-prescritions", [PrescritionsController::class,"newPrescritionsPage"])->name("dashboard.new-prescritions");
 }); 
 
 // user routes outside the dashboard
