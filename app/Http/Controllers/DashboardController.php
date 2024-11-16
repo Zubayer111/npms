@@ -16,22 +16,38 @@ use Illuminate\Support\Facades\Auth;
 class DashboardController extends Controller
 {
     public function index(){
+        $sections = [
+            'Admin' => 'admin',
+            'Doctor' => 'doctor',
+            'Patient' => 'patient',
+            'Company' => 'company',
+            'Patient Provider' => 'patient-provider',
+        ];
         $today = Carbon::today();
         $todayPatientCount = User::whereDate("created_at", $today)->where("type","Patient")->count();
         $todayDoctorCount = User::whereDate("created_at", $today)->where("type","Doctor")->count();
         $adminCount = User::where("type","Admin")->count();
         $activeAdminCount = User::where("type","Admin")->where("status","active")->count();
+        $inActiveAdminCount = User::where("type","Admin")->where("status","inactive")->count();
         $patientCount = User::where("type","Patient")->count();
+        $activePatientCount = User::where("type","Patient")->where("status","active")->count();
+        $inActivePatientCount = User::where("type","Patient")->where("status","inactive")->count();
+        $deletedPatientCount = User::onlyTrashed()->where("type", "Patient")->where("status", "suspended")->orderByDesc("deleted_at")->count();
         $doctorCount = User::where("type","Doctor")->count();
         $activeDoctorCount = User::where("type","Doctor")->where("status","active")->count();
+        $inActiveDoctorCount = User::where("type","Doctor")->where("status","inactive")->count();
         $companyCount = User::where("type","Company")->count();
         $activeCompanyCount = User::where("type","Company")->where("status","active")->count();
+        $inActiveCompanyCount = User::where("type","Company")->where("status","inactive")->count();
+        $todayCompanyCount = User::whereDate("created_at", $today)->where("type","Company")->count();
         $userName = session()->get("name");
 
         
         return view("backend.pages.dashboard.home-page", compact("adminCount","patientCount","doctorCount","companyCount","userName","activeAdminCount",
+        "inActiveAdminCount","inActiveDoctorCount", "activePatientCount","inActivePatientCount",
+        "deletedPatientCount", "inActiveCompanyCount","todayCompanyCount",
         "activeCompanyCount","activeDoctorCount","todayPatientCount"
-        ,"todayDoctorCount"));
+        ,"todayDoctorCount","sections"));
     }
 
     public function profilePage(Request $request){

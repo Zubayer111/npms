@@ -20,21 +20,25 @@
 
     <!-- Main content -->
     <section class="content">
-      <div class="container-fluid">
-        <div class="row">
-          <section class="col-md-12">
-              <div class="card">
-                  <div class="card-header">
-                      <h3 class="card-title">
-                          Dashboard
-                      </h3>
+      @foreach ($sections as $title => $component)
+      <div class="container-fluid ml-auto">
+          <div class="row">
+              <section class="col-md-12">
+                  <div class="card">
+                      <div class="card-header">
+                          <h3 class="card-title">
+                              {{ $title }}
+                          </h3>
+                      </div>
+                      <div class="card-body">
+                          @include("backend.components.dashboard.count.$component")
+                      </div>
                   </div>
-                  <div class="card-body">
-                    @include("backend.components.dashboard.counter")
-                  </div>
-              </div>
-          </section>
+              </section>
+          </div>
       </div>
+      @endforeach
+
         <!-- /.row -->
         <!-- Main row -->
         <div class="row">
