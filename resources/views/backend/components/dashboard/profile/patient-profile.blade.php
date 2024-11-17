@@ -39,7 +39,7 @@
 							<div class="tab-content">
 								@include("backend.components.dashboard.profile.tab-content.patient.basic-information")
 								@include("backend.components.dashboard.profile.tab-content.patient.medical-document")
-								@include("backend.components.dashboard.profile.tab-content.patient.medical-info")
+								{{-- @include("backend.components.dashboard.profile.tab-content.patient.medical-info") --}}
 								@include("backend.components.dashboard.profile.tab-content.patient.treatments")
 							</div>
 						</div>
