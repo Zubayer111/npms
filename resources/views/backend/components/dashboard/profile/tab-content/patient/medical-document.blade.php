@@ -17,12 +17,14 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <table id="user_table" class="table table-bordered table-hover">
+                            <table id="document_table" class="table table-bordered table-hover w-100">
                                 <thead>
                                     <tr>
                                         <th>ID</th>
-                                        <th>Name</th>
-                                        <th>Type</th>
+                                        <th>File Name</th>
+                                        <th>File Type</th>
+                                        <th>File Extension</th>
+                                        <th>File Uploaded</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -60,9 +62,10 @@
                                             <label for="gender" class="font-weight-normal">Document Type<span class="text-red"> *</span></label>
                                             <select class="form-control {{ $errors->has('file_type') ? 'is-invalid' : '' }}" name="file_type">
                                                 <option value="" selected="selected">Select Document Type</option>
-                                                <option value="image">Image</option>
-                                                <option value="pdf">PDF</option>
-                                                <option value="doc">DOC</option>
+                                                <option value="medical_report">Medical Report</option>
+                                                <option value="personal_ocument">Personal Document</option>
+                                                <option value="prescription">Prescription</option>
+                                                <option value="other">Other</option>
                                             </select>
                                             @if($errors->has('file_type'))
                                                 <span class="invalid-feedback" role="alert">{{ $errors->first('file_type') }}</span>
@@ -73,7 +76,7 @@
                                     <div class="col-lg-12 col-12">
                                         <div class="form-group">
                                             <label for="file" class="font-weight-normal">Document</label>
-                                            <input class="form-control" type="file" name="file">
+                                            <input class="form-control" type="file" name="file[]" multiple>
                                         </div>
                                     </div>
                                 </div>
@@ -90,17 +93,48 @@
     </div>
 </div>
 
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#document_table').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: "{{ route('dashboard.medical-documents-list') }}",
+        columns: [
+            {
+                render: function (data, type, row, meta) {
+                    return meta.row + meta.settings._iDisplayStart + 1;
+                }
+            },
+            {data: 'file_name'},
+            {data: 'file_type'},
+            {data: 'file_extension'},
+            {data: 'created_at'},
+            {data: 'actions', name: 'actions', orderable: false, searchable: false},
+        ],
+        order: [[0, 'desc']],
+        buttons: [
+            'copyHtml5',
+            'excelHtml5',
+            'csvHtml5',
+            'pdfHtml5'
+        ]
+    });
+});
+</script>
 
 <script>
 $(document).ready(function() {
     $('#uploadDocumentForm').on('submit', function(event) {
         event.preventDefault();
-
+        let formData = new FormData(this);
+        resetValidationErrors();
+        
         $.ajax({
             url: '{{ route('dashboard.medical-documents') }}',
             method: 'POST',
-            data: $(this).serialize(),
-            console.log("data::",data);
+            data: formData,
+            processData: false,
+            contentType: false,
             success: function(response) {
                 if(response.status === 'success') {
                     Swal.fire({
@@ -109,7 +143,7 @@ $(document).ready(function() {
                         text: response.message,
                     });
                     setTimeout(function() {
-                        window.location.href = '{{ route('dashboard.profile') }}';
+                        location.reload();
                     }, 2000);
                 } else {
                     Swal.fire({
@@ -121,17 +155,32 @@ $(document).ready(function() {
             },
             error: function(xhr) {
                 let errors = xhr.responseJSON.errors;
-                let errorMessage = '';
-                for (let key in errors) {
-                    errorMessage += errors[key][0] + '\n';
+                if (errors) {
+                    Object.keys(errors).forEach(function(field) {
+                        let inputField = $(`[name="${field}"]`);
+                        inputField.addClass('is-invalid');
+                        inputField.after(`<span class="invalid-feedback" role="alert">${errors[field][0]}</span>`);
+                    });
                 }
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: response.message,
+                    text: 'Please check the form for errors.',
                 });
             }
         });
     });
+
+    // Add event listener for modal close
+    $('#uploadDocumentModal').on('hidden.bs.modal', function () {
+        resetValidationErrors();
+        $('#uploadDocumentForm')[0].reset();
+    });
+
+    // Function to reset validation errors
+    function resetValidationErrors() {
+        $('.invalid-feedback').remove();
+        $('.is-invalid').removeClass('is-invalid');
+    }
 });
 </script>

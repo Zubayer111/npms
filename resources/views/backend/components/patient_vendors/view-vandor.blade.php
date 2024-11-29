@@ -40,7 +40,7 @@
                             <p><strong>Phone:</strong> ${data.phone}</p>
                             <p><strong>Address:</strong> ${data.address}</p>
                             <p><strong>Fax:</strong> ${data.fax}</p>
-                            <!-- Add more fields as needed -->
+                            
                         `);
                         // Show the modal after loading the data
                         $('#viewPatientVandorModal').modal('show');

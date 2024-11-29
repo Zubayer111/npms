@@ -15,6 +15,8 @@ class Diseases extends Model
         'disease_name',
         'description',
         'status',
+        'created_by',
+        'updated_by',
     ];
 
     public function user()

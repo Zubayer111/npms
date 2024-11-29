@@ -15,6 +15,8 @@ class MedicineGroup extends Model
         'group_name',
         'status',
         'description',
+        'created_by',
+        'updated_by',
     ];
 
     public function user()

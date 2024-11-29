@@ -55,7 +55,8 @@ class DashboardController extends Controller
             $data = PatientsProfile::where("user_id", $userID)->with("user")->first();
             $medcalDocuments = MedicalDocument::where("patient_id", $userID)->get();
             
-            return view("backend.pages.dashboard.profile-page", compact("data","medcalDocuments"));
+            // return view("backend.pages.dashboard.profile-page", compact("data","medcalDocuments"));
+            return view("backend.pages.dashboard.profile-page", compact("data"));
         }
     }
 

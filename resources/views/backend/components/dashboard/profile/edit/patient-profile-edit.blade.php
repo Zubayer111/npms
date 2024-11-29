@@ -41,9 +41,6 @@
 
 
 <script>
-// $(function () {
-//   bsCustomFileInput.init();
-// });
 $(document).ready(function() {
 	$('#email').on('keyup', function() {
 		var email = $(this).val();

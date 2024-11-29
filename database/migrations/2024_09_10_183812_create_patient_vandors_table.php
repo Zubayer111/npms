@@ -24,6 +24,8 @@ return new class extends Migration
             $table->text('address');
             $table->string('contact_person');
             $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->integer('created_by')->nullable();
+            $table->integer('updated_by')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
