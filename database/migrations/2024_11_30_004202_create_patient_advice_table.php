@@ -18,8 +18,10 @@ return new class extends Migration
             $table->text('investigation');
             $table->text('disease_description');
             $table->text('clinical_diagnosis');
-            $table->string('next_meeting', 100)->nullable();
+            $table->string('next_meeting_date', 100)->nullable();
+            $table->string('next_meeting_indication', 100)->nullable();
             $table->text('guide_to_prescription')->nullable();
+            $table->softDeletes();
             $table->integer('created_by');
             $table->integer('updated_by');
             $table->timestamps();

@@ -21,7 +21,9 @@ return new class extends Migration
             $table->string('dose', 250)->nullable();
             $table->text('cust_dose')->nullable();
             $table->string('duration', 250)->nullable();
+            $table->string('duration_unit', 250)->nullable();
             $table->string('instruction', 255);
+            $table->softDeletes();
             $table->integer('created_by');
             $table->integer('updated_by');
             $table->timestamps();

@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>NPMS | Dashboard</title>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <!-- Favicon -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Google Font: Source Sans Pro -->
@@ -35,12 +36,14 @@
   <link rel="stylesheet" href="{{asset('assets/plugins/summernote/summernote-bs4.min.css')}}">
   <!-- DataTables -->
   <link rel="stylesheet" href="{{asset('assets/plugins/datatables-bs4/css/jquery.dataTables.min.css')}}">
- 
+  <link rel="stylesheet" href="{{ asset('assets/combo/bootstrap-combobox.css') }}">
+
   <!-- SweetAlert -->
   
   <script src="{{asset("assets/plugins/datatables-bs4/js/sweetalert2@11.js")}}"></script>
   <script src="{{asset('assets/plugins/jquery/jquery.min.js')}}"></script>
   <script src="{{asset("assets/plugins/datatables-bs4/js/jquery.dataTables.min.js")}}"></script>
+  <script src="{{asset("assets/combo/bootstrap-combobox.js")}}"></script>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
   <div class="wrapper">

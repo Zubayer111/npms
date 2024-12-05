@@ -277,6 +277,14 @@ Route::prefix('/dashboard')
 
      // prescritions routes
      Route::get("/new-prescritions", [PrescritionsController::class,"newPrescritionsPage"])->name("dashboard.new-prescritions");
+     Route::get("/doses-by-type/{id}", [PrescritionsController::class,"dosesByType"])->name("dashboard.doses-by-type");
+     Route::post("/add-prescritions-medicine", [PrescritionsController::class,"postAddToCart"])->name("dashboard.add-prescritions-medicine");
+     Route::post("/display-prescritions-medicine", [PrescritionsController::class,"postDisplayToCart"])->name("dashboard.display-prescritions-medicine");
+     Route::post("/remove-prescritions-medicine", [PrescritionsController::class,"postRemoveToCart"])->name("dashboard.remove-prescritions-medicine");
+     Route::post("/save-prescription", [PrescritionsController::class,"postSavePrescription"])->name("dashboard.save-prescription");
+     Route::get("/prescritions-list", [PrescritionsController::class,"prescritionsListPage"])->name("dashboard.prescritions-list");
+     Route::get("/get-prescritions-list", [PrescritionsController::class,"getPrescritionsList"])->name("dashboard.get-prescritions-list");
+     Route::get("/view-prescritions/{id}/{date}", [PrescritionsController::class,"viewPrescritions"])->name("dashboard.view-prescritions");
 }); 
 
 // user routes outside the dashboard

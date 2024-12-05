@@ -412,6 +412,30 @@
             </li>
           </ul>
         </li>
+        {{-- prescritions --}}
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="fa-solid fa-prescription"></i>
+            <p>
+              Manage Prescritions
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="{{url("/dashboard/new-prescritions")}}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>New Prescritions</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{url("dashboard/prescritions-list")}}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>All Prescription</p>
+              </a>
+            </li>
+          </ul>
+        </li>
       </ul>
     </nav>
     <!-- /.sidebar-menu -->

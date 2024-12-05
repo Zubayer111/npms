@@ -263,7 +263,7 @@
         {{-- prescritions --}}
         <li class="nav-item">
           <a href="#" class="nav-link">
-            <i class="nav-icon fa-solid fa-vials"></i>
+            <i class="fa-solid fa-prescription"></i>
             <p>
               Manage Prescritions
               <i class="right fas fa-angle-left"></i>
@@ -277,13 +277,7 @@
               </a>
             </li>
             <li class="nav-item">
-              <a href="{{url("/dashboard/active-medical-test")}}" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Previous Prescription</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="{{url("/dashboard/inactive-medical-test")}}" class="nav-link">
+              <a href="{{url("dashboard/prescritions-list")}}" class="nav-link">
                 <i class="far fa-circle nav-icon"></i>
                 <p>All Prescription</p>
               </a>

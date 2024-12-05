@@ -22,15 +22,7 @@
                 <div class="card-header">
                   <h3 class="card-title">Active Doctor List</h3>
     
-                  {{-- <div class="card-tools">
-                    <div class="input-group input-group-sm" style="width: 150px;">
-                      <div class="input-group-append">
-                        <a href="{{url("/dashboard/create-user")}}" class="btn btn-primary">
-                            <div>Create User</div>
-                        </a>
-                      </div>
-                    </div>
-                  </div> --}}
+                  
                 </div>
                 <!-- /.card-header -->
                 <div class="card-body">

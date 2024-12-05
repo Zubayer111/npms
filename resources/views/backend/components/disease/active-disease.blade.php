@@ -52,7 +52,7 @@
           </div>
         </div>
     </section>
-  </div>
+</div>
 
   <script>
     function confirmDelete(id) {

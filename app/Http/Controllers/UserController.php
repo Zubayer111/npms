@@ -372,7 +372,8 @@ public function createUser(Request $request)
     
         if ($validated) {
             $userMobile = $request->input("phone");
-            $otp = rand(100000, 999999);
+            //$otp = rand(100000, 999999);
+            $otp = 123456;
             $user = User::updateOrCreate(["phone" => $userMobile], ["phone" => $userMobile, "otp" => $otp]);
             if(PatientsProfile::where("phone_number", $userMobile)->doesntExist()) {
                 PatientsProfile::create([
