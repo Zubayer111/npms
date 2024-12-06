@@ -25,6 +25,6 @@ class PatientAdvice extends Model
 
     public function patient()
     {
-        return $this->belongsTo(User::class, 'patient_id'); // Replace 'patient_id' with the actual foreign key column
+        return $this->belongsTo(PatientsProfile::class, 'patient_id', 'id'); // Replace 'patient_id' with the actual foreign key column
     }
 }

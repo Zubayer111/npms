@@ -24,4 +24,9 @@ class PatientPrescription extends Model
         'created_by',
         'updated_by',
     ];
+
+    public function patient()
+    {
+        return $this->belongsTo(PatientsProfile::class, 'patient_id', 'id');
+    }
 }

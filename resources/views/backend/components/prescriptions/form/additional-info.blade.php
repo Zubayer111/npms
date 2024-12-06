@@ -43,8 +43,13 @@
 
 <script>
     $(document).ready(function () {
+    let isSubmitting = false;
+
     $('#patientRecordForm').on('submit', function (e) {
-        e.preventDefault(); // Prevent the default form submission
+        e.preventDefault(); // Prevent default form submission
+
+        if (isSubmitting) return; // Prevent duplicate submissions
+        isSubmitting = true;
 
         let formData = $(this).serialize(); // Serialize form data
 
@@ -53,7 +58,7 @@
             method: "POST",
             data: formData,
             success: function (response) {
-            
+                isSubmitting = false; // Reset flag
                 Swal.fire({
                     icon: 'success',
                     title: 'Success',
@@ -61,13 +66,12 @@
                     showConfirmButton: true,
                     timer: 2000
                 }).then(() => {
-                
                     window.location.href = "{{ route('dashboard.prescritions-list') }}";
                 });
             },
             error: function (xhr) {
+                isSubmitting = false; // Reset flag
                 if (xhr.status === 422) {
-                
                     let errors = xhr.responseJSON.errors;
                     let errorMessage = "";
                     for (let key in errors) {
@@ -90,5 +94,6 @@
         });
     });
 });
+
 
 </script>

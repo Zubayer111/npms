@@ -37,11 +37,18 @@
             <div class="row">
                 <!-- Doctor Info -->
                 <div class="col-md-6">
-                    <h3 class="text-start mb-2 text-bold">DR. {{$doctor->first_name}} {{$doctor->middle_name}}  {{$doctor->last_name}}</h3>
-                    <p class="m-auto">{{$doctor->degree ?? "No user data available"}}</p>
-                    <p class="m-auto">{{$doctor->speciality ?? "No user data available"}}</p>
-                    <p class="m-auto">{{$doctor->organization ?? "No user data available"}}</p>
-                    <p class="m-auto">{{$doctor->address_one ?? "No user data available"}}</p>
+                    @if($doctor)
+                        <h3 class="text-start mb-2 text-bold">
+                            DR. {{$doctor->first_name}} {{$doctor->middle_name}} {{$doctor->last_name}}
+                        </h3>
+                        <p class="m-auto">{{$doctor->degree ?? "No user data available"}}</p>
+                        <p class="m-auto">{{$doctor->speciality ?? "No user data available"}}</p>
+                        <p class="m-auto">{{$doctor->organization ?? "No user data available"}}</p>
+                        <p class="m-auto">{{$doctor->address_one ?? "No user data available"}}</p>
+                    @else
+                        <p class="m-auto">No doctor data available</p>
+                    @endif
+
                 </div>
                 <!-- Bengali Doctor Info -->
             </div>

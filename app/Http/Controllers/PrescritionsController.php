@@ -172,7 +172,7 @@ class PrescritionsController extends Controller
     public function viewPrescritions(Request $request, $id, $date) {
         $userID = $request->session()->get('id');
         $doctor = DoctorsProfile::find($userID);
-        $formattedDate = Carbon::parse($date)->format('d M, Y h:i:s a');
+        $formattedDate = Carbon::parse($date)->format('Y-m-d');
     
     // Retrieve the data
     $patient = PatientsProfile::find($id); // Assuming 'User' model represents patients

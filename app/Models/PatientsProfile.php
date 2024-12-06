@@ -52,4 +52,15 @@ class PatientsProfile extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function prescriptions()
+    {
+        return $this->hasMany(PatientPrescription::class, 'patient_id');
+    }
+
+    public function advice()
+    {
+        return $this->hasOne(PatientAdvice::class, 'patient_id');
+    }
+
 }
