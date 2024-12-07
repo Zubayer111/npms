@@ -144,11 +144,13 @@ class PrescritionsController extends Controller
     public function getPrescritionsList(Request $request) {
         if($request->ajax()) {
             $userID = $request->session()->get('id');
-            $prescriptions = PatientAdvice::with('patient')->where('created_by', $userID)->get();
+            $prescriptions = PatientAdvice::with('patient')
+                                            ->where('created_by', $userID)
+                                            ->get();
             return DataTables::of($prescriptions)
                 ->addIndexColumn()
                 ->addColumn('patient_name', function ($row) {
-                    return $row->patient ? $row->patient->name : 'N/A'; // Adjust 'name' to the actual column for the patient's name
+                    return $row->patient ? $row->patient->first_name . ' ' .  $row->patient->last_name : 'N/A'; // Adjust 'name' to the actual column for the patient's name
                 })
                 ->editColumn('created_at', function ($row) {
                     return Carbon::parse($row->created_at)->format('d-M-Y H:i'); // Format as 'DD-MM-YYYY HH:MM'
@@ -171,7 +173,7 @@ class PrescritionsController extends Controller
 
     public function viewPrescritions(Request $request, $id, $date) {
         $userID = $request->session()->get('id');
-        $doctor = DoctorsProfile::find($userID);
+        $doctor = DoctorsProfile::where('user_id', $userID)->first();
         $formattedDate = Carbon::parse($date)->format('d M, Y h:i:s a');
     
     // Retrieve the data

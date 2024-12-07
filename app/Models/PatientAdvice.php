@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\PatientsProfile;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -25,6 +26,6 @@ class PatientAdvice extends Model
 
     public function patient()
     {
-        return $this->belongsTo(User::class, 'patient_id'); // Replace 'patient_id' with the actual foreign key column
+        return $this->belongsTo(PatientsProfile::class, 'patient_id', 'id');
     }
 }
