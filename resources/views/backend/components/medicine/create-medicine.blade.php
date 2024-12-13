@@ -40,7 +40,7 @@
                         </div>
                         <div class="form-group col-md-6">
                             <label>Brand Name</label>
-                            <select name="brand_id" class="form-control select2bs4" style="width: 100%;" required>
+                            <select name="brand_id" class="form-control brand" style="width: 100%;" required>
                                 <option value="" selected="selected" disabled>Select Brand Name</option>
                                 @foreach ($companys as $c)
                                     @if ($c->id == null)
@@ -72,7 +72,7 @@
                         </div>
                         <div class="form-group col-md-6">
                             <label>Group Name</label>
-                            <select name="group_id" class="form-control select2bs4" style="width: 100%;" required>
+                            <select name="group_id" class="form-control group" style="width: 100%;" required>
                                 <option value="" selected="selected" disabled>Select Group Name</option>
                                 @foreach ($groups as $g)
                                     @if ($g->id == null)
@@ -98,8 +98,8 @@
                         </div>
                         <div class="form-group col-md-6">
                             <label>Medicine Type</label>
-                            <select name="type_id" class="form-control select2bs4" style="width: 100%;" required>
-                                <option value="" class="text-muted" selected="selected" disabled>Select Medicine Type</option>
+                            <select name="type_id" class="form-control type-search" style="width: 100%;" required>
+                                <option value="" ></option>
                                 @foreach ($medicineTypes as $type)
                                         @if ($type->id == null)
                                         <option value="" disabled>No Type</option>
@@ -135,11 +135,28 @@
 
 
 <script>
-    $(function () {
-        $('.select2').select2();
-        $('.select2bs4').select2({
-      theme: 'bootstrap4'
-    })
+    $(document).ready(function() {
+    $('.brand').select2({
+        placeholder: "---Select Brand---",
+        allowClear: true,
+        theme: 'bootstrap4'
+    });
+
+    });
+    $(document).ready(function() {
+    $('.group').select2({
+        placeholder: "---Select Group---",
+        allowClear: true,
+        theme: 'bootstrap4'
+    });
+
+    });
+    $(document).ready(function() {
+        $('.type-search').select2({
+            placeholder: "---Select Type---",
+            allowClear: true,
+            theme: 'bootstrap4'
+        });
     });
 </script>
 

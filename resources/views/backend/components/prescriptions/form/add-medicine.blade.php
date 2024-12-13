@@ -107,13 +107,13 @@
 
 
 <script>
-// $(document).ready(function() {
-//     $('.patient-search').select2({
-//         placeholder: "---Select Patient---",
-//         allowClear: true,
-//         theme: 'bootstrap4'
-//     });
-// });
+$(document).ready(function() {
+    $('.patient-search').select2({
+        placeholder: "---Select Patient---",
+        allowClear: true,
+        theme: 'bootstrap4'
+    });
+});
 
 
     function toggleMedicineType() {

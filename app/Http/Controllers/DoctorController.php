@@ -262,7 +262,7 @@ public function createDoctor(Request $request)
 
             return redirect("/dashboard/profile")->with("success", "Profile Updated Successfully");
         }
-        catch (\Exception $e) {
+        catch (\Exception $e) {return $e;
             Alert::toast($e->getMessage(), 'error');
             return redirect("/dashboard/profile");
         }

@@ -24,8 +24,8 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
         $this->call(AdminSeeder::class);
-        DoctorsProfile::factory()->count(50)->create();
-        PatientsProfile::factory()->count(50)->create();
+        DoctorsProfile::factory()->count(10)->create();
+        PatientsProfile::factory()->count(10)->create();
         Diseases::factory()->count(20)->create();
     }
 }
