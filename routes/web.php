@@ -3,6 +3,7 @@
 use App\Models\Medicine;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DoctorController;
@@ -32,7 +33,10 @@ use App\Http\Middleware\ResetPassTokenVerificationMiddleware;
 |
 */
 
-
+Route::get('/', function () {
+    return view('welcome');
+});
+Route::post("upload", [HomeController::class,"upload"])->name("upload");
 Route::prefix('/dashboard')
       ->middleware([TokenVerificationMiddleware::class])
     ->group(function () {
@@ -284,7 +288,7 @@ Route::prefix('/dashboard')
      Route::post("/save-prescription", [PrescritionsController::class,"postSavePrescription"])->name("dashboard.save-prescription");
      Route::get("/prescritions-list", [PrescritionsController::class,"prescritionsListPage"])->name("dashboard.prescritions-list");
      Route::get("/get-prescritions-list", [PrescritionsController::class,"getPrescritionsList"])->name("dashboard.get-prescritions-list");
-     Route::get("/view-prescritions/{id}/{date}", [PrescritionsController::class,"viewPrescritions"])->name("dashboard.view-prescritions");
+     Route::get("/view-prescritions/{id}/{date}", [PrescritionsController::class,"viewPrescriptions"])->name("dashboard.view-prescritions");
 }); 
 
 // user routes outside the dashboard

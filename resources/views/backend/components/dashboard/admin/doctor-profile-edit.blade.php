@@ -99,7 +99,7 @@
                 </div>
                 <div class="form-group col-md-6">
                   <label for="exampleInputMobile">Degree</label>
-                  <input name="degree" type="number" class="form-control" id="exampleInputMobile" placeholder="Enter city" value="{{$user->degree ?? ''}}" required>
+                  <input name="degree" type="number" class="form-control" id="exampleInputMobile" placeholder="Enter degree" value="{{$user->degree ?? ''}}" required>
                 </div>
                 <div class="form-group col-md-6">
                     <label for="exampleInputMobile">Speciality</label>

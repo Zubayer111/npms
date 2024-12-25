@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Log;
 use Exception;
 use App\Models\User;
 use App\Mail\UserInfo;
@@ -13,9 +12,11 @@ use App\Helper\ResponseHelper;
 use App\Models\DoctorsProfile;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\Validator;
 
@@ -226,7 +227,7 @@ public function createDoctor(Request $request)
             $status = $request->session()->get("status");
             $refID = rand(10000, 99999);
             $type = $request->session()->get("type");
-            $adminData = [
+            $doctorData = [
                 "user_id" => $userId,
                 "ref_id" => $refID,
                 "title" => $type,
@@ -246,19 +247,24 @@ public function createDoctor(Request $request)
             ];
             if ($request->hasFile("profile_photo")) {
                 $img = $request->file("profile_photo");
-                $time = time();
                 $file_name = $img->getClientOriginalName();
-                $img_name = "{$userId}-{$time}-{$file_name}";
-                $img_url = "uploads/doctor/{$img_name}";
-                $img->move(public_path('uploads/doctor'), $img_name);
-                $adminData["profile_photo"] = $img_url;
+                $img_name = "{$userId}-{$file_name}";
+        
+                // Store the file in S3
+                $img_url = $img->storeAs('uploads/doctors', $img_name, 's3', ['visibility' => 'public']);
+        
+                // Generate a public URL for the file
+                $doctorData["profile_photo"] = Storage::disk('s3')->url($img_url);
+        
+                // Delete the old file if provided
                 if ($request->input("file_path")) {
-                    File::delete($request->input("file_path"));
+                    $oldFilePath = str_replace(Storage::disk('s3')->url(''), '', $request->input("file_path"));
+                    Storage::disk('s3')->delete($oldFilePath);
                 }
             }
 
             $request->merge(["user_id" => $userId]);
-            DoctorsProfile::updateOrCreate(["user_id" => $userId], $adminData);
+            DoctorsProfile::updateOrCreate(["user_id" => $userId], $doctorData);
 
             return redirect("/dashboard/profile")->with("success", "Profile Updated Successfully");
         }
@@ -336,7 +342,7 @@ public function createDoctor(Request $request)
             $refID = rand(10000, 99999);  // Ensure uniqueness if necessary
             $type = "Doctor";
     
-            $adminData = [
+            $doctorData = [
                 "user_id" => $userId,
                 "ref_id" => $refID,
                 "title" => $type,
@@ -358,27 +364,25 @@ public function createDoctor(Request $request)
     
             if ($request->hasFile("profile_photo")) {
                 $img = $request->file("profile_photo");
-                $time = time();
-                $file_name = preg_replace('/[^a-zA-Z0-9._-]/', '', $img->getClientOriginalName());
-                $img_name = "{$userId}-{$time}-{$file_name}";
-                $img_url = "uploads/doctor/{$img_name}";
-                
-                // Handle file move and potential errors
-                try {
-                    $img->move(public_path('uploads/doctor'), $img_name);
-                    $adminData["profile_photo"] = $img_url;
-    
-                    if ($request->input("file_path") && File::exists($request->input("file_path"))) {
-                        File::delete($request->input("file_path"));
-                    }
-                } catch (\Exception $e) {
-                    throw new \Exception("File upload failed: " . $e->getMessage());
+                $file_name = $img->getClientOriginalName();
+                $img_name = "{$userId}-{$file_name}";
+        
+                // Store the file in S3
+                $img_url = $img->storeAs('uploads/doctors', $img_name, 's3', ['visibility' => 'public']);
+        
+                // Generate a public URL for the file
+                $doctorData["profile_photo"] = Storage::disk('s3')->url($img_url);
+        
+                // Delete the old file if provided
+                if ($request->input("file_path")) {
+                    $oldFilePath = str_replace(Storage::disk('s3')->url(''), '', $request->input("file_path"));
+                    Storage::disk('s3')->delete($oldFilePath);
                 }
             }
     
             // Ensure "user_id" is correctly set
             $request->merge(["user_id" => $userId]);
-           $doctor = DoctorsProfile::updateOrCreate(["user_id" => $userId], $adminData);
+           $doctor = DoctorsProfile::updateOrCreate(["user_id" => $userId], $doctorData);
            if ($doctor) {
             $user->update([
                 "name" => $request->input("first_name") . " " . $request->input("last_name"),

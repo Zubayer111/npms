@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\DoctorsProfile;
-use Log;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Medicine;
 use App\Models\MedicineDose;
 use Illuminate\Http\Request;
 use App\Models\PatientAdvice;
+use App\Models\DoctorsProfile;
 use App\Models\PatientsProfile;
 use Illuminate\Support\Facades\DB;
 use App\Models\PatientPrescription;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 use Darryldecode\Cart\Cart as CartCart;
 use Yajra\DataTables\Facades\DataTables;
 use Darryldecode\Cart\Facades\CartFacade as Cart;
@@ -32,12 +33,14 @@ class PrescritionsController extends Controller
     public function postAddToCart(Request $request) 
     {
         $userID = $request->session()->get('id');
+        Log::info('Retrieved user ID from session.', ['userID' => $userID]);
 
+        // Adding the prescription to the cart
         Cart::session($userID)->add([
-            'id'       => uniqid(), 
+            'id'       => uniqid(),
             'name'     => $request->input('medicine_name'),
-            'price'    => 0, 
-            'quantity' => 1, 
+            'price'    => 0,
+            'quantity' => 1,
             'attributes' => [
                 'patient_id'    => $request->input('patient_id'),
                 'dose'          => $request->input('dose') ?? $request->input('cust_dose'),
@@ -45,17 +48,36 @@ class PrescritionsController extends Controller
                 'duration_unit' => $request->input('duration_unit'),
                 'instruction'   => $request->input('instruction'),
             ],
-            'associatedModel' => null, 
+            'associatedModel' => null,
         ]);
 
-        $allPrescriptions = Cart::session($userID)->getContent();
-        
-        $html = view('backend.components.prescriptions.table.medicine-list', compact('allPrescriptions'))->render();
+        Log::info('Medicine added to cart.', [
+            'userID' => $userID,
+            'medicine_name' => $request->input('medicine_name'),
+            'patient_id' => $request->input('patient_id'),
+            'dose' => $request->input('dose') ?? $request->input('cust_dose'),
+            'duration' => $request->input('duration'),
+            'duration_unit' => $request->input('duration_unit'),
+            'instruction' => $request->input('instruction'),
+        ]);
 
+        // Fetching all prescriptions in the cart
+        $allPrescriptions = Cart::session($userID)->getContent();
+        Log::info('Fetched all prescriptions from the cart.', [
+            'userID' => $userID,
+            'prescriptions' => $allPrescriptions->toArray(),
+        ]);
+
+        // Rendering the view
+        $html = view('backend.components.prescriptions.table.medicine-list', compact('allPrescriptions'))->render();
+        Log::info('Rendered prescription table view.', ['html_length' => strlen($html)]);
+
+        // Returning JSON response
         return response()->json(['html' => $html]);
     }
 
-    public function postDisplayToCart(Request $request) {
+    public function postDisplayToCart(Request $request) 
+    {
         $userID = $request->session()->get('id');
  
         $allPrescriptions = Cart::session($userID)->getContent();
@@ -80,22 +102,25 @@ class PrescritionsController extends Controller
 
     public function postSavePrescription(Request $request)
     {
-        // Retrieve cart content for the current session
         $userID = $request->session()->get('id');
+        Log::info('Started saving prescription.', ['userID' => $userID]);
+
         $cartContent = Cart::session($userID)->getContent();
 
-        // Check if the cart is empty
         if (!$cartContent || $cartContent->isEmpty()) {
+            Log::warning('Attempted to save a prescription with an empty cart.', ['userID' => $userID]);
             return response()->json(['error' => 'Please Add Patient Medicines...'], 400);
         }
 
-        // Begin database transaction
         DB::beginTransaction();
         try {
-            // Get the first item to retrieve the patient ID
+            // Log cart content for debugging
+            Log::info('Cart content retrieved.', ['cartContent' => $cartContent->toArray()]);
+
             $firstItem = $cartContent->first();
-            // return $request->all();
-            // Create a new PatientAdvice record
+            Log::info('Processing patient advice.', ['patient_id' => $firstItem->attributes->patient_id]);
+
+            // Save Patient Advice
             $advice = PatientAdvice::create([
                 "patient_id" => $firstItem->attributes->patient_id,
                 "advice" => $request->input("advice"),
@@ -108,14 +133,20 @@ class PrescritionsController extends Controller
                 "created_by" => $userID,
                 "updated_by" => $userID
             ]);
+            Log::info('Patient advice saved.', ['advice_id' => $advice->id]);
 
-            // Loop through cart items and create PatientPrescription records
+            // Save Patient Prescriptions
             foreach ($cartContent as $medicine) {
+                Log::info('Saving prescription for medicine.', [
+                    'medicine_name' => $medicine->name,
+                    'patient_id' => $medicine->attributes->patient_id
+                ]);
+
                 PatientPrescription::create([
                     "patient_id" => $medicine->attributes->patient_id,
                     "medicine_name" => $medicine->name,
                     "dose" => $medicine->attributes->dose,
-                    "cust_dose" => $medicine->attributes->cust_dose,
+                    "cust_dose" => $medicine->attributes->cust_dose ?? null,
                     "duration_unit" => $medicine->attributes->duration_unit,
                     "instruction" => $medicine->attributes->instruction,
                     "duration" => $medicine->attributes->duration,
@@ -124,15 +155,22 @@ class PrescritionsController extends Controller
                 ]);
             }
 
-            // Clear the cart
+            // Clear Cart
             Cart::session($userID)->clear();
+            Log::info('Cart cleared for user.', ['userID' => $userID]);
 
-            // Commit the transaction
             DB::commit();
+            Log::info('Prescription saved successfully.', ['userID' => $userID]);
+
             return response()->json(['message' => 'Prescription saved successfully!'], 200);
         } catch (\Exception $e) {
-            // Rollback the transaction in case of an error
             DB::rollBack();
+            Log::error('Failed to save prescription.', [
+                'userID' => $userID,
+                'error' => $e->getMessage(),
+                'stack_trace' => $e->getTraceAsString()
+            ]);
+
             return response()->json(['error' => 'Failed to save prescription.', 'details' => $e->getMessage()], 500);
         }
     }
@@ -171,32 +209,55 @@ class PrescritionsController extends Controller
 
     } 
 
-    public function viewPrescritions(Request $request, $id, $date) {
+    public function viewPrescriptions(Request $request, $id, $date) {
         $userID = $request->session()->get('id');
-        $doctor = DoctorsProfile::where('user_id', $userID)->first();
-        $formattedDate = Carbon::parse($date)->format('d M, Y h:i:s a');
-    
         
-        $patient = PatientsProfile::find($id);
-        $prescriptionData = PatientPrescription::where('patient_id', $id)
-            ->whereDate('created_at', Carbon::parse($date)->toDateString())
-            ->get();
-        $advice = PatientAdvice::where('patient_id', $id)
-            ->whereDate('created_at', Carbon::parse($date)->toDateString())
-            ->first();
+        try {
+            $doctor = DoctorsProfile::where('user_id', $userID)->first();
+    
+            // Check if the input date is valid
+            if (!strtotime($date)) {
+                return redirect()->back()->withErrors(['error' => 'Invalid date format.']);
+            }
+    
+            // Parse the date
+            $parsedDate = Carbon::parse($date);
+    
+            // Format the date for display
+            $formattedDate = $parsedDate->format('d M, Y h:i:s a');
+    
+            // Fetch patient and data
+            $patient = PatientsProfile::findOrFail($id);
+            $prescriptionData = PatientPrescription::where('patient_id', $id)
+                ->whereDate('created_at', $parsedDate->toDateString())
+                ->get();
+            $advice = PatientAdvice::where('patient_id', $id)
+                ->whereDate('created_at', $parsedDate->toDateString())
+                ->first();
+    
+            // Calculate age
             $dob = $patient->dob;
             $age = Carbon::parse($dob)->age;
-
+    
             // Pass data to the view
-        return view('backend.pages.prescriptions.prescription', compact(
-            'patient',
-            'prescriptionData',
-            'advice',
-            'formattedDate',
-            'doctor',
+            return view('backend.pages.prescriptions.prescription', compact(
+                'patient',
+                'prescriptionData',
+                'advice',
+                'formattedDate',
+                'doctor',
                 'age'
             ));
-
+        } catch (\Exception $e) {
+            // Log the error
+            Log::error('Error viewing prescription', ['error' => $e->getMessage(), 'patient_id' => $id, 'date' => $date]);
+    
+            // Redirect back with error message
+            return redirect()->back()->withErrors(['error' => 'Failed to retrieve prescriptions.']);
+        }
     }
+    
+    
+    
 
 }

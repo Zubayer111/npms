@@ -31,7 +31,7 @@
                         <label for="exampleInputFile">File input</label>
                         <div class="input-group">
                           <div class="custom-file">
-                            <input name="profile_photo" type="file" value="{{$user->profile_photo ?? ''}}" class="custom-file-input" id="exampleInputFile" required>
+                            <input name="profile_photo" type="file" value="{{$user->profile_photo ?? ''}}" class="custom-file-input" id="exampleInputFile">
                             <label class="custom-file-label" for="exampleInputFile">Choose file</label>
                           </div>
                           <div class="input-group-append">
