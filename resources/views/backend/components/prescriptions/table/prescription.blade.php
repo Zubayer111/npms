@@ -60,14 +60,20 @@
         
         <tr style="border: solid 0px">
             
-            <td colspan="2" style="text-align: left; ">
-                    <h3 class="text-start mb-2 text-bold">DR. {{$doctor->first_name}} {{$doctor->middle_name}}  {{$doctor->last_name}}</h3>
-                    <p class="m-auto">{{$doctor->degree ?? "No user data available"}}</p>
-                    <p class="m-auto">{{$doctor->speciality ?? "No user data available"}}</p>
-                    <p class="m-auto">{{$doctor->organization ?? "No user data available"}}</p>
-                    <p class="m-auto">{{$doctor->address_one ?? "No user data available"}}</p>
-                
+            <td colspan="2" style="text-align: left;">
+                @if ($doctor)
+                    <h3 class="text-start mb-2 text-bold">
+                        DR. {{ $doctor->first_name ?? '' }} {{ $doctor->middle_name ?? '' }} {{ $doctor->last_name ?? '' }}
+                    </h3>
+                    <p class="m-auto">{{ $doctor->degree ?? "No user data available" }}</p>
+                    <p class="m-auto">{{ $doctor->speciality ?? "No user data available" }}</p>
+                    <p class="m-auto">{{ $doctor->organization ?? "No user data available" }}</p>
+                    <p class="m-auto">{{ $doctor->address_one ?? "No user data available" }}</p>
+                @else
+                    <h3 class="text-start mb-2 text-bold">No user data available</h3>
+                @endif
             </td>
+            
             
             </td>
             

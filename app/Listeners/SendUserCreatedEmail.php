@@ -23,10 +23,10 @@ class SendUserCreatedEmail
      */
     public function handle(UserCreated $event): void
     {
-        Mail::to($event->user->email)->send(new UserInfo([
-            "name" => $event->user->name,
-            "email" => $event->user->email,
-            "password" => $event->password
-        ]));
+        // Mail::to($event->user->email)->send(new UserInfo([
+        //     "name" => $event->user->name,
+        //     "email" => $event->user->email,
+        //     "password" => $event->password
+        // ]));
     }
 }

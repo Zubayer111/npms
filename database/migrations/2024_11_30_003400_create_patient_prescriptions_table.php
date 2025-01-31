@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('patient_id')->constrained('patients_profiles')->onDelete('cascade');
             $table->integer('patient_id_reading')->nullable();
             $table->integer('parameter_id')->nullable();
+            $table->bigInteger('prescription_id')->nullable();
             $table->integer('parameter_value')->nullable();
             $table->string('medicine_name', 255)->nullable();
             $table->string('dose', 250)->nullable();

@@ -13,8 +13,9 @@ class PatientIllnesHistory extends Model
     protected $fillable = [
         'disease_id',
         'patient_id',
+        'status',
         'created_by',
-        'updated_by',
+        'updated_by'
     ];
     public function disease()
     {

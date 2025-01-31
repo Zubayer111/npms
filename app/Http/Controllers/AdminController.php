@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Log;
 use Exception;
 use App\Models\User;
 use App\Models\Admin;
@@ -14,6 +13,7 @@ use App\Helper\ResponseHelper;
 use App\Models\Admins_profile;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;

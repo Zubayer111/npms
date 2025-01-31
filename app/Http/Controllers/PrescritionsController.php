@@ -119,10 +119,12 @@ class PrescritionsController extends Controller
 
             $firstItem = $cartContent->first();
             Log::info('Processing patient advice.', ['patient_id' => $firstItem->attributes->patient_id]);
-
+            $prescription_id = date('Ymdhis');
+            
             // Save Patient Advice
             $advice = PatientAdvice::create([
                 "patient_id" => $firstItem->attributes->patient_id,
+                "prescription_id" => $prescription_id,
                 "advice" => $request->input("advice"),
                 "investigation" => $request->input("investigation"),
                 "disease_description" => $request->input("disease_description"),
@@ -144,6 +146,7 @@ class PrescritionsController extends Controller
 
                 PatientPrescription::create([
                     "patient_id" => $medicine->attributes->patient_id,
+                    "prescription_id" => $prescription_id,
                     "medicine_name" => $medicine->name,
                     "dose" => $medicine->attributes->dose,
                     "cust_dose" => $medicine->attributes->cust_dose ?? null,
@@ -154,7 +157,6 @@ class PrescritionsController extends Controller
                     "updated_by" => $userID
                 ]);
             }
-
             // Clear Cart
             Cart::session($userID)->clear();
             Log::info('Cart cleared for user.', ['userID' => $userID]);
@@ -196,7 +198,7 @@ class PrescritionsController extends Controller
                 ->addColumn('action', function($row){
                     $activeUrl = route('dashboard.view-prescritions', [
                         'id' => $row->patient_id,
-                        'date' => Carbon::parse($row->created_at)->format('Y-m-d'),
+                        'data' => $row->prescription_id,
                     ]);
                     
                     $btn = '<a href="'.$activeUrl.'" class="btn badge-success btn-sm">View Prescription</a>';
@@ -209,30 +211,27 @@ class PrescritionsController extends Controller
 
     } 
 
-    public function viewPrescriptions(Request $request, $id, $date) {
+    public function viewPrescriptions(Request $request, $id, $data) {
         $userID = $request->session()->get('id');
         
         try {
             $doctor = DoctorsProfile::where('user_id', $userID)->first();
     
             // Check if the input date is valid
-            if (!strtotime($date)) {
+            if (!strtotime($data)) {
                 return redirect()->back()->withErrors(['error' => 'Invalid date format.']);
             }
-    
-            // Parse the date
-            $parsedDate = Carbon::parse($date);
-    
             // Format the date for display
-            $formattedDate = $parsedDate->format('d M, Y h:i:s a');
-    
+            
+            $formattedDate = Carbon::parse($data)->format('d M, Y'); 
+
             // Fetch patient and data
             $patient = PatientsProfile::findOrFail($id);
             $prescriptionData = PatientPrescription::where('patient_id', $id)
-                ->whereDate('created_at', $parsedDate->toDateString())
+                ->where('prescription_id', $data)
                 ->get();
             $advice = PatientAdvice::where('patient_id', $id)
-                ->whereDate('created_at', $parsedDate->toDateString())
+                ->where('prescription_id', $data)
                 ->first();
     
             // Calculate age

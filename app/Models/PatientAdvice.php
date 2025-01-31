@@ -13,6 +13,7 @@ class PatientAdvice extends Model
 
     protected $fillable = [
         'patient_id',
+        'prescription_id',
         'advice',
         'investigation',
         'disease_description',
@@ -27,5 +28,10 @@ class PatientAdvice extends Model
     public function patient()
     {
         return $this->belongsTo(PatientsProfile::class, 'patient_id', 'id');
+    }
+
+    public function prescription()
+    {
+        return $this->belongsTo(PatientPrescription::class, 'prescription_id', 'prescription_id');
     }
 }

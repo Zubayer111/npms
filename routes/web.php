@@ -152,6 +152,7 @@ Route::prefix('/dashboard')
     Route::get("/dashboard/add-patient-ilnase/{id}/{pid}", [PatientController::class,"addPatientIlnase"])->name("dashboard.add-patient-ilnase");
     Route::get("/dashboard/get-ilnase-list/{id}", [PatientController::class,"getIllnessList"])->name("dashboard.get-ilnase-list");
     Route::get("dashboard/remove-patient-ilnase/{id}", [PatientController::class,"deleteIllness"])->name("dashboard.remove-patient-ilnase");
+    Route::get("dashboard/restore-patient-ilnase/{id}", [PatientController::class,"restoreIllness"])->name("dashboard.restore-patient-ilnase");
     Route::delete("/patient/complain-delete/{id}", [PatientController::class,"deleteComplain"])->name("dashboard.patient.complain-delete");
     // Medical Document routes
     Route::get('/medical-documents', [MedicalDocumentController::class, 'index'])->name('dashboard.medical-documents-page');
@@ -288,7 +289,7 @@ Route::prefix('/dashboard')
      Route::post("/save-prescription", [PrescritionsController::class,"postSavePrescription"])->name("dashboard.save-prescription");
      Route::get("/prescritions-list", [PrescritionsController::class,"prescritionsListPage"])->name("dashboard.prescritions-list");
      Route::get("/get-prescritions-list", [PrescritionsController::class,"getPrescritionsList"])->name("dashboard.get-prescritions-list");
-     Route::get("/view-prescritions/{id}/{date}", [PrescritionsController::class,"viewPrescriptions"])->name("dashboard.view-prescritions");
+     Route::get("/view-prescritions/{id}/{data}", [PrescritionsController::class,"viewPrescriptions"])->name("dashboard.view-prescritions");
 }); 
 
 // user routes outside the dashboard

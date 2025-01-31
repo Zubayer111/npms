@@ -13,6 +13,7 @@ class PatientPrescription extends Model
     protected $fillable = [
         'patient_id',
         'patient_id_reading',
+        'prescription_id',
         'parameter_id',
         'parameter_value',
         'medicine_name',

@@ -25,6 +25,17 @@ class AdminSeeder extends Seeder
             'created_at' => now(),
             'updated_at' => now(),
         ]);
+        $data = DB::table('users')->insert([
+            'name' => 'doctor',
+            'email' => 'doctor@doctor.com',
+            'password' => Hash::make('12345678'),
+            'type' => 'Doctor',
+            'phone' => '1234567812',
+            'status' => 'active',
+            'otp' => '0',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
         
     }
 }

@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Patient\PatientMedicalRequest;
 use Exception;
+use App\Traits\UploadTrait;
 use Illuminate\Http\Request;
 use App\Models\MedicalDocument;
-use App\Traits\UploadTrait;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\Patient\PatientMedicalRequest;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class MedicalDocumentController extends Controller
@@ -95,56 +96,59 @@ class MedicalDocumentController extends Controller
         }
 
 
-    public function store(PatientMedicalRequest $request)
-        {
-            try {
-                $patient_id = $request->session()->get("id");
+        public function store(PatientMedicalRequest $request)
+{
+    try {
+        $patient_id = $request->session()->get("id");
 
-                // Check if the request contains files
-                if ($request->hasFile('file')) {
-                    $file_paths = []; // To store all file paths if multiple uploads
-                    
-                    foreach ($request->file('file') as $file) {
-                        $file_extension = $file->getClientOriginalExtension();
+        // Check if the request contains files
+        if ($request->hasFile('file')) {
+            $file_paths = []; // To store all file paths if multiple uploads
 
-                        // Handle file upload based on its type
-                        if (in_array($file->getMimeType(), ['image/jpeg', 'image/png', 'image/gif', 'image/webp'])) {
-                            $file_path = $this->uploadImageToLocal($file, '/patient/'.$patient_id.'/files/', 'file_');
-                        } else {
-                            $file_path = $this->uploadFile($file, '/patient/'.$patient_id.'/files/', 'file_');
-                        }
+            foreach ($request->file('file') as $file) {
+                $file_extension = $file->getClientOriginalExtension();
 
-                        // Check if the file was successfully uploaded
-                        if (!$file_path) {
-                            throw new Exception('File upload failed.');
-                        }
+                // Define a flat path for S3 without creating dynamic folders
+                $file_name = "file_" . time() . '_' . uniqid() . '.' . $file_extension;
 
-                        $file_paths[] = $file_path;
+                // Upload the file to S3
+                $file_path = $file->storeAs("uploads/patients/{$patient_id}", $file_name, 's3');
 
-                        // Store each file's metadata in the database
-                        MedicalDocument::create([
-                            'patient_id' => $patient_id,
-                            'file_type' => $request->file_type,
-                            'file_name' => $request->file_name,
-                            'file_extension' => $file_extension,
-                            'asset_path' => $file_path, // Ensure the correct path is stored here
-                            'uploaded_by' => $patient_id,
-                        ]);
-                    }
+                // Check if the file was successfully uploaded
+                if (!$file_path) {
+                    throw new Exception('File upload failed.');
                 }
 
-                return response()->json([
-                    'status' => 'success',
-                    'message' => 'Documents uploaded successfully',
-                    'file_paths' => $file_paths // Return the file paths for confirmation
-                ], 200);
-            } catch (Exception $e) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => $e->getMessage()
-                ], 500);
+                // Generate a public URL for the uploaded file
+                $file_url = Storage::disk('s3')->url($file_path);
+                $file_paths[] = $file_url;
+
+                // Store each file's metadata in the database
+                MedicalDocument::create([
+                    'patient_id' => $patient_id,
+                    'file_type' => $request->file_type,
+                    'file_name' => $request->file_name,
+                    'file_extension' => $file_extension,
+                    'asset_path' => $file_url, // Store the public URL
+                    'uploaded_by' => $patient_id,
+                ]);
             }
         }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Documents uploaded successfully',
+            'file_paths' => $file_paths // Return the file paths for confirmation
+        ], 200);
+    } catch (Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage()
+        ], 500);
+    }
+}
+
+        
 
 
 
@@ -155,16 +159,16 @@ class MedicalDocumentController extends Controller
         return redirect()->back()->with('success', 'Document deleted successfully');
     }
 
-    public function download($id): BinaryFileResponse
+    public function download($id)
     {
         $document = MedicalDocument::findOrFail($id);
-        $filePath = public_path($document->asset_path);
+        $filePath = $document->asset_path; 
 
-        if (!file_exists($filePath)) {
+        if (!Storage::disk('s3')->exists($filePath)) {
             return redirect()->back()->with('error', 'File not found');
         }
 
-        return response()->download($filePath);
+        return Storage::disk('s3')->download($filePath);
     }
 
     public function view($id)

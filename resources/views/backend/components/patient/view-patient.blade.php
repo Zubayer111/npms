@@ -36,9 +36,7 @@
                 <h3 class="profile-username text-center">{{$data->first_name ?? 'No user data available'}} {{$data->middle_name ?? ''}} {{$data->last_name ?? ''}}</h3>
   
                 <p class="text-muted text-center">Patient</p>
-  
-                
-  
+
                 <a href="{{route('dashboard.patient.admin.profile.edit',['id' => $data->id])}}" class="btn btn-primary btn-block"><b>Edit</b></a>
               </div>
               <!-- /.card-body -->
@@ -57,12 +55,12 @@
                     <li class="nav-item"><a class="nav-link active" href="#basic-information" data-toggle="tab">Basic Information</a></li>
                     <li class="nav-item"><a class="nav-link" href="#medical-document" data-toggle="tab">Medical Document</a></li>
                     <li class="nav-item"><a class="nav-link" href="#medical-info" data-toggle="tab">Medical Info</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#treatments" data-toggle="tab">Treatments</a></li>
+                    {{-- <li class="nav-item"><a class="nav-link" href="#treatments" data-toggle="tab">Treatments</a></li> --}}
                 </ul>
               </div><!-- /.card-header -->
               <div class="card-body">
                 <div class="tab-content">
-                  <div class="active tab-pane" id="activity">
+                  <div class="active tab-pane" id="basic-information">
                     <!-- Post -->
                     <div class="post">
                       <div class="user-block">
@@ -213,7 +211,7 @@
                         </section>
                     </div>
                   </div>
-                  <div class="tab-pane" id="treatments">
+                  {{-- <div class="tab-pane" id="treatments">
                     <!-- The timeline -->
                     <div class="timeline timeline-inverse">
                       <section class="content">
@@ -223,7 +221,7 @@
                         </section>
                     </div>
                     
-                  </div>
+                  </div> --}}
                   <!-- /.card -->
                   <!-- /.tab-pane -->
                   <!-- /.tab-pane -->

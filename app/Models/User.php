@@ -41,4 +41,8 @@ class User extends Model
     // {
     //     return $this->hasOne(Admin::class);
     // }
+    public function patientProfile()
+    {
+        return $this->hasOne(PatientsProfile::class, 'user_id');
+    }
 }

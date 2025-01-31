@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('patient_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('disease_id')->constrained('diseases')->onDelete('cascade');
+            $table->enum('status', ['active', 'inactive'])->default('active');
             $table->integer('created_by');
             $table->integer('updated_by');
             $table->softDeletes();

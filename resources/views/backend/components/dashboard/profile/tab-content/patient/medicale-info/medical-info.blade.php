@@ -112,66 +112,105 @@
           })
       }
 
-      $(document).ready(function() {
-        $('.submit-ajax').on('click', function(e) {
-            e.preventDefault(); 
-            var diseaseId = $(this).data('disease-id');
-            var userId = $(this).data('user-id');
-
-            var url = "{{ route('dashboard.add-patient-ilnase', [':id', ':pid']) }}";
-            url = url.replace(':id', diseaseId).replace(':pid', userId);
-
-            
-            $.ajax({
-                url: url, 
-                type: 'GET', 
-                success: function(response) {
-                    
-                    loadIllnessList(userId); 
-                },
-                error: function(xhr) {
-                    alert('Something went wrong. Please try again.');
-                }
-            });
-        });
-    });
-
 </script>
 <script>
-    var patientId = {{ $data->user_id }}; // Ensure this is correctly set in your Blade view
-
     $(document).ready(function() {
-        loadIllnessList(patientId); // Call function when document is ready
+    var patientId = {{ $data->user_id }}; // Get patient ID from Blade
 
-        $(document).on('click', '.remove-illness', function(e) {
-            e.preventDefault(); 
+    loadIllnessList(patientId); // Load illness list on page load
 
-            var $this = $(this); 
-            var illnessId = $this.data('id'); 
+    // Add illness (GET Method)
+    $(document).on('click', '.submit-ajax', function(e) {
+        e.preventDefault();
+        var diseaseId = $(this).data('disease-id');
+        var userId = $(this).data('user-id');
 
-            $this.addClass('disabled').text('Processing...').prop('disabled', true);
+        var url = "{{ route('dashboard.add-patient-ilnase', [':id', ':pid']) }}";
+        url = url.replace(':id', diseaseId).replace(':pid', userId) + "?_=" + new Date().getTime(); // Prevent caching
 
-            $.ajax({
-                url: '{{ route("dashboard.remove-patient-ilnase", ":id") }}'.replace(':id', illnessId),
-                type: 'GET', 
-                success: function(response) {
-                    if(response.status === "success") {
-                        loadIllnessList(patientId); 
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.log(xhr.responseText); 
-                    alert('An error occurred while removing the illness');
-                    $this.removeClass('disabled').prop('disabled', false).text('Retry');
+        $.ajax({
+            url: url,
+            type: 'GET', // Using GET method
+            success: function(response) {
+                if (response.status === "success") {
+                    loadIllnessList(userId); // Refresh illness list
+                } else {
+                    alert('Failed to add illness. Please try again.');
                 }
-            });
+            },
+            error: function(xhr) {
+                console.log(xhr.responseText);
+                alert('Something went wrong. Please try again.');
+            }
         });
     });
 
-    function loadIllnessList(userId) {
+    // Remove illness
+    $(document).on('click', '.remove-illness', function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        var illnessId = $this.data('id');
+
+        $this.addClass('disabled').text('Processing...').prop('disabled', true);
+
+        var url = '{{ route("dashboard.remove-patient-ilnase", ":id") }}'.replace(':id', illnessId) + "?_=" + new Date().getTime();
+
         $.ajax({
-            url: '{{ route("dashboard.get-ilnase-list", ":id") }}'.replace(':id', userId),
+            url: url,
             type: 'GET',
+            success: function(response) {
+                if (response.status === "success") {
+                    loadIllnessList(patientId);
+                } else {
+                    alert('Failed to remove illness. Please try again.');
+                    $this.removeClass('disabled').prop('disabled', false).text('Remove');
+                }
+            },
+            error: function(xhr) {
+                console.log(xhr.responseText);
+                alert('An error occurred while removing the illness');
+                $this.removeClass('disabled').prop('disabled', false).text('Retry');
+            }
+        });
+    });
+
+    // Restore illness
+    $(document).on('click', '.restore-illness', function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        var illnessId = $this.data('id');
+
+        $this.addClass('disabled').text('Restoring...').prop('disabled', true);
+
+        var url = '{{ route("dashboard.restore-patient-ilnase", ":id") }}'.replace(':id', illnessId) + "?_=" + new Date().getTime();
+
+        $.ajax({
+            url: url,
+            type: 'GET',
+            success: function(response) {
+                if (response.status === "success") {
+                    loadIllnessList(patientId);
+                } else {
+                    alert('Failed to restore illness. Please try again.');
+                    $this.removeClass('disabled').prop('disabled', false).text('Restore');
+                }
+            },
+            error: function(xhr) {
+                console.log(xhr.responseText);
+                alert('An error occurred while restoring the illness');
+                $this.removeClass('disabled').prop('disabled', false).text('Retry');
+            }
+        });
+    });
+
+    // Fetch illness list
+    function loadIllnessList(userId) {
+        var url = '{{ route("dashboard.get-ilnase-list", ":id") }}'.replace(':id', userId) + "?_=" + new Date().getTime();
+
+        $.ajax({
+            url: url,
+            type: 'GET',
+            cache: false, // Ensure fresh data is fetched
             success: function(response) {
                 if (response.status === "success") {
                     var illnessList = response.data;
@@ -181,9 +220,9 @@
                         $.each(illnessList, function(index, illness) {
                             html += '<div class="p-2">';
                             if (illness.deleted_at === null) {
-                                html += '<a href="javascript:void(0);" class="btn btn-danger btn-sm remove-illness" data-id="' + illness.id + '">' + illness.disease.disease_name + '</a>';
+                                html += '<a href="javascript:void(0);" class="btn btn-success btn-sm remove-illness" data-id="' + illness.id + '">' + illness.disease.disease_name + '</a>';
                             } else {
-                                html += '<a href="javascript:void(0);" class="btn btn-danger btn-sm remove-illness disabled" data-id="' + illness.id + '" aria-disabled="true">' + illness.disease.disease_name + ' </a>';
+                                html += '<a href="javascript:void(0);" class="btn btn-danger btn-sm restore-illness" data-id="' + illness.id + '">' + illness.disease.disease_name + '</a>';
                             }
                             html += '</div>';
                         });
@@ -195,8 +234,11 @@
             },
             error: function(xhr) {
                 alert('Something went wrong while fetching the illness list.');
-                console.log(xhr.responseText); // Log error for debugging
+                console.log(xhr.responseText);
             }
         });
     }
+});
+
 </script>
+
