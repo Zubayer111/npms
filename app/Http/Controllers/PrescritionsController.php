@@ -212,9 +212,8 @@ class PrescritionsController extends Controller
     } 
 
     public function viewPrescriptions(Request $request, $id, $data) {
-        $userID = $request->session()->get('id');
-        
         try {
+            $userID = $request->session()->get('id');
             $doctor = DoctorsProfile::where('user_id', $userID)->first();
     
             // Check if the input date is valid
@@ -249,7 +248,7 @@ class PrescritionsController extends Controller
             ));
         } catch (\Exception $e) {
             // Log the error
-            Log::error('Error viewing prescription', ['error' => $e->getMessage(), 'patient_id' => $id, 'date' => $date]);
+            Log::error('Error viewing prescription', ['error' => $e->getMessage(), 'patient_id' => $id, 'prescription_id' => $data]);
     
             // Redirect back with error message
             return redirect()->back()->withErrors(['error' => 'Failed to retrieve prescriptions.']);

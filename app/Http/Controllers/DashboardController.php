@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\User;
+use App\Models\Diseases;
 use Illuminate\Http\Request;
 use App\Models\AdminsProfile;
+use App\Models\PatientAdvice;
 use App\Models\DoctorsProfile;
 use App\Models\MedicalDocument;
 use App\Models\PatientsProfile;
 use Yajra\DataTables\DataTables;
+use App\Models\PatientPrescription;
 use App\Http\Controllers\Controller;
-use Carbon\Carbon;
+use App\Models\PatientIllnesHistory;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
@@ -70,9 +74,12 @@ class DashboardController extends Controller
             $userID = $request->session()->get("id");
             $data = PatientsProfile::where("user_id", $userID)->with("user")->first();
             $medcalDocuments = MedicalDocument::where("patient_id", $userID)->get();
+            $diseases = Diseases::where("status", "active")->get();
+            $ilnase = PatientIllnesHistory::where("patient_id", $userID)->get();
+            $prescritions = PatientPrescription::where("patient_id", $userID)->get();
             
             // return view("backend.pages.dashboard.profile-page", compact("data","medcalDocuments"));
-            return view("backend.pages.dashboard.profile-page", compact("data"));
+            return view("backend.pages.dashboard.profile-page", compact("data" ,"medcalDocuments","diseases","ilnase"));
         }
     }
 
@@ -113,5 +120,34 @@ class DashboardController extends Controller
         return view("backend.pages.user.create-user-page");
     }
 
+    public function prescritions(Request $request){
+        if($request->ajax()) {
+            $userID = $request->session()->get('id');
+            $data = PatientsProfile::where("user_id", $userID)->with("user")->first();
+            $prescriptions = PatientAdvice::with('patient')
+                                            ->where('patient_id', $data->id)
+                                            ->get();
+            return DataTables::of($prescriptions)
+                ->addIndexColumn()
+                ->addColumn('patient_name', function ($row) {
+                    return $row->patient ? $row->patient->first_name . ' ' .  $row->patient->last_name : 'N/A'; // Adjust 'name' to the actual column for the patient's name
+                })
+                ->editColumn('created_at', function ($row) {
+                    return Carbon::parse($row->created_at)->format('d-M-Y H:i'); // Format as 'DD-MM-YYYY HH:MM'
+                })
+                ->addColumn('action', function($row){
+                    $activeUrl = route('dashboard.view-petient-prescritions', [
+                        'id' => $row->patient->user_id,
+                        'data' => $row->prescription_id,
+                    ]);
+                    
+                    $btn = '<a href="'.$activeUrl.'" class="btn badge-success btn-sm">View Prescription</a>';
+
+                    return $btn;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+    }
     
 }

@@ -6,19 +6,7 @@
   </a>
 
   <!-- Sidebar -->
-  <div class="sidebar">
-    <!-- Sidebar user panel (optional) -->
-    {{-- <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-      <div class="image">
-        <img src="{{asset("assets/dist/img/user2-160x160.jpg")}}" class="img-circle elevation-2" alt="User Image">
-      </div>
-      <div class="info">
-        <h4 class="text-bold text-white">
-          {{ session()->get('name') }}
-      </h4>
-      </div>
-    </div> --}}
-
+  {{-- <div class="sidebar">
     <!-- SidebarSearch Form -->
     <div class="form-inline">
       <div class="input-group" data-widget="sidebar-search">
@@ -79,6 +67,6 @@
       </ul>
     </nav>
     <!-- /.sidebar-menu -->
-  </div>
+  </div> --}}
   <!-- /.sidebar -->
 </aside>

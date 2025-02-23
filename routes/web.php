@@ -45,6 +45,7 @@ Route::prefix('/dashboard')
     Route::get("/profile-edit", [DashboardController::class,"profileEditPage"]);
     Route::get("/user-list", [DashboardController::class,"userListPage"])->name("dashboard.user-list-page");
     Route::get("/get-user-list", [DashboardController::class, "getUserList"])->name('dashboard.user-list');
+    Route::get("/patient-prescritions-list", [DashboardController::class, "prescritions"])->name('dashboard.patient-prescritions-list');
     Route::get("/create-user", [DashboardController::class,"createUserPage"]);
 
     // user routes
@@ -154,6 +155,7 @@ Route::prefix('/dashboard')
     Route::get("dashboard/remove-patient-ilnase/{id}", [PatientController::class,"deleteIllness"])->name("dashboard.remove-patient-ilnase");
     Route::get("dashboard/restore-patient-ilnase/{id}", [PatientController::class,"restoreIllness"])->name("dashboard.restore-patient-ilnase");
     Route::delete("/patient/complain-delete/{id}", [PatientController::class,"deleteComplain"])->name("dashboard.patient.complain-delete");
+    Route::get("/view-petient-prescritions/{id}/{data}", [PatientController::class,"viewPetientPrescritions"])->name("dashboard.view-petient-prescritions");
     // Medical Document routes
     Route::get('/medical-documents', [MedicalDocumentController::class, 'index'])->name('dashboard.medical-documents-page');
     Route::get('/medical-documents-list', [MedicalDocumentController::class, 'medicalDocumentList'])->name('dashboard.medical-documents-list');

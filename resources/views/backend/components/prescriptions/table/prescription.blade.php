@@ -1,50 +1,85 @@
 
 <style>
-    @media print {
+   @media print {
+    @page {
+        size: A4 portrait; /* Set A4 size */
+        margin: 5mm; /* Reduce margins */
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        zoom: 100%; /* Scale down content */
+    }
+
+    #print-prescription {
+        width: 100%;
+        height: auto;
+        max-height: 280mm; /* Ensure it fits within A4 */
+        overflow: hidden;
+        transform: scale(0.95);
+        transform-origin: top left;
+        page-break-inside: avoid;
+        page-break-before: avoid;
+        page-break-after: avoid;
+    }
+
     table {
         width: 100%;
         border-collapse: collapse;
-        margin: 0 auto;
+        table-layout: fixed;
     }
+
     td, th {
-        padding: 3px; /* Reduce padding */
+        padding: 2px;
+        font-size: small;
         word-wrap: break-word;
+        overflow-wrap: break-word;
+        white-space: normal;
     }
-}
-@media print {
-    body {
-        font-size: 11px; /* Slightly smaller font size */
+
+    h3, h5 {
+        margin: 0;
+        font-size: smaller;
     }
-    pre {
-        white-space: normal; /* Prevent long content from breaking layout */
+
+    p, pre {
+        font-size: small;
+        white-space: normal;
     }
-}
-@media print {
-    #print-prescription, table, tr, td {
+
+    tr, td {
+        page-break-before: avoid;
+        page-break-after: avoid;
         page-break-inside: avoid;
     }
-    h3, h5, p {
-        margin: 0; /* Reduce spacing */
+
+    /* Make sure the prescription block does not break */
+    #print-prescription * {
+        max-height: 280mm; /* Fit within A4 */
     }
 }
-@media print {
-    body, html {
-        margin: 0;
-        padding: 0;
-    }
+ 
+td, th, p {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
-@media print {
-    #print-prescription {
-        transform: scale(0.95); /* Adjust scale to fit */
-        transform-origin: top left;
-    }
+pre, p {
+    white-space: normal;
 }
+td {
+    max-width: 300px; /* Adjust width based on your layout */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Adds "..." if text is too long */
+}
+
+
 
 </style>
 
 <div class="content-wrapper">
       <section class="content">
-        <input class="btn btn-success" type="button" onclick="printDiv('print-prescription')" value="Print" />
+        <input class="mt-3 btn btn-success" type="button" onclick="printDiv('print-prescription')" value="Print" />
 <div id="print-prescription" class="avoid-page-break">
     <table border="0" cellpadding="10" cellspacing="10" style="width: 100%">
         <tr style="border: solid 1px">
@@ -59,7 +94,6 @@
         </tr>
         
         <tr style="border: solid 0px">
-            
             <td colspan="2" style="text-align: left;">
                 @if ($doctor)
                     <h3 class="text-start mb-2 text-bold">
@@ -73,11 +107,8 @@
                     <h3 class="text-start mb-2 text-bold">No user data available</h3>
                 @endif
             </td>
-            
-            
-            </td>
-            
         </tr>
+        
         <tr style="border: solid 1px ">
             <td style="padding: 2px; font-size: x-large;"><strong>{{$patient->title}} {{$patient->first_name}} {{$patient->middle_name}}  {{$patient->last_name}} </strong></td>
             <td></td><td></td>

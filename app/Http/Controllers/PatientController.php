@@ -9,12 +9,16 @@ use App\Models\Diseases;
 use App\Events\UserCreated;
 use App\Traits\UploadTrait;
 use Illuminate\Http\Request;
+use App\Models\PatientAdvice;
 use App\Helper\ResponseHelper;
+use App\Models\DoctorsProfile;
+use Illuminate\Support\Carbon;
 use App\Models\MedicalDocument;
 use App\Models\PatientsProfile;
 use App\Models\Patients_profile;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
+use App\Models\PatientPrescription;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\PatientIllnesHistory;
@@ -399,7 +403,7 @@ class PatientController extends Controller
             User::where("id", $patient->id)->update(["name" => $patienData["first_name"], "email" => $patienData["email"]]);
             DB::commit();
             Log::info("PatientProfile Updated Successfully");
-            return redirect("/dashboard/patient-list")->with("success", "Profile Updated Successfully");
+            return redirect("/dashboard/profile")->with("success", "Profile Updated Successfully");
         }
         catch (\Exception $e) {
             DB::rollBack();
@@ -553,4 +557,72 @@ class PatientController extends Controller
         return response()->json(['status' => 'error', 'message' => 'Failed to restore illness'], 500);
     }
 }
+
+public function viewPetientPrescritions(Request $request, $id, $prescription_id) {
+    try {
+        // Debugging
+        Log::info('Received user ID:', ['id' => $id]);
+        Log::info('Received prescription ID:', ['prescription_id' => $prescription_id]);
+
+        // Find patient profile
+        $patient = PatientsProfile::where('user_id', $id)->first();
+
+        // Check if patient exists
+        if (!$patient) {
+            Log::error('Patient not found', ['user_id' => $id]);
+            return redirect()->back()->withErrors(['error' => 'Patient profile not found.']);
+        }
+
+        // Validate prescription ID
+        if (!is_numeric($prescription_id)) {
+            return redirect()->back()->withErrors(['error' => 'Invalid prescription ID.']);
+        }
+
+        // Get prescription data
+        $prescriptionData = PatientPrescription::where('patient_id', $patient->id)
+            ->where('prescription_id', $prescription_id)
+            ->get();
+
+        $advice = PatientAdvice::where('patient_id', $patient->id)
+            ->where('prescription_id', $prescription_id)
+            ->first();
+
+        // Ensure advice exists before accessing properties
+        if (!$advice) {
+            Log::error('No advice found', ['patient_id' => $patient->id, 'prescription_id' => $prescription_id]);
+            return redirect()->back()->withErrors(['error' => 'No advice found for this prescription.']);
+        }
+
+        // Find doctor profile
+        $doctor = DoctorsProfile::where('user_id', $advice->created_by)->first();
+
+        // Format prescription date
+        $formattedDate = Carbon::parse($advice->created_at)->format('d M, Y');
+
+        // Calculate age
+        $dob = $patient->dob;
+        $age = Carbon::parse($dob)->age;
+
+        // Pass data to view
+        return view('backend.pages.prescriptions.prescription', compact(
+            'patient',
+            'prescriptionData',
+            'advice',
+            'doctor',
+            'formattedDate',
+            'age'
+        ));
+
+    } catch (\Exception $e) {
+        Log::error('Error viewing prescription', [
+            'error' => $e->getMessage(),
+            'patient_id' => $id,
+            'prescription_id' => $prescription_id
+        ]);
+
+        return redirect()->back()->withErrors(['error' => 'Failed to retrieve prescriptions.']);
+    }
+}
+
+
 }
