@@ -31,7 +31,6 @@ class AdminController extends Controller
 
     public function createAdmin(Request $request)
     {
-       
         try {
             if($request->ajax()){   
                 $validator = Validator::make($request->all(), [ 
@@ -282,24 +281,16 @@ class AdminController extends Controller
             return redirect("/dashboard/profile")->with("success", "Profile Updated Successfully");
         } catch (\Exception $e) {
             Alert::toast($e->getMessage(), 'error');
+            Log::info("Profile Creation Failed: " . $e);
             return redirect("/dashboard/profile");
         }
         
     }
 
-
-    // public function profileRead(Request $request, $id){
-    //     $userID = $request->session()->get("id");
-    //     $data = Admins_profile::where("user_id", $id)->with("user")->first();
-    //     return view("backend.components.dashboard.profile.edit.admin-profile-edit",compact("data"));
-    //     // return ResponseHelper::output("success",$data,200);
-    // }
-
     public function profileEdit(Request $request){
         $userID = $request->session()->get("id");
         $user = AdminsProfile::where("user_id", $userID)->with("user")->first();
         return view("backend.pages.dashboard.profile-edit-page",compact("user"));
-        // return ResponseHelper::output("success",$data,200);
     }
 
     public function profileDelete(Request $request, $id){
@@ -328,6 +319,7 @@ class AdminController extends Controller
     }
     catch (\Exception $e) {
         Alert::toast($e->getMessage(), 'error');
+        Log::info("Admin Update Failed: " . $e);
         return redirect("/dashboard/admin-list");
     }
     }
@@ -370,27 +362,24 @@ class AdminController extends Controller
                 "status" => $status,
             ];
 
-            // Handle profile photo upload if present
             if ($request->hasFile("profile_photo")) {
                 $img = $request->file("profile_photo");
                 $file_name = $img->getClientOriginalName();
                 $img_name = "{$userId}-{$file_name}";
-                $img_url = "/uploads/admin/{$img_name}";
-
-                // Save the new profile photo
-                $img->move(public_path('/uploads/admin'), $img_name);
-                $adminData["profile_photo"] = $img_url;
-
-                // Delete the old profile photo if it exists
+        
+                // Store the file in S3
+                $img_url = $img->storeAs('uploads/admins', $img_name, 's3', ['visibility' => 'public']);
+        
+                // Generate a public URL for the file
+                $doctorData["profile_photo"] = Storage::disk('s3')->url($img_url);
+        
+                // Delete the old file if provided
                 if ($request->input("file_path")) {
-                    $oldPhotoPath = public_path($request->input("file_path"));
-                    if (File::exists($oldPhotoPath)) {
-                        File::delete($oldPhotoPath);
-                    }
+                    $oldFilePath = str_replace(Storage::disk('s3')->url(''), '', $request->input("file_path"));
+                    Storage::disk('s3')->delete($oldFilePath);
                 }
             }
             
-
             // Update or create admin profile
            $admin = AdminsProfile::updateOrCreate(["user_id" => $userId], $adminData);
            if ($admin) {
@@ -406,7 +395,8 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Alert::toast($e->getMessage(), 'error');
-            return redirect("/dashboard/admin-list");
+            Log::info("Admin Profile Creation Failed: " . $e);
+            return redirect("/dashboard/admin-list")->with("error", "Something went wrong. Please try again.");
         }
         }
 

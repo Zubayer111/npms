@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\PatientVandor;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class PatientVandorController extends Controller
@@ -61,14 +62,20 @@ class PatientVandorController extends Controller
 
     public function createPatientVandor(Request $request){
         try {
-            $request->validate([
-                'name' => 'required',
-                'email' => 'required|email|unique:patient_vandors',
-                'phone' => 'required|unique:patient_vandors',
-                'address' => 'required',
-                'contact_person' => 'required',
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:patient_vandors,email',
+                'phone' => 'required|string|max:20|unique:patient_vandors,phone',
+                'address' => 'required|string',
+                'contact_person' => 'required|string|max:255',
             ]);
-            
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $validator->errors()->first(),
+                ], 402); 
+            }
             $userId = $request->session()->get("id");
             $token = random_bytes(32);
             $secret_key = random_bytes(32);
@@ -95,6 +102,7 @@ class PatientVandorController extends Controller
             
         }
         catch (Exception $e) {
+            Log::error('Error creating vendor: ' . $e);
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage()
@@ -102,54 +110,7 @@ class PatientVandorController extends Controller
         }
     }
 
-    // public function createPatientVandor(Request $request){
-    //     try {
-    //         // Validate the request data
-    //         $validator = Validator::make($request->all(), [
-                
-    //             'name' => 'required|string|max:255',
-    //             'email' => 'required|email|unique:patient_vandors,email',
-    //             'phone' => 'required|string|max:20|unique:patient_vandors,phone',
-    //             'address' => 'required|string',
-    //             'contact_person' => 'required|string|max:255',
-    //         ]);
 
-    //         // Check if validation fails
-    //         if ($validator->fails()) {
-    //             return response()->json([
-    //                 'status' => 'error',
-    //                 'message' => 'Validation failed',
-    //                 'errors' => $validator->errors()
-    //             ], 422); // Unprocessable Entity
-    //         }
-
-    //         $userId = $request->session()->get("id");
-
-    //         // Create a new PatientVendor
-    //         $patientVendor = PatientVandor::create([
-    //             'user_id' => $userId,
-    //             'name' => $request->input('name'),
-    //             'email' => $request->input('email'),
-    //             'phone' => $request->input('phone'),
-    //             'address' => $request->input('address'),
-    //             'fax' => $request->input('fax'),
-    //             'contact_person' => $request->input('contact_person'),
-    //         ]);
-
-    //         return response()->json([
-    //             'status' => 'success',
-    //             'message' => 'Patient Vendor created successfully.',
-    //             'data' => $patientVendor
-    //         ]);
-    //     } catch (Exception $e) {
-    //         // Handle any exceptions that occur during the creation
-    //         return response()->json([
-    //             'status' => 'error',
-    //             'message' => $e->getMessage()
-    //         ], 500); // Internal Server Error
-    //     }
-    // }
-    
     
     public function editPatientVandor($id){
         $data = PatientVandor::findOrFail($id);
@@ -190,8 +151,21 @@ class PatientVandorController extends Controller
 
     public function updatePatientVandor(Request $request){
         try {
-            
-        
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:patient_vandors,email',
+                'phone' => 'required|string|max:20|unique:patient_vandors,phone',
+                'address' => 'required|string',
+                'contact_person' => 'required|string|max:255',
+                'fax' => 'nullable|string|max:255',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $validator->errors()->first(),
+                ], 402); 
+            }
         $data = PatientVandor::findOrFail($request->id);
         $data->update([
             'name' => $request->name,
@@ -206,13 +180,14 @@ class PatientVandorController extends Controller
             'status' => 'success',
             'message' => 'Patient Vendor updated successfully.',
             'data' => $data
-        ]);
+        ], 204);
     }
     catch (Exception $e) {
+        Log::error('Error updating vendor: ' . $e);
         return response()->json([
             'status' => 'error',
             'message' => $e->getMessage()
-        ], );
+        ], 500);
     }
     }
     public function inactivePatientVandor(){

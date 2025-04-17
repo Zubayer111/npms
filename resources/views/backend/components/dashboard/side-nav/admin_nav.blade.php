@@ -436,6 +436,25 @@
             </li>
           </ul>
         </li>
+        {{-- settings --}}
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="fa-solid fa-cog"></i>
+            <p>
+              Settings
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="{{url("/dashboard/active-log")}}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Active Log</p>
+              </a>
+            </li>
+            
+          </ul>
+        </li>
       </ul>
     </nav>
     <!-- /.sidebar-menu -->

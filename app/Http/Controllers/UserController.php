@@ -14,13 +14,15 @@ use App\Helper\ResponseHelper;
 use App\Models\DoctorsProfile;
 use App\Models\PatientsProfile;
 use Illuminate\Support\Facades\DB;
+use Spatie\Activitylog\LogOptions;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\Validator;
-
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class UserController extends Controller
 {
@@ -49,154 +51,83 @@ class UserController extends Controller
     }
 
 
-public function createUser(Request $request)
-{
-    try {
-        $validator = Validator::make($request->all(), [ 
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:8',
-            'phone' => 'required|string|min:10|unique:users',
-            'type' => 'required', 
-        ]);
-
-        if($validator->fails()){
-            return response()->json([
-                'status' => 'error',
-                'message' => $validator->errors()->first(),
-            ], 400);
+    public function createUser(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [ 
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users',
+                'password' => 'required|min:8',
+                'phone' => 'required|string|min:10|unique:users',
+                'type' => 'required', 
+            ]);
+    
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $validator->errors()->first(),
+                ], 422);
+            }
+    
+            DB::beginTransaction();
+    
+            $user = User::create([
+                'name' => $request->input('name'),
+                'email' => $request->input('email'),
+                'password' => bcrypt($request->input('password')),
+                'phone' => $request->input('phone'),
+                'type' => $request->input('type'),
+            ]);
+    
+            if ($user) {
+                event(new UserCreated($user, $request->input('password')));
+                $createdBy = $request->session()->get("id");
+    
+                if ($user->type === 'Patient') {
+                    PatientsProfile::create([
+                        'user_id' => $user->id,
+                        'reference_by' => $createdBy,
+                        'reference_time' => now(),
+                        'first_name' => $user->name,
+                        'phone_number' => $user->phone,
+                        'email' => $user->email,
+                        'created_by' => $createdBy,
+                        'updated_by' => $createdBy,
+                    ]);
+                } elseif ($user->type === 'Doctor') {
+                    DoctorsProfile::create([
+                        'user_id' => $user->id,
+                        'phone_number' => $user->phone,
+                        'first_name' => $user->name,
+                        'last_name' => $user->name,
+                        'created_by' => $createdBy,
+                        'updated_by' => $createdBy,
+                    ]);
+                } else {
+                    AdminsProfile::create([
+                        'user_id' => $user->id,
+                        'phone_number' => $user->phone,
+                        'first_name' => $user->name,
+                        'last_name' => $user->name,
+                        'created_by' => $createdBy,
+                        'updated_by' => $createdBy,
+                    ]);
+                }
+    
+                DB::commit();
+    
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'User created successfully & an email has been sent to the provided email address',
+                ], 200);
+            }
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('User Creation Failed: ' . $e);
+    
+            return redirect("/dashboard/user-list")->with("error", $e->getMessage());
         }
-        DB::beginTransaction();
-
-        $user = User::create([
-            'name' => $request->input('name'),
-            'email' => $request->input('email'),
-            'password' => bcrypt($request->input('password')),
-            'phone' => $request->input('phone'),
-            'type' => $request->input('type'),
-        ]);
-        
-        if ($user) {
-            event(new UserCreated($user, $request->input('password')));
-            if ($user->type === 'Patient') {
-               PatientsProfile::create([
-                    'user_id' => $user->id,
-                    'reference_by' => $request->session()->get("id"),
-                    'reference_time' => date('Y-m-d H:i:s'),
-                    'first_name' => $user->name,
-                    'phone_number' => $user->phone,
-                    'email' => $user->email,
-                    'created_by' => $request->session()->get("id"),
-                    'updated_by' => $request->session()->get("id"),
-                ]);
-                // dd($patient);
-            } elseif ($user->type === 'Doctor') {
-                DoctorsProfile::create([
-                    'user_id' => $user->id,
-                    'phone_number' => $user->phone,
-                    'first_name' => $user->name,
-                    'last_name' => $user->name,
-                    'created_by' => $request->session()->get("id"),
-                    'updated_by' => $request->session()->get("id"),
-                ]);
-            } else {
-                AdminsProfile::create([
-                    'user_id' => $user->id,
-                    'phone_number' => $user->phone,
-                    'first_name' => $user->name,
-                    'last_name' => $user->name,
-                    'created_by' => $request->session()->get("id"),
-                    'updated_by' => $request->session()->get("id"),
-                ]);
-            } 
-           
-
-            DB::commit();
-            
-            return response()->json([
-                'status' => 'success',
-                'message' => 'User created successfully & an email has been sent to the provided email address',
-            ], 200);
-        }
-    } catch (Exception $e) {
-        DB::rollBack();
-        Log::error('Admin Creation Failed: ' . $e);
-        Alert::toast($e->getMessage(), 'error');
-        return redirect("/dashboard/user-list")->with("error", $e->getMessage());
     }
-}
-// public function createUser(Request $request)
-// {
-//     DB::beginTransaction();
-//     try {
-//         $request->validate([
-//             'name' => 'required|string|max:255',
-//             'email' => 'required|email|unique:users',
-//             'password' => 'required|min:8',
-//             'phone' => 'required|string|unique:users,phone|min:10|max:11',
-//             'type' => 'required',
-//         ]);
-
-//         $user = User::create([
-//             'name' => $request->input('name'),
-//             'email' => $request->input('email'),
-//             'password' => bcrypt($request->input('password')),
-//             'phone' => $request->input('phone'),
-//             'type' => $request->input('type'),
-//         ]);
-
-//         if ($user) {
-//             event(new UserCreated($user, $request->input('password')));
-
-//             if ($user->type === 'Patient') {
-//                 PatientsProfile::create([
-//                     'user_id' => $user->id,
-//                     'reference_by' => $request->session()->get("id", 0),
-//                     'reference_time' => now(),
-//                     'first_name' => $user->name,
-//                     'phone_number' => $user->phone,
-//                     'email' => $user->email,
-//                     'created_at' => now(),
-//                     'updated_at' => now(),
-//                 ]);
-//             } elseif ($user->type === 'Doctor') {
-//                 DoctorsProfile::create([
-//                     'user_id' => $user->id,
-//                     'phone_number' => $user->phone,
-//                     'first_name' => $user->name,
-//                     'last_name' => $user->name,
-//                     'created_at' => now(),
-//                     'updated_at' => now(),
-//                 ]);
-//             } elseif ($user->type === 'Admin') {
-//                 AdminsProfile::create([
-//                     'user_id' => $user->id,
-//                     'phone_number' => $user->phone,
-//                     'first_name' => $user->name,
-//                     'last_name' => $user->name,
-//                     'created_at' => now(),
-//                     'updated_at' => now(),
-//                 ]);
-//             } else {
-//                 return response()->json([
-//                     'status' => 'error',
-//                     'message' => 'Something went wrong',
-//                 ]);
-//             }
-//             DB::commit();
-            
-//             return response()->json([
-//                 'status' => 'success',
-//                 'message' => 'User created successfully & an email has been sent to the provided email address',
-//             ], 200);
-//         }
-//     } catch (Exception $e) {
-//         DB::rollBack();
-//         Alert::toast($e->getMessage(), 'error');
-//         return redirect("/dashboard/user-list")->with("error", $e->getMessage());
-//     }
-// }
-
 
 
     public function checkPasswordStrength(Request $request){
@@ -240,109 +171,192 @@ public function createUser(Request $request)
         ]);
     }
 
-    public function updateUser(Request $request) {
-        try {
-            $user_id = $request->input('id');
-            $type = User::where("id", $user_id)->first()->type;
-    
-            $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|email|unique:users,email,'.$user_id,
-                'phone' => 'required|numeric|min:10|unique:users,phone,'.$user_id,
-            ]);
+    public function updateUser(Request $request)
+{
+    try {
+        $user_id = $request->input('id');
 
-            $user = User::where("id", $user_id)->update([
-                'name' => $request->input('name'),
-                'email' => $request->input('email'),
-                'phone' => $request->input('phone'),
-                'type' => $type,
-            ]);
-    
-            return response()->json([
-                'status' => 'success',
-                'message' => 'User updated successfully',
-                'data' => $user        
-            ]);
-        } catch (\Exception $e) {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user_id,
+            'phone' => 'required|string|min:10|unique:users,phone,' . $user_id,
+        ]);
+
+        if ($validator->fails()) {
             return response()->json([
                 'status' => 'error',
-                'message' =>  $e->getMessage()
-            ], 500);
+                'message' => $validator->errors()->first(),
+            ], 422);
         }
+
+        $user = User::find($user_id);
+
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not found'
+            ], 404);
+        }
+
+        $user->name = $request->input('name');
+        $user->email = $request->input('email');
+        $user->phone = $request->input('phone');
+        $user->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User updated successfully',
+            'data' => $user
+        ]);
+    } 
+    catch (\Exception $e) {
+        Log::error('User Update Failed: ' . $e);
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage()
+        ], 500);
     }
+}
+
+    
     
     public function userLogin(Request $request)
-    {
-        try{
+{
+    try {
         $request->validate([
             'email' => 'required|email',
             'password' => 'required|min:8',
         ]);
-    
-        $userEmail = $request->input('email');
-        $userPassword = $request->input('password');
-    
-        $user = User::where("email", $userEmail)->first();
-    
-        if ($user && Hash::check($userPassword, $user->password)) {
-            $token = JWTToken::CreateToken($userEmail, $user->id, $user->type, $user->status, $user->name);
-    
+
+        if (Auth::attempt($request->only('email', 'password'))) {
+            $request->session()->regenerate();
+
+            $user = Auth::user();
+            $request->session()->put('name', $user->name);
+            $request->session()->put('email', $user->email);
+            $request->session()->put('id', $user->id);
+            $request->session()->put('status', $user->status);
+            $request->session()->put('type', $user->type);
+
+            activity('User login') // Set log name here
+            ->causedBy($user)
+            ->withProperties([
+                'ip' => $request->ip(),
+                'user_name' => $user->name
+            ])
+            ->log("User {$user->name} logged in");
+            
             Alert::success('Success', 'Login Successfully');
-            return redirect('/dashboard/home')
-                ->with("success", "Login Successfully")
-                ->cookie("Token", $token, 60 * 24 * 30);
-        } else {
-            Alert::error('Error', 'Invalid Email or Password');
-            return redirect('/login')->with("error", "Invalid Email or Password");
+            return redirect()->intended('/dashboard/home')->with("success", "Login Successfully");
         }
-    }
-        catch(Exception $e){
-            Alert::toast($e->getMessage(), 'error');
-            return redirect('/login')->with("error",$e->getMessage());
-        }
-    }
 
-    public function userLogOut(){
-        return redirect('/login')->cookie('Token','',-1);
+        Alert::error('Error', 'Invalid Email or Password');
+        return back()->with("error", "Invalid Email or Password");
+    } catch (Exception $e) {
+        Alert::toast($e->getMessage(), 'error');
+        Log::error('Login Failed: ' . $e);
+        return back()->with("error", $e->getMessage());
     }
+}
 
-    public function sendOtp(Request $request){
-        $email = $request->input("email");
-            $otp = rand(1000,9999);
-            $count = User::where("email", "=", $email)->count();
-
-            if($count==1){
-                Mail::to($email)->send(new OtpSand($otp));
-                User::where("email","=",$email)->update(["otp"=>$otp]);
-                $request->session()->put("email", $email);
-                Alert::toast(" OTP Sent Successfully", "success");
-                return view("backend.pages.auth.verify-otp-page", compact("email"));
-            }
-        else{
-            return redirect("/login")->with("error","Invalid Email");
-        }
+public function userLogOut(Request $request)
+{
+    // Log the logout event
+    if (Auth::check()) {
+        activity('User logout')
+            ->causedBy(Auth::user())
+            ->withProperties([
+                'ip' => $request->ip(),
+                'user_name' => Auth::user()->name
+            ])
+            ->log("User " . Auth::user()->name . " logged out");
     }
 
-    public function VerifyOTP(Request $request){
+    Auth::logout();
+
+    $request->session()->invalidate();
+
+    $request->session()->regenerateToken();
+
+    return redirect('/login')->cookie('token', '', -1);
+}
+
+public function sendOtp(Request $request)
+{
+    try {
         $request->validate([
-            'otp' => 'required|string|min:4',
+            'email' => 'required|email',
         ]);
+        $email = $request->input("email");
+        $otp = rand(100000, 999999);
+        $user = User::where("email", $email)->first();
+
+        if ($user) {
+            //Mail::to($email)->send(new OtpSand($otp));
+            $user->update(['otp' => $otp]);
+
+            $request->session()->put("email", $email);
+
+            Alert::toast("OTP Sent Successfully", "success");
+
+            return view("backend.pages.auth.verify-otp-page", compact("email"));
+        } else {
+            return redirect("/login")->with("error", "Invalid Email");
+        }
+
+    } catch (\Exception $e) {
+        // Log the error
+        Log::error('OTP Send Failed: ' . $e->getMessage(), [
+            'email' => $request->input("email"),
+            'ip' => $request->ip(),
+        ]);
+
+        // Optionally flash an error alert
+        Alert::toast("Failed to send OTP. Please try again later.", "error");
+
+        return redirect("/login")->with("error", "An error occurred while sending OTP.");
+    }
+}
+
+public function VerifyOTP(Request $request)
+{
+    try {
+        $request->validate([
+            'otp' => 'required|string|min:6|max:6',
+        ]);
+
         $email = $request->session()->get("email");
         $otp = $request->input("otp");
-        $count = User::where("email", "=", $email)
-        ->where("otp", "=", $otp)->count();
 
-        if($count==1){
-            User::where("email", "=", $email)->update(["otp"=>"0"]);
-            $token = JWTtoken::CreateTokenForSetPassword($request->input("email"));
+        $count = User::where("email", "=", $email)
+            ->where("otp", "=", $otp)
+            ->count();
+
+        if ($count == 1) {
+            User::where("email", "=", $email)->update(["otp" => "0"]);
+
+            $token = JWTtoken::CreateTokenForSetPassword($email);
+
             Alert::toast("OTP Verified Successfully", "success");
-            return redirect("/password-reset")->cookie("token",$token,time()+60*24*30);
-        }
-        else{
+
+            return redirect("/password-reset")
+                ->cookie("token", $token, time() + 60 * 24 * 30);
+        } else {
             Alert::toast("Invalid OTP", "error");
-            return redirect("verify-otp")->with("error","Invalid OTP");
+            return redirect("verify-otp")->with("error", "Invalid OTP");
         }
+
+    } catch (\Exception $e) {
+        Log::error('OTP Verification Error: ' . $e, [
+            'email' => $request->session()->get("email"),
+            'otp' => $request->input("otp"),
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        Alert::toast("Something went wrong. Please try again.", "error");
+        return redirect("verify-otp")->with("error", "Something went wrong. Please try again.");
     }
+}
 
     public function ResetPassword(Request $request){
         try{
@@ -351,75 +365,88 @@ public function createUser(Request $request)
                 'confirm_password' => 'required|min:8|same:password',
             ]);
                 $email = $request->session()->get("email");
-                //  return($email);
-                $password = Hash::make($request->input("password"));
+                $password = bcrypt($request->input('password'));
                 $request->input("confirm_password");
-                //return($password);
                 User::where("email","=",$email)->update(["password"=>$password]);
                 Alert::toast("Password Reset Successfully", "success");
                 return redirect("/login")->with("success","Password Reset Successfully")->cookie("token","",time()-1);
         }
         catch(Exception $e){
             Alert::toast($e->getMessage(), 'error');
+            Log::error('Password Reset Error: ' . $e, [
+                'email' => $request->session()->get("email"),
+                'trace' => $e->getTraceAsString()
+            ]);
             return redirect()->back()->with("error",$e->getMessage());
         }
     }
 
     public function patientLogin(Request $request){
-        $validated = $request->validate([
-            'phone' => 'required|string|min:10|max:11',
-        ]);
-    
-        if ($validated) {
+        try {
+            $request->validate([
+                'phone' => 'required|string|min:10|max:11',
+            ]);
+
             $userMobile = $request->input("phone");
-            //$otp = rand(100000, 999999);
-            $otp = 123456;
-            $user = User::updateOrCreate(["phone" => $userMobile], ["phone" => $userMobile, "otp" => $otp]);
-            if(PatientsProfile::where("phone_number", $userMobile)->doesntExist()) {
-                PatientsProfile::create([
-                    "user_id" => $user->id,
-                    "phone_number" => $userMobile,
-                ]);
+            $user = User::where("phone", $userMobile)->first();
+
+            if ($user) {
+                Auth::login($user);
+                $request->session()->put('id', $user->id);
+                $request->session()->put('name', $user->phone);
+                $request->session()->put('status', $user->status);
+                $request->session()->put('type', $user->type);
+
+                return redirect("/dashboard/profile")->with("success", "Login Successfully");
+            } else {
+                return redirect("/user-login")->with("error", "Invalid Phone Number");
             }
-            $request->session()->put("phone", $userMobile);
-            Alert::toast("OTP Sent Successfully", "success");
-            return view("backend.pages.auth.patient-verify-otp-page", compact("userMobile"));
-        } else {
-            return redirect("/user-login")->with("error", "Invalid Phone Number");
+        } catch (Exception $e) {
+            Alert::toast($e->getMessage(), 'error');
+            Log::error('Patient Login Error: ' . $e, [
+                'phone' => $request->input("phone"),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return redirect()->back()->with("error", "Something went wrong. Please try again.");
         }
     }
+        
+    public function patientVerifyOtp(Request $request)
+{
+    try {
+        $validated = $request->validate([
+            'otp' => 'required|string|min:4',
+        ]);
 
-    public function patientVerifyOtp(Request $request){
-       
-           $validated = $request->validate([
-                'otp' => 'required|string|min:4',
-            ]);
-            if ($validated) {
-                $userMobile = $request->session()->get("phone");
-                $otp = $request->input("otp");
-                $user = User::where("phone", $userMobile)->where("otp", $otp)->first();
-                 //return($user);
-                if($user){
-                 User::where("phone", $userMobile)->where("otp", $otp)->update(["otp"=>0]);
-                 $token = JWTToken::CreateToken($userMobile,$user->id,$user->type,$user->status,$userMobile);
-                 return redirect("/dashboard/profile")->with("success","Login Successfully")->cookie("Token", $token,60*24*30);
-                }
-                else{
-                 return redirect("patient-verify-otp")->with("error","Invalid OTP");
-                }
-            }
-          else {
-            return redirect("/user-login")->with("error", "Please Try Again");
-          } 
-    
-           
-    }    
+        $userMobile = $request->session()->get("phone");
+        $otp = $request->input("otp");
+
+        $user = User::where("phone", $userMobile)->where("otp", $otp)->first();
+
+        if ($user) {
+            // Clear OTP after successful verification
+            $user->update(["otp" => 0]);
+
+            // Authenticate the user
+            Auth::login($user);
+
+            $request->session()->put('id', $user->id);
+            $request->session()->put('name', $user->phone);
+            $request->session()->put('status', $user->status);
+            $request->session()->put('type', $user->type);
+            return redirect("/dashboard/profile")->with("success", "Login Successfully");
+        }
+
+        return redirect("patient-verify-otp")->with("error", "Invalid OTP");
+
+    } catch (Exception $e) {
+        return redirect("/user-login")->with("error", "Something went wrong. Please try again.");
+    }
+}   
     
     public function userDelete($id){
         $user = User::find($id);
         if ($user) {
-            $user->status = 'suspended';
-            $user->save();
             $user->delete();
             
             toast('User has been deleted','success');
@@ -498,33 +525,31 @@ public function createUser(Request $request)
 
     public function checkPhone(Request $request)
     {
-            $phone = $request->input('phone');
+        $phone = $request->input('phone');
 
-            if (User::where('phone', $phone)->exists()) {
-                return response()->json([
-                    'status' => 'exists',
-                    'message' => "Phone number already exists",
-                    'available' => false
-                ]);
-            }
+        // Validate phone number format first
+        if (!preg_match("/^01[3-9][0-9]{8}$/", $phone)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => "Phone number is not valid",
+                'available' => false
+            ]);
+        }
 
-            else if (preg_match("/^[0-9]{3}[0-9]{4}[0-9]{4}$/", $phone)) {
-                return response()->json([
-                    'status' => 'success',
-                    'message' => "Phone number is valid",
-                    'available' => true
-                ]);
-            } else {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => "Phone number is not valid",
-                    'available' => false
-                ]);
-            }
+        // Check if phone exists in database
+        if (User::where('phone', $phone)->exists()) {
+            return response()->json([
+                'status' => 'exists',
+                'message' => "Phone number already exists",
+                'available' => false
+            ]);
+        }
 
-    }
-
-    public function profileEditAdmin(Request $request){
-
+        // If valid and not existing, return success
+        return response()->json([
+            'status' => 'success',
+            'message' => "Phone number is valid and available",
+            'available' => true
+        ]);
     }
 }

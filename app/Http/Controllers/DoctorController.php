@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use Exception;
 use App\Models\User;
-use App\Mail\UserInfo;
-use App\Models\Doctor;
 use App\Events\UserCreated;
 use Illuminate\Http\Request;
 use App\Helper\ResponseHelper;
@@ -14,8 +12,6 @@ use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\Validator;
@@ -109,7 +105,7 @@ public function createDoctor(Request $request)
         ], 200);
     } catch (Exception $e) {
         DB::rollBack();
-        Log::error('Admin Creation Failed: ' . $e);
+        Log::error('Doctor Creation Failed: ' . $e);
         return response()->json([
             'status' => 'error',
             'message' => $e->getMessage(),
@@ -270,6 +266,7 @@ public function createDoctor(Request $request)
         }
         catch (\Exception $e) {return $e;
             Alert::toast($e->getMessage(), 'error');
+            Log::info("Doctor's Profile Creation Failed: " . $e);
             return redirect("/dashboard/profile");
         }
             
@@ -295,20 +292,30 @@ public function createDoctor(Request $request)
     }
 
     public function updateDoctor(Request $request){
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email',
-            'phone' => 'required|string|min:10',
-        ]);
-        $userID = $request->input("id");
-        $data = User::where("id", $userID)->first();
-        $data->update([
-            "name" => $request->input("name"),
-            "email" => $request->input("email"),
-            "phone" => $request->input("phone"),
-            "type" => "Doctor",
-        ]);
-        return redirect("/dashboard/doctor-list")->with("success", "Doctor Updated Successfully");
+        try {
+            DB::beginTransaction();
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email',
+                'phone' => 'required|string|min:10',
+                'type' => 'required|in:Doctor',
+            ]);
+            $userID = $request->input("id");
+            $data = User::where("id", $userID)->first();
+            $data->update([
+                "name" => $request->input("name"),
+                "email" => $request->input("email"),
+                "phone" => $request->input("phone"),
+                "type" => "Doctor",
+            ]);
+            DB::commit();
+            return redirect("/dashboard/doctor-list")->with("success", "Doctor Updated Successfully");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Alert::toast($e->getMessage(), 'error');
+            Log::info("Doctor Update Failed: " . $e);
+            return redirect("/dashboard/doctor-list");
+        }
     }
 
     public function editProfileAdmin($id){
@@ -395,6 +402,7 @@ public function createDoctor(Request $request)
         catch (\Exception $e) {
             DB::rollBack();
             Alert::toast($e->getMessage(), 'error');
+            Log::info("Doctor's Profile Update Failed: " . $e);
             return redirect("/dashboard/doctor-list")->with("error", $e->getMessage());
         }
     }

@@ -12,6 +12,7 @@ use App\Http\Controllers\PatientController;
 use App\Http\Controllers\DiseasesController;
 use App\Http\Controllers\MedicineController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LogActivityController;
 use App\Http\Controllers\MedicalTypeController;
 use App\Http\Controllers\MedicalTestsController;
 use App\Http\Controllers\MedicineTypeController;
@@ -36,9 +37,9 @@ use App\Http\Middleware\ResetPassTokenVerificationMiddleware;
 Route::get('/', function () {
     return view('welcome');
 });
-Route::post("upload", [HomeController::class,"upload"])->name("upload");
+
 Route::prefix('/dashboard')
-      ->middleware([TokenVerificationMiddleware::class])
+    ->middleware(['auth'])
     ->group(function () {
      Route::get("/home", [DashboardController::class,"index"]);
     Route::get("/profile", [DashboardController::class,"profilePage"])->name("dashboard.profile");
@@ -292,7 +293,14 @@ Route::prefix('/dashboard')
      Route::get("/prescritions-list", [PrescritionsController::class,"prescritionsListPage"])->name("dashboard.prescritions-list");
      Route::get("/get-prescritions-list", [PrescritionsController::class,"getPrescritionsList"])->name("dashboard.get-prescritions-list");
      Route::get("/view-prescritions/{id}/{data}", [PrescritionsController::class,"viewPrescriptions"])->name("dashboard.view-prescritions");
-}); 
+
+     // settings routes
+     Route::get("/active-log", [LogActivityController::class,"activeLogPage"])->name("dashboard.active-log");
+     Route::get("/active-log-list", [LogActivityController::class,"activeLogList"])->name("dashboard.active-log-list");
+     Route::get('/log-view/{id}', [LogActivityController::class, 'logView'])
+    ->name('dashboard.log-view');
+
+});
 
 // user routes outside the dashboard
 Route::get("/login", [UserController::class,"userLoginPage"]);

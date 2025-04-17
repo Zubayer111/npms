@@ -2,13 +2,21 @@
 
 namespace App\Models;
 
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Spatie\Activitylog\LogOptions;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Contracts\Loggable;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class User extends Model
+
+class User extends Authenticatable
 {
-    use HasFactory, SoftDeletes;
+    use LogsActivity;
+    use HasFactory, SoftDeletes , Notifiable;
 
     protected $fillable = [
         'name',
@@ -24,23 +32,25 @@ class User extends Model
         'otp' => 0,
     ];
 
-    // protected $hidden = [
-    //     'password',
-    //     'otp',
-    // ];
 
-    // public function admin()
-    // {
-    //     return $this->hasOne(Admin::class);
-    // }
-    // public function doctor()
-    // {
-    //     return $this->hasOne(Admin::class);
-    // }
-    // public function patient()
-    // {
-    //     return $this->hasOne(Admin::class);
-    // }
+    protected $hidden = [
+        'password',
+    ];
+
+    public function getActivitylogOptions(): LogOptions
+{
+    $loginUser = Auth::user();
+
+    return LogOptions::defaults()
+        ->setDescriptionForEvent(fn (string $eventName) => 
+            "User has been {$eventName} by " . ($loginUser ? ($loginUser->name ?? $loginUser->phone) : 'Patient')
+        )
+        ->logFillable()
+        ->logOnlyDirty()
+        ->useLogName('User Related')
+        ->logExcept(['password', 'otp']);
+}
+
     public function patientProfile()
     {
         return $this->hasOne(PatientsProfile::class, 'user_id');

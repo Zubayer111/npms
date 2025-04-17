@@ -20,7 +20,8 @@
                         </div>
                         <div class="form-group ">
                             <label for="exampleInputName">Upload</label>
-                            <input name="files[]" type="file" class="form-control"  id="name" multiple  required>
+                            <input name="files[]" type="file" class="form-control"  id="name" multiple  required
+                            accept=".jpg, .jpeg, .png, .pdf, .doc">
                             @error('files')
                             <p class="text-danger">{{ $message }}</p>
                             @enderror

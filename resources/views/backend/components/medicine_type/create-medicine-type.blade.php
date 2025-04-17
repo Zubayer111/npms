@@ -82,15 +82,21 @@
                         } 
                     },
                     error: function(xhr) {
-                        let errors = xhr.responseJSON.errors;
-                        let errorMessage = 'Something went wrong. Please try again later.\n';
-                        for (let key in errors) {
-                            errorMessage += errors[key][0] + '\n';
+                        let message = "Something went wrong. Please try again later.";
+
+                        // Handle Laravel validation errors
+                        if (xhr.status === 422 && xhr.responseJSON.errors) {
+                            message = Object.values(xhr.responseJSON.errors)
+                                .map(error => error[0])
+                                .join('\n');
+                        } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                            message = xhr.responseJSON.message;
                         }
+
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
-                            text: response.message,
+                            text: message,
                         });
                     }
                 });

@@ -33,7 +33,6 @@ class PrescritionsController extends Controller
     public function postAddToCart(Request $request) 
     {
         $userID = $request->session()->get('id');
-        Log::info('Retrieved user ID from session.', ['userID' => $userID]);
 
         // Adding the prescription to the cart
         Cart::session($userID)->add([
@@ -103,7 +102,6 @@ class PrescritionsController extends Controller
     public function postSavePrescription(Request $request)
     {
         $userID = $request->session()->get('id');
-        Log::info('Started saving prescription.', ['userID' => $userID]);
 
         $cartContent = Cart::session($userID)->getContent();
 

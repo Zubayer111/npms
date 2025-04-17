@@ -6,6 +6,7 @@ use Exception;
 use App\Models\MedicineType;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 
 class MedicineTypeController extends Controller
@@ -58,9 +59,11 @@ class MedicineTypeController extends Controller
             return response()->json([
                 "status" => "success",
                  "message" => "Medicine Type Created Successfully"
-                ]);
+                ], 201);
         }
         catch (Exception $e) {
+            // Log the error message
+            Log::error('Error creating medicine type: ' . $e);
             return response()->json([
                 "status" => "error",
                  "message" => $e->getMessage()
@@ -93,9 +96,11 @@ class MedicineTypeController extends Controller
             return response()->json([
                 "status" => "success",
                  "message" => "Medicine Type Updated Successfully"
-                ]);
+                ], 200);
         }
         catch (Exception $e) {
+            // Log the error message
+            Log::error('Error updating medicine type: ' . $e);
             return response()->json([
                 "status" => "error",
                  "message" => $e->getMessage()

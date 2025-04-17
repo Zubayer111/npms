@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use PgSql\Lob;
 use App\Models\User;
 use App\Mail\UserInfo;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -50,6 +52,7 @@ class CompanyController extends Controller
             ], 200);
         }
     } catch (Exception $e) {
+        Log::error('Error creating company: ' . $e);
         return response()->json([
             "status" => "error",
             "message" => $e->getMessage(),

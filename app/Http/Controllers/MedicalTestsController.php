@@ -6,6 +6,7 @@ use Exception;
 use App\Models\MedicalTests;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\Log;
 
 class MedicalTestsController extends Controller
 {
@@ -73,13 +74,14 @@ class MedicalTestsController extends Controller
             return response()->json([
                 "status" => "success",
                 "message" => "Test Created Successfully",
-            ]);
+            ], 201);
         }
         catch (Exception $exception){
+            Log::error('Test Creation Failed: ' . $exception);
             return response()->json([
                 "status" => "error",
                 "message" => $exception->getMessage(),
-            ]);
+            ], 500);
         }
     }
 
@@ -112,13 +114,14 @@ class MedicalTestsController extends Controller
             return response()->json([
                 "status" => "success",
                 "message" => "Test Updated Successfully",
-            ]);
+            ], 200);
         }
         catch (Exception $exception){
+            Log::error('Test Update Failed: ' . $exception);
             return response()->json([
                 "status" => "error",
                 "message" => $exception->getMessage(),
-            ]);
+            ], 500);
         }
     }
 

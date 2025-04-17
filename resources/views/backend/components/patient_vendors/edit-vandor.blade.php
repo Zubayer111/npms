@@ -122,42 +122,52 @@
           $('#editPatientVandorForm').on('submit', function(event) {
               event.preventDefault();
 
-              $.ajax({
-                  url: '{{ route('dashboard.update-patient-vandor') }}',
-                  method: 'POST',
-                  data: $(this).serialize(),
-                  success: function(response) {
-                      if(response.status === 'success') {
-                          Swal.fire({
-                              icon: 'success',
-                              title: 'Success',
-                              text: response.message,
-                          });
-                          setTimeout(function() {
-                              window.location.href = '{{ route('dashboard.patient-vandor-list') }}';
-                          }, 2000);
-                      }
-                      else {
-                          Swal.fire({
-                              icon: 'error',
-                              title: 'Error',
-                              text: response.message,
-                          });
-                      } 
-                  },
-                  error: function(xhr) {
-                      let errors = xhr.responseJSON.errors;
-                      let errorMessage = '';
-                      for (let key in errors) {
-                          errorMessage += errors[key][0] + '\n';
-                      }
-                      Swal.fire({
-                          icon: 'error',
-                          title: 'Error',
-                          text: errorMessage,
-                      });
-                  }
-              });
+              
+            $.ajax({
+                url: '{{ route('dashboard.update-patient-vandor') }}',
+                method: 'POST',
+                data: $(this).serialize(),
+                success: function(response) {
+                    if(response.status === 'success') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: response.message,
+                        });
+                        setTimeout(function() {
+                            window.location.href = '{{ route('dashboard.patient-vandor-list') }}';
+                        }, 2000);
+                    } 
+                    else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message,
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    // Handle validation or server errors
+                    let errorMessage = '';
+
+                    if (xhr.status === 422) { // Laravel validation errors
+                        const errors = xhr.responseJSON.errors;
+                        errorMessage = Object.values(errors).map(function(error) {
+                            return error.join(' '); // Combine all error messages into a single string
+                        }).join('<br>');
+                    } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message; // Custom exception message from Laravel
+                    } else {
+                        errorMessage = 'An unexpected error occurred. Please try again later.';
+                    }
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        html: errorMessage, // Use 'html' instead of 'text' to display line breaks
+                    });
+                }
+            });
           });
       });
 </script>

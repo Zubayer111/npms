@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use PgSql\Lob;
 use App\Models\Diseases;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class DiseasesController extends Controller
 {
@@ -130,9 +132,10 @@ class DiseasesController extends Controller
             return response()->json([
                 "status" => "success",
                 "message" => "Disease Created Successfully"
-            ]);
+            ], 201);
         }
         catch (Exception $e) {
+            Log::error("Error creating disease: " . $e);
             return response()->json([
                 "status" => "error",
                 "message" =>  $e->getMessage()
@@ -168,9 +171,10 @@ class DiseasesController extends Controller
             return response()->json([
                 "status" => "success",
                 "message" => "Disease Updated Successfully"
-            ]);
+            ], 200);
         }
         catch (Exception $e) {
+            Log::error("Error updating disease: " . $e);
             return response()->json([
                 "status" => "error",
                 "message" =>  $e->getMessage()

@@ -21,26 +21,6 @@ class MedicalDocumentController extends Controller
         return view("backend.pages.patient.medicale-doc-page");
     }
 
-    // public function medicalDocumentList(Request $request)
-    // {
-    //     if (request()->ajax()) {
-    //         $query =  MedicalDocument::where('patient_id', $request->session()->get("id"))->query();
-            
-
-    //         $table = DataTables::of($query);
-
-    //         // $table->editColumn('actions', function ($row) {
-    //         //     $actionTemplate = 'dentist-office._actions_template';
-    //         //     $routeKey = 'dentist-office';
-    //         //     return view($actionTemplate, compact('row', 'routeKey'));
-    //         // });
-    //         // $table->rawColumns(['person_name', 'person_email']);
-
-    //         return $table->make(true);
-    //     }
-
-    //     return view('dashboard.medical-documents-page');
-    // }
 
 
     public function medicalDocumentList(Request $request)

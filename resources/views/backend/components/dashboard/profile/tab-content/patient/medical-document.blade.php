@@ -50,7 +50,7 @@
                                     <div class="col-lg-6 col-6">
                                         <div class="form-group">
                                             <label for="file_name" class="font-weight-normal">Document Name<span class="text-red"> *</span></label>
-                                            <input class="form-control {{ $errors->has('file_name') ? 'is-invalid' : '' }}" type="text" name="file_name" id="file_name">
+                                            <input class="form-control {{ $errors->has('file_name') ? 'is-invalid' : '' }}" type="text" name="file_name" id="file_name" required>
                                             @if($errors->has('file_name'))
                                                 <span class="invalid-feedback" role="alert">{{ $errors->first('file_name') }}</span>
                                             @endif
@@ -60,7 +60,7 @@
                                     <div class="col-lg-6 col-6">
                                         <div class="form-group">
                                             <label for="gender" class="font-weight-normal">Document Type<span class="text-red"> *</span></label>
-                                            <select class="form-control {{ $errors->has('file_type') ? 'is-invalid' : '' }}" name="file_type">
+                                            <select class="form-control {{ $errors->has('file_type') ? 'is-invalid' : '' }}" name="file_type" id="file_type" required>
                                                 <option value="" selected="selected">Select Document Type</option>
                                                 <option value="medical_report">Medical Report</option>
                                                 <option value="personal_ocument">Personal Document</option>
@@ -76,7 +76,10 @@
                                     <div class="col-lg-12 col-12">
                                         <div class="form-group">
                                             <label for="file" class="font-weight-normal">Document</label>
-                                            <input class="form-control" type="file" name="file[]" multiple>
+                                            <input class="form-control" type="file" name="file[]" multiple id="file" required>
+                                            @if($errors->has('file'))
+                                                <span class="invalid-feedback" role="alert">{{ $errors->first('file') }}</span>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -125,51 +128,67 @@ $(document).ready(function() {
 <script>
 $(document).ready(function() {
     $('#uploadDocumentForm').on('submit', function(event) {
-        event.preventDefault();
-        let formData = new FormData(this);
-        resetValidationErrors();
-        
-        $.ajax({
-            url: '{{ route('dashboard.medical-documents') }}',
-            method: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function(response) {
-                if(response.status === 'success') {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success',
-                        text: response.message,
-                    });
-                    setTimeout(function() {
-                        location.reload();
-                    }, 2000);
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: response.message,
-                    })
-                }
-            },
-            error: function(xhr) {
-                let errors = xhr.responseJSON.errors;
-                if (errors) {
-                    Object.keys(errors).forEach(function(field) {
-                        let inputField = $(`[name="${field}"]`);
-                        inputField.addClass('is-invalid');
-                        inputField.after(`<span class="invalid-feedback" role="alert">${errors[field][0]}</span>`);
-                    });
-                }
+    event.preventDefault();
+    let formData = new FormData(this);
+    resetValidationErrors();
+
+    $.ajax({
+        url: '{{ route('dashboard.medical-documents') }}',
+        method: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+            if (response.status === 'success') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: response.message,
+                });
+                setTimeout(function() {
+                    location.reload();
+                }, 2000);
+            } else {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'Please check the form for errors.',
+                    text: response.message,
                 });
             }
-        });
+        },
+        error: function(xhr) {
+            resetValidationErrors(); // Clear previous errors
+
+            if (xhr.status === 422) { // Validation errors
+                let errors = xhr.responseJSON.errors;
+                Object.keys(errors).forEach(function(field) {
+                    let inputField = $(`[name="${field}"]`);
+                    inputField.addClass('is-invalid');
+                    inputField.after(`<span class="invalid-feedback" role="alert">${errors[field][0]}</span>`);
+                });
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validation Error',
+                    text: 'Please check the highlighted fields and try again.',
+                });
+            } else if (xhr.status === 500) { // Server error
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: xhr.responseJSON.message || 'An unexpected error occurred.',
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Something went wrong. Please try again.',
+                });
+            }
+        }
     });
+});
+
 
     // Add event listener for modal close
     $('#uploadDocumentModal').on('hidden.bs.modal', function () {

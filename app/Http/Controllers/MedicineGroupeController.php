@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Http\Request;
 use App\Models\MedicineGroup;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\Log;
 
 class MedicineGroupeController extends Controller
 {
@@ -131,10 +132,11 @@ class MedicineGroupeController extends Controller
             return response()->json([
                 "status" => "success",
                 "message" => "Medicine Group Created Successfully"
-            ]);
+            ], 201);
         }
         
         catch (\Exception $e) {
+            Log::error("Error creating medicine group: " . $e);
             return response()->json([
                 "status" => "error",
                 "message" => $e->getMessage(),
@@ -152,7 +154,6 @@ class MedicineGroupeController extends Controller
     }
 
     public function updateMedicineGroup(Request $request){
-
         try {
             $request->validate([
                 "group_name" => "required|string",
@@ -166,10 +167,11 @@ class MedicineGroupeController extends Controller
             return response()->json([
                 "status" => "success",
                 "message" => "Medicine Group Updated Successfully"
-            ]);
+            ], 200);
         }
         
         catch (Exception $e) {
+            Log::error("Error updating medicine group: " . $e);
             return response()->json([
                 "status" => "error",
                 "message" => $e->getMessage(),

@@ -1,4 +1,4 @@
-
+<!-- Modal -->
 <div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="createUserModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
       <div class="modal-content">
@@ -47,7 +47,7 @@
                 
                 <div class="form-group col-md-6">
                   <label>Role</label>
-                  <select name="type" class="form-control select2" id="editType" style="width: 100%;" required>
+                  <select name="type" class="form-control select2" id="editType" style="width: 100%;" required disabled>
                       <option value="" {{ old('type') == '' ? 'selected' : '' }}>Select Role</option>
                       <option value="Admin" {{ old('type') == 'Admin' ? 'selected' : '' }}>Admin</option>
                       <option value="Doctor" {{ old('type') == 'Doctor' ? 'selected' : '' }}>Doctor</option>
@@ -183,17 +183,27 @@
                       } 
                   },
                   error: function(xhr) {
-                      let errors = xhr.responseJSON.errors;
-                      let errorMessage = '';
-                      for (let key in errors) {
-                          errorMessage += errors[key][0] + '\n';
-                      }
-                      Swal.fire({
-                          icon: 'error',
-                          title: 'Error',
-                          text: errorMessage,
-                      });
-                  }
+                    let errorMessage = 'An error occurred.';
+
+                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        const errors = xhr.responseJSON.errors;
+                        errorMessage = '';
+                        for (let key in errors) {
+                            if (errors.hasOwnProperty(key)) {
+                                errorMessage += `${errors[key][0]}\n`;
+                            }
+                        }
+                    } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: errorMessage,
+                    });
+                }
+
               });
           });
       });

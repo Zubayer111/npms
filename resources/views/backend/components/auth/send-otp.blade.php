@@ -9,7 +9,10 @@
         <form action="{{route("send-otp")}}" method="post">
           @csrf
           <div class="input-group mb-3">
-            <input name="email" type="email" class="form-control" placeholder="Email" required>
+            <input name="email" type="email" class="form-control" placeholder="Email" required autofocus>
+            @error('email')
+                <p class="text-danger">{{ $message }}</p>
+            @enderror
             <div class="input-group-append">
               <div class="input-group-text">
                 <span class="fas fa-envelope"></span>

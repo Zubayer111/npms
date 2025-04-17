@@ -9,6 +9,7 @@ use App\Models\MedicineType;
 use Illuminate\Http\Request;
 use App\Models\MedicineGroup;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\Log;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class MedicineController extends Controller
@@ -161,12 +162,14 @@ class MedicineController extends Controller
             return response()->json([
                 "status" => "success",
                 "message" => "Medicine created successfully"
-            ]);
+            ], 201);
         }
         catch (Exception $e) {
-            Alert::toast($e->getMessage(), 'error');
-            return redirect("/dashboard/medicine-list")->with("error",$e->getMessage());
-            
+            Log::error('Medicine Creation Failed: ' . $e);
+            return response()->json([
+                "status" => "error",
+                "message" => $e->getMessage()
+            ], 500);
         }
     }
 
@@ -201,6 +204,7 @@ class MedicineController extends Controller
             return redirect("/dashboard/medicine-list")->with("success", "Medicine updated successfully");
         }
         catch (Exception $e) {
+            Log::error('Medicine Update Failed: ' . $e);
             Alert::toast($e->getMessage(), 'error');
             return redirect("/dashboard/medicine-list")->with("error",$e->getMessage());
             

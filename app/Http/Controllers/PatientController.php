@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Exception;
 use App\Models\User;
-use App\Mail\UserInfo;
 use App\Models\Diseases;
 use App\Events\UserCreated;
 use App\Traits\UploadTrait;
@@ -15,15 +14,12 @@ use App\Models\DoctorsProfile;
 use Illuminate\Support\Carbon;
 use App\Models\MedicalDocument;
 use App\Models\PatientsProfile;
-use App\Models\Patients_profile;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
 use App\Models\PatientPrescription;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\PatientIllnesHistory;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Mail;
 use App\Models\PatientPhysicalComplain;
 use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -88,6 +84,7 @@ class PatientController extends Controller
             ], 200);
         } catch (Exception $e) {
             DB::rollBack();
+            Log::error("Error creating patient: " . $e);
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage()
@@ -317,20 +314,27 @@ class PatientController extends Controller
     }
 
     public function updatePatient(Request $request){
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email',
-            'phone' => 'required|string|min:10',
-        ]);
-        $userID = $request->input("id");
-        $data = User::where("id", $userID)->first();
-        $data->update([
-            "name" => $request->input("name"),
-            "email" => $request->input("email"),
-            "phone" => $request->input("phone"),
-            "type" => "Patient",
-        ]);
-        return redirect("/dashboard/patient-list")->with("success", "Patient Updated Successfully");
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email',
+                'phone' => 'required|string|min:10',
+            ]);
+            $userID = $request->input("id");
+            $data = User::where("id", $userID)->first();
+            $data->update([
+                "name" => $request->input("name"),
+                "email" => $request->input("email"),
+                "phone" => $request->input("phone"),
+                "type" => "Patient",
+            ]);
+            return redirect("/dashboard/patient-list")->with("success", "Patient Updated Successfully");
+        }
+        catch (\Exception $e) {
+            Alert::toast($e->getMessage(), 'error');
+            Log::error("Error updating Patient: " . $e);
+            return redirect("/dashboard/patient-list");
+        }
     }
 
     public function editProfileAdmin($id){
@@ -348,6 +352,14 @@ class PatientController extends Controller
             $userId = $request->session()->get("id");
             $reference_by = User::where("id", $userId)->first();
             $status = $request->session()->get("status");
+
+            $request->validate([
+                'first_name' => 'required|string|max:255',
+                'email' => 'required|email',
+                'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'dob' => 'required|date',
+                'gender' => 'required|string',
+            ]);
             
             $patienData = [
                 "user_id" => $patient->id,
@@ -403,12 +415,12 @@ class PatientController extends Controller
             User::where("id", $patient->id)->update(["name" => $patienData["first_name"], "email" => $patienData["email"]]);
             DB::commit();
             Log::info("PatientProfile Updated Successfully");
-            return redirect("/dashboard/profile")->with("success", "Profile Updated Successfully");
+            return redirect("/dashboard/patient-list")->with("success", "Profile Updated Successfully");
         }
         catch (\Exception $e) {
             DB::rollBack();
             Alert::toast($e->getMessage(), 'error');
-            Log::error("Error updating PatientProfile: " . $e->getMessage());
+            Log::error("Error updating PatientProfile: " . $e);
             return redirect("/dashboard/patient-list");
         }
     }
@@ -553,32 +565,24 @@ class PatientController extends Controller
 
         return response()->json(['status' => 'success', 'message' => 'Patient illness restored successfully']);
     } catch (\Exception $e) {
-        Log::error("Error restoring illness with ID: $id - " . $e->getMessage());
+        Log::error("Error restoring illness: " . $e);
         return response()->json(['status' => 'error', 'message' => 'Failed to restore illness'], 500);
     }
 }
 
 public function viewPetientPrescritions(Request $request, $id, $prescription_id) {
     try {
-        // Debugging
-        Log::info('Received user ID:', ['id' => $id]);
-        Log::info('Received prescription ID:', ['prescription_id' => $prescription_id]);
-
-        // Find patient profile
         $patient = PatientsProfile::where('user_id', $id)->first();
 
-        // Check if patient exists
         if (!$patient) {
             Log::error('Patient not found', ['user_id' => $id]);
             return redirect()->back()->withErrors(['error' => 'Patient profile not found.']);
         }
 
-        // Validate prescription ID
         if (!is_numeric($prescription_id)) {
             return redirect()->back()->withErrors(['error' => 'Invalid prescription ID.']);
         }
 
-        // Get prescription data
         $prescriptionData = PatientPrescription::where('patient_id', $patient->id)
             ->where('prescription_id', $prescription_id)
             ->get();
@@ -587,23 +591,18 @@ public function viewPetientPrescritions(Request $request, $id, $prescription_id)
             ->where('prescription_id', $prescription_id)
             ->first();
 
-        // Ensure advice exists before accessing properties
         if (!$advice) {
             Log::error('No advice found', ['patient_id' => $patient->id, 'prescription_id' => $prescription_id]);
             return redirect()->back()->withErrors(['error' => 'No advice found for this prescription.']);
         }
 
-        // Find doctor profile
         $doctor = DoctorsProfile::where('user_id', $advice->created_by)->first();
 
-        // Format prescription date
         $formattedDate = Carbon::parse($advice->created_at)->format('d M, Y');
 
-        // Calculate age
         $dob = $patient->dob;
         $age = Carbon::parse($dob)->age;
 
-        // Pass data to view
         return view('backend.pages.prescriptions.prescription', compact(
             'patient',
             'prescriptionData',
